@@ -99,6 +99,7 @@ class ServerDB:
         self.region_order = [r["id"] for r in data["regions"]]
         self.servers = {s["id"]: s for s in data["servers"]}
         self.server_order = [s["id"] for s in data["servers"]]
+        self.gcp = data.get("gcp_endpoints", {})
         self.learned = dict(learned or {})  # ip -> {"server": id, "at": iso}
         self._cache = {}
 

@@ -31,8 +31,9 @@ from collections import deque
 
 import core
 import detect
+import latency
 
-VERSION = "0.1.2"
+VERSION = "0.1.3"
 PORT = 47815
 ON_WINDOWS = os.name == "nt"
 if ON_WINDOWS:
@@ -99,6 +100,7 @@ class App:
         self.db = core.ServerDB.load(resource("data", "servers.json"), self.learned)
         self.applied = self.store.load("applied.json", None)
         self.pings = {}
+        self.measuring = set()
         self.public_ip = None
         self.events = deque(maxlen=40)
         self.flash = None  # (mood, until)
@@ -133,10 +135,10 @@ class App:
 
     # ------------------------------------------------------------ start / stop
     def start(self):
+        threading.Thread(target=self._ping_loop, daemon=True).start()
         if ON_WINDOWS:
             threading.Thread(target=self._boot, daemon=True).start()
             threading.Thread(target=self._detect_loop, daemon=True).start()
-            threading.Thread(target=self._ping_loop, daemon=True).start()
 
     def _boot(self):
         try:
@@ -224,28 +226,56 @@ class App:
                 self.detector.error = str(e)
             self.stopping.wait(1.5)
 
-    def _ping_targets(self, sid):
+    def _probes(self, sid):
+        """Ways to measure a server, best first: its real game addresses, then the probes of servers.json."""
         server = self.db.servers[sid]
         seen = [f["ip"] for f in self.detector.snapshot()["flows"] if f["server"] == sid]
-        return seen[:2] + self.db.learned_for(sid)[-2:] + list(server.get("ping", []))
+        live = []
+        for ip in seen[:2] + self.db.learned_for(sid)[-2:]:
+            if ip not in [p["host"] for p in live]:
+                live.append(dict(type="icmp", host=ip, exact=True))
+        return live + list(server.get("probes", []))
+
+    def _measure(self, probe):
+        kind = probe["type"]
+        if kind == "icmp":
+            if not ON_WINDOWS:
+                return None, None
+            results = [r for r in (winfw.ping(probe["host"]), winfw.ping(probe["host"])) if r is not None]
+            return (min(results) if results else None), probe["host"]
+        if kind == "tcp":
+            return latency.tcp_rtt(probe["host"], probe.get("port", 443)), probe["host"]
+        if kind == "gcp":
+            url = self.db.gcp.get(probe["region"])
+            return (latency.gcp_rtt(url) if url else None), f"Google {probe['region']}"
+        return None, None
 
     def _ping_one(self, sid):
-        for target in self._ping_targets(sid):
-            ms = winfw.ping(target)
-            if ms is not None:
-                return sid, dict(ms=ms, target=target, at=now_iso())
-        return sid, None
+        with self.lock:
+            self.measuring.add(sid)
+        try:
+            for probe in self._probes(sid):
+                ms, target = self._measure(probe)
+                if ms is not None:
+                    return sid, dict(ms=ms, target=target, method=probe["type"], exact=bool(probe.get("exact")),
+                                     estimate=probe["type"] != "icmp", at=now_iso())
+            return sid, None
+        finally:
+            with self.lock:
+                self.measuring.discard(sid)
 
     def _ping_loop(self):
         while not self.stopping.is_set():
             try:
-                with concurrent.futures.ThreadPoolExecutor(max_workers=8) as pool:
+                with concurrent.futures.ThreadPoolExecutor(max_workers=6) as pool:
                     for sid, result in pool.map(self._ping_one, list(self.db.servers)):
                         if result:
                             self.pings[sid] = result
+                        elif sid in self.pings and not self.pings[sid].get("stale"):
+                            self.pings[sid] = dict(self.pings[sid], stale=True)
             except Exception as e:
                 self.event(f"Mesure des pings impossible : {e}", "error")
-            self.stopping.wait(45)
+            self.stopping.wait(60)
 
     # ------------------------------------------------------------ actions
     def apply(self, body):
@@ -380,7 +410,7 @@ class App:
         self.last_heartbeat = time.time()
         snap = self.detector.snapshot()
         return dict(version=VERSION, settings=self.settings, applied=self.applied, rule_count=self.rule_count,
-                    pings=self.pings, detection=snap, mood=self.mood(snap), noe=self.noe(),
+                    pings=self.pings, measuring=sorted(self.measuring), detection=snap, mood=self.mood(snap), noe=self.noe(),
                     learned=self.learned, firewall=self.firewall_state, logging_on=self.logging_on,
                     logging_error=self.logging_error, public_ip=self.public_ip, events=list(self.events),
                     windows=ON_WINDOWS)
@@ -581,7 +611,7 @@ def selftest(report_path):
     step("tout débloquer", lambda: (fw.remove_all(), fw.our_rules())[1])
 
     step("ping 1.1.1.1", lambda: winfw.ping("1.1.1.1"), critical=False)
-    step("ping des serveurs", lambda: {s["id"]: {t: winfw.ping(t) for t in s["ping"]} for s in db.servers.values() if s["ping"]}, critical=False)
+    step("latence de chaque serveur", _latency_all, critical=False)
     step("psutil : ports UDP de ce processus", lambda: _own_udp_ports())
     step("Overwatch installé ?", winfw.find_overwatch_exe, critical=False)
     step("Edge", winfw.find_edge, critical=False)
@@ -600,6 +630,20 @@ def selftest(report_path):
         json.dump(report, f, ensure_ascii=False, indent=1, default=str)
     print(json.dumps(report, ensure_ascii=False, indent=1, default=str))
     return 0 if ok else 1
+
+
+def _latency_all():
+    folder = os.path.join(data_dir(), "selftest")
+    os.makedirs(folder, exist_ok=True)
+    app = App(folder)
+    out = {}
+    with concurrent.futures.ThreadPoolExecutor(max_workers=6) as pool:
+        for sid, result in pool.map(app._ping_one, list(app.db.servers)):
+            out[sid] = f"{result['ms']} ms via {result['method']} {result['target']}" if result else None
+    missing = [sid for sid, v in out.items() if v is None]
+    if len(missing) > len(out) // 2:
+        raise RuntimeError(f"pas de mesure pour {missing} : {out}")
+    return out
 
 
 def _own_udp_ports():
