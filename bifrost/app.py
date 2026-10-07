@@ -32,7 +32,7 @@ from collections import deque
 import core
 import detect
 
-VERSION = "0.1.0"
+VERSION = "0.1.2"
 PORT = 47815
 ON_WINDOWS = os.name == "nt"
 if ON_WINDOWS:
