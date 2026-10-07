@@ -32,8 +32,9 @@ from collections import deque
 import core
 import detect
 import latency
+import noetty
 
-VERSION = "0.1.5"
+VERSION = "0.1.6"
 PORT = 47815
 ON_WINDOWS = os.name == "nt"
 if ON_WINDOWS:
@@ -130,6 +131,7 @@ class App:
         self.fw = winfw.Firewall() if ON_WINDOWS else None
         self.detector = detect.Detector(lambda: self.db, winfw.overwatch_process if ON_WINDOWS else (lambda: None))
         self._prepare_noe_folder()
+        noetty.prepare(folder)
 
     # ------------------------------------------------------------ journal & mood
     def event(self, text, level="info", mood=None, seconds=6):
@@ -431,7 +433,7 @@ class App:
         self.last_heartbeat = time.time()
         snap = self.detector.snapshot()
         return dict(version=VERSION, settings=self.settings, applied=self.applied, rule_count=self.rule_count,
-                    pings=self.pings, measuring=sorted(self.measuring), detection=snap, mood=self.mood(snap), noe=self.noe(),
+                    pings=self.pings, measuring=sorted(self.measuring), detection=snap, mood=self.mood(snap), noe=self.noe(), noetty=noetty.load(self.folder),
                     learned=self.learned, firewall=self.firewall_state, logging_on=self.logging_on,
                     logging_error=self.logging_error, public_ip=self.public_ip, events=list(self.events),
                     windows=ON_WINDOWS)
@@ -489,6 +491,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
             if rel.startswith(".."):
                 return self._send(403, {"error": "chemin refusé"})
             return self._file(resource("ui", rel))
+        if p.startswith("/noetty/"):
+            name = os.path.basename(urllib.parse.unquote(p[8:]))
+            return self._file(os.path.join(noetty.folder(self.app.folder), name))
         if p.startswith("/noe/"):
             name = os.path.basename(urllib.parse.unquote(p[5:]))
             return self._file(os.path.join(self.app.noe_folder(), name))
@@ -520,7 +525,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             ("POST", "/api/settings"): lambda: app.update_settings(body),
             ("POST", "/api/publicip"): app.fetch_public_ip,
             ("POST", "/api/find-overwatch"): lambda: app._find_overwatch() if ON_WINDOWS else None,
-            ("POST", "/api/open-noe-folder"): lambda: os.startfile(app.noe_folder()) if ON_WINDOWS else None,
+            ("POST", "/api/open-noe-folder"): lambda: os.startfile(app.folder) if ON_WINDOWS else None,
             ("POST", "/api/quit"): lambda: threading.Timer(0.3, app.shutdown).start(),
         }
         fn = routes.get((method, path))

@@ -174,7 +174,7 @@ def plan(db, regions=None, blocked=(), strict=True, overwatch_path=None, overwat
     all_regions = list(db.region_order)
     regions = [r for r in (regions if regions is not None else all_regions) if r in db.regions]
     if not regions:
-        raise ValueError("Garde au moins une région allumée.")
+        strict = True  # every region off: cut all of Overwatch's game traffic
     blocked = [b for b in blocked if b in db.servers]
     cut_servers = merge(i for sid in blocked for i in db.server_intervals(sid))
     private = [parse_entry(p) for p in PRIVATE]
@@ -190,7 +190,7 @@ def plan(db, regions=None, blocked=(), strict=True, overwatch_path=None, overwat
         allowed = subtract(merge(i for r in regions for i in db.region_intervals(r)), cut_servers)
         target = complement(merge(allowed + private))
         app = overwatch_path
-        label = "Avec " + " ".join(regions)
+        label = "Avec " + " ".join(regions) if regions else "Tout coupe"
     else:
         allowed = merge(i for r in regions for i in db.region_intervals(r))
         excluded = merge(i for r in left_out for i in db.region_intervals(r))

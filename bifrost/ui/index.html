@@ -68,6 +68,17 @@ body[data-theme="pixel"] .icon-btn{border-radius:0;border-width:3px}
 body[data-theme="pixel"] .noe img,body[data-theme="pixel"] .noe video{image-rendering:pixelated}
 .noe .bubble{background:var(--panel);border:2px solid var(--accent);border-radius:var(--r);padding:8px 12px;font-weight:700;font-size:13px;max-width:240px}
 .noe .bubble:empty{display:none}
+.noetty{position:absolute;right:24px;bottom:78px;z-index:4;display:flex;align-items:flex-end;gap:8px;max-width:420px}
+.noetty .art{border:none;background:none;padding:0;cursor:pointer;animation:flotte 3.6s ease-in-out infinite;line-height:0}
+.noetty .art img,.noetty .art video{max-width:130px;max-height:150px;object-fit:contain;filter:drop-shadow(0 8px 16px rgba(0,0,0,.28))}
+body[data-theme="pixel"] .noetty .art img,body[data-theme="pixel"] .noetty .art video{image-rendering:pixelated}
+.noetty .art .spark{display:inline-flex;width:48px;height:48px;border-radius:50%;align-items:center;justify-content:center;background:var(--card);border:2px solid var(--accent)}
+body[data-theme="pixel"] .noetty .art .spark{border-radius:0}
+.noetty .say{max-width:290px;background:var(--panel);color:var(--text);border:2px solid var(--accent);border-radius:18px 18px 4px 18px;padding:10px 14px;font-weight:700;font-size:13.5px;line-height:1.35;margin-bottom:34px;opacity:0;transform:translateY(8px) scale(.97);transform-origin:bottom right;transition:opacity .25s,transform .25s;pointer-events:none}
+.noetty .say.show{opacity:1;transform:none}
+body[data-theme="pixel"] .noetty .say{border-radius:0;border:none;font-family:'Pixelify Sans',sans-serif;font-size:15px;box-shadow:0 -3px 0 0 var(--accent),0 3px 0 0 var(--accent),-3px 0 0 0 var(--accent),3px 0 0 0 var(--accent)}
+@keyframes flotte{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-10px) rotate(2deg)}}
+@media (prefers-reduced-motion:reduce){.noetty .art{animation:none}}
 .row{display:flex;align-items:center;gap:10px}
 .between{justify-content:space-between}
 .chip{font-family:var(--mono);font-size:13px;padding:6px 10px;border-radius:10px;background:var(--card);border:1px solid var(--line)}
@@ -208,13 +219,17 @@ details.journal summary{cursor:pointer;font-weight:800;min-height:28px}
       <div id="noeArt"></div>
     </div>
 
+    <div class="noetty" id="noetty">
+      <div class="say" id="noettySay" role="status" aria-live="polite"></div>
+      <button type="button" class="art" id="noettyArt" aria-label="Nœtty : une autre bulle"></button>
+    </div>
+
     <div class="stage-foot">
       <span class="legend" id="lgHeart"></span>
       <span class="legend" id="lgSkull"></span>
       <span class="legend"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" style="fill:var(--green)"/><circle cx="12" cy="12" r="9" fill="none" stroke-width="2" style="stroke:var(--green)"/></svg>en partie</span>
       <span class="legend"><svg width="26" height="16" viewBox="0 0 26 16" aria-hidden="true"><path d="M2 14Q13-6 24 14" fill="none" stroke="url(#bifrost)" stroke-width="3" stroke-linecap="round"/></svg>ta route</span>
       <span class="spacer"></span>
-      <span id="dragHint">attrape le globe pour le faire tourner</span>
       <button type="button" class="icon-btn" id="recenter" aria-label="Recentrer le globe chez toi"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><circle cx="12" cy="12" r="2" fill="currentColor"/></svg></button>
     </div>
   </main>
@@ -283,7 +298,7 @@ details.journal summary{cursor:pointer;font-weight:800;min-height:28px}
 
     <div class="foot">
       <a href="https://noevalky.com/" target="_blank" rel="noopener">Rencontrer NOE ↗</a>
-      <button type="button" id="noeFolder">Dossier de NOE</button>
+      <button type="button" id="noeFolder">Dossier des personnages</button>
       <span>fork de <a href="https://github.com/foryVERX/Overwatch-Server-Selector" target="_blank" rel="noopener">MINA · foryVERX</a></span>
       <span id="version"></span>
       <button type="button" id="quitBtn">Quitter</button>
@@ -448,7 +463,8 @@ function renderPanel() {
       + `<span class="rname">${esc(r.name)}</span><span class="rping">${regionMsHtml(r.id)}</span><span class="hint" style="font-size:11px">${esc(n)}</span></button>`;
   }).join("");
   const offCount = DB.regions.length - draft.regions.length;
-  $("regHint").textContent = !offCount ? (pickOne ? "Clique une région pour ne garder qu'elle." : "Toutes les régions sont allumées : Overwatch choisit librement.")
+  $("regHint").textContent = !draft.regions.length ? "Toutes les régions sont éteintes : Overwatch ne pourra plus jouer en ligne."
+    : !offCount ? (pickOne ? "Clique une région pour ne garder qu'elle." : "Toutes les régions sont allumées : Overwatch choisit librement.")
     : draft.regions.length === 1 ? `Seulement ${regionName(draft.regions[0])} : le reste du monde est coupé pour Overwatch.`
     : `${offCount} région${offCount > 1 ? "s" : ""} exclue${offCount > 1 ? "s" : ""}. Reclique une tuile pour la reprendre.`;
   $("allBtn").hidden = !offCount;
@@ -523,6 +539,84 @@ function renderNoe() {
   const lines = (S.noe.lines && S.noe.lines[S.mood]) || [];
   $("noeBubble").textContent = lines.length ? lines[Math.floor(Math.random() * lines.length)] : "";
 }
+
+// ------------------------------------------------------------------ Nœtty
+const N = { situation: null, drops: null, current: undefined, unknown: new Set(), running: null, saidAt: 0, hideTimer: null, bag: {}, artSig: undefined, talking: false };
+function pick(key) {  // each line once before any repeats
+  const lines = (S && S.noetty && S.noetty.lines && S.noetty.lines[key]) || [];
+  if (!lines.length) return null;
+  let bag = N.bag[key];
+  if (!bag || !bag.length || bag.size !== lines.length) {
+    bag = lines.map((_, i) => i).sort(() => Math.random() - .5);
+    bag.size = lines.length;
+    N.bag[key] = bag;
+  }
+  return lines[bag.pop()];
+}
+function fill(text, vars) { return text.replace(/\{(\w+)\}/g, (m, k) => (vars && vars[k] != null ? vars[k] : m)); }
+function pingVars() {
+  const rows = DB.regions.map((r) => {
+    const vals = DB.servers.filter((s) => s.region === r.id).map((s) => S.pings[s.id]).filter(Boolean);
+    return vals.length ? { region: r.name, ms: Math.min(...vals.map((v) => v.ms)) } : null;
+  }).filter(Boolean);
+  return rows.length ? rows[Math.floor(Math.random() * rows.length)] : null;
+}
+function noettySay(key, vars) {
+  if (key === "ping") {
+    const v = pingVars();
+    if (!v) return false;
+    key = v.ms <= 50 ? "ping_bon" : v.ms <= 110 ? "ping_moyen" : v.ms <= 200 ? "ping_haut" : "ping_enorme";
+    vars = v;
+  }
+  const line = pick(key);
+  if (!line) return false;
+  const box = $("noettySay");
+  box.textContent = fill(line, vars);
+  box.classList.add("show");
+  N.talking = true; renderNoetty();
+  clearTimeout(N.hideTimer);
+  N.hideTimer = setTimeout(() => { box.classList.remove("show"); N.talking = false; renderNoetty(); }, 4200 + box.textContent.length * 45);
+  N.saidAt = Date.now();
+  return true;
+}
+function renderNoetty() {
+  const imgs = (S && S.noetty && S.noetty.images) || {};
+  const url = (N.talking && imgs.parle) || imgs.noetty || null;
+  if (url === N.artSig) return;
+  N.artSig = url;
+  $("noettyArt").innerHTML = !url
+    ? `<span class="spark"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.2 6.8L21 11l-6.8 2.2L12 20l-2.2-6.8L3 11l6.8-2.2z" fill="${cssVar("--accent")}"/></svg></span>`
+    : /\.webm$/i.test(url) ? `<video src="${url}" autoplay loop muted playsinline aria-hidden="true"></video>` : `<img src="${url}" alt="">`;
+}
+// Reacts to what changes: the choice of regions, blocked attempts, the server you play on, new addresses.
+function noettyTick() {
+  if (!S || !DB || !draft) return;
+  const det = S.detection;
+  const sit = DB.servers.every((s) => draftBlocks(s.id)) ? "tout_coupe" : allOn() && !draft.blocked.length ? "tout_allume" : "choix";
+  if (N.situation !== null && sit !== N.situation && sit !== "choix") { N.situation = sit; noettySay(sit); return; }
+  N.situation = sit;
+  const drops = det.drops || {};
+  if (N.drops) {
+    for (const [sid, n] of Object.entries(drops)) {
+      if (n > (N.drops[sid] || 0)) { N.drops = { ...drops }; noettySay("bloque", { server: sid, n }); return; }
+    }
+  }
+  N.drops = { ...drops };
+  const cur = det.current ? det.current.server : null;
+  if (N.current !== undefined && cur && cur !== N.current) { N.current = cur; noettySay("partie", { server: cur, ms: S.pings[cur] ? S.pings[cur].ms : "?" }); return; }
+  N.current = cur;
+  const unk = det.unknown[0];
+  if (unk && !N.unknown.has(unk.ip)) { N.unknown.add(unk.ip); noettySay("inconnu", { server: unk.ip }); return; }
+  if (N.running === true && !det.running) { N.running = false; noettySay("ow_ferme"); return; }
+  N.running = det.running;
+}
+// Every now and then: a ping joke or a tip.
+setInterval(() => {
+  if (!S || !DB || $("noettySay").classList.contains("show")) return;
+  if (Date.now() - N.saidAt < 22000) return;
+  if (!(Math.random() < .5 && noettySay("ping"))) noettySay("astuces");
+}, 4000);
+setTimeout(() => { if (S && !N.saidAt) noettySay("astuces"); }, 3500);
 
 // ------------------------------------------------------------------ globe
 const G = { R: 290, C: 300, rot: null, data: null, bits: null, grat: null, drag: null, anim: null, waves: {}, markers: {}, labels: {} };
@@ -777,7 +871,7 @@ function toggleServer(id) {
   if (i >= 0) draft.blocked.splice(i, 1); else draft.blocked.push(id);
   renderAll();
 }
-function renderAll() { renderPanel(); renderGlobe(); renderNoe(); }
+function renderAll() { renderPanel(); renderGlobe(); renderNoe(); renderNoetty(); noettyTick(); }
 
 document.addEventListener("click", async (e) => {
   const t = e.target.closest("button");
@@ -786,10 +880,7 @@ document.addEventListener("click", async (e) => {
   if (t.dataset.region) {
     const rid = t.dataset.region;
     if (pickOne) draft.regions = [rid];
-    else if (regionOn(rid)) {
-      if (draft.regions.length === 1) return toast("Garde au moins une région allumée.");
-      draft.regions = draft.regions.filter((r) => r !== rid);
-    } else draft.regions = allRegionIds().filter((r) => r === rid || draft.regions.includes(r));
+    else if (regionOn(rid)) draft.regions = draft.regions.filter((r) => r !== rid); else draft.regions = allRegionIds().filter((r) => r === rid || draft.regions.includes(r));
     return renderAll();
   }
   if (t.dataset.themeBtn) {
@@ -805,7 +896,7 @@ document.addEventListener("click", async (e) => {
     case "allBtn": draft.regions = allRegionIds(); return renderAll();
     case "applyBtn": {
       t.disabled = true;
-      try { await api("/api/apply", draft); toast("Appliqué ! Relance Overwatch si une partie était en cours."); await refresh(); }
+      try { await api("/api/apply", draft); toast("Appliqué ! Relance Overwatch si une partie était en cours."); noettySay("applique"); await refresh(); }
       catch (err) { toast(err.message, true); }
       finally { t.disabled = false; }
       return;
@@ -823,6 +914,7 @@ document.addEventListener("click", async (e) => {
       try { await api("/api/learn", kind === "server" ? { ip, server: id } : { ip, region: id }); toast("Retenu !"); await refresh(); } catch (err) { toast(err.message, true); }
       return;
     }
+    case "noettyArt": if (!noettySay(Math.random() < .5 ? "astuces" : "ping")) noettySay("astuces"); return;
     case "noeFolder": api("/api/open-noe-folder", {}).catch((err) => toast(err.message, true)); return;
     case "quitBtn":
       await api("/api/quit", {}).catch(() => {});

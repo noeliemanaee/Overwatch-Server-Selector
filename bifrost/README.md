@@ -28,6 +28,13 @@ Dépose les images de NOE dans `%LOCALAPPDATA%\Bifrost\noe` (bouton « Dossier d
 `neutre`, `souriante`, `rieuse`, `excitee`, `surprise`, `boudeuse`, `triste`, `genee` (`.png`, `.webp`, `.gif` ou `.webm`).
 Les répliques de sa bulle vont dans `repliques.json`, à côté.
 
+## Nœtty
+
+Nœtty flotte à côté du globe et commente : régions toutes coupées, comportement par défaut, pings de chaque région,
+serveur trouvé, tentatives bloquées, astuces. Clique sur elle pour une autre bulle.
+Son image va dans `%LOCALAPPDATA%\Bifrost\noetty` : `noetty.png` (ou `.webp`, `.gif`, `.webm`), et `parle.png` en option
+pendant qu'elle parle. Ses phrases sont dans `repliques.json` à côté, une liste par situation ; Bifröst ne réécrit jamais ce fichier.
+
 ## Fichiers
 
 Tout ce que Bifröst retient est dans `%LOCALAPPDATA%\Bifrost` : réglages, adresses apprises (`learned.json`), images de NOE.
