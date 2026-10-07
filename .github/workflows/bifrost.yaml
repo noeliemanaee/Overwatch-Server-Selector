@@ -1,0 +1,59 @@
+name: Bifrost
+
+# Tests Bifröst against the real Windows Firewall of a GitHub Windows machine, builds Bifrost.exe,
+# runs the built exe's own self-test, then publishes everything as a release.
+
+on:
+  push:
+    branches: [main]
+    paths: ["bifrost/**", ".github/workflows/bifrost.yaml"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: bifrost
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install pywin32 psutil pyinstaller
+
+      - name: Self-test from source
+        continue-on-error: true
+        run: python app.py --selftest selftest-source.json
+
+      - name: Build Bifrost.exe
+        run: pyinstaller --noconfirm --onefile --windowed --uac-admin --name Bifrost --icon icon.ico --add-data "ui;ui" --add-data "data;data" --hidden-import win32timezone app.py
+
+      - name: Self-test of the built exe
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          $p = Start-Process -FilePath "dist\Bifrost.exe" -ArgumentList "--selftest", "$PWD\selftest-exe.json" -Wait -PassThru
+          "exit code: $($p.ExitCode)"
+          if (Test-Path selftest-exe.json) { Get-Content selftest-exe.json -TotalCount 40 } else { "no report written" }
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: bifrost-v0.1.${{ github.run_number }}
+          name: Bifröst 0.1 (build ${{ github.run_number }})
+          body: |
+            Bifröst — sélecteur de serveurs Overwatch 2, univers NOEVALKY. Fork de MINA Overwatch 2 Server Selector par foryVERX.
+            Télécharge Bifrost.exe et lance-le (Windows demande les droits administrateur : c'est normal, Bifröst modifie le pare-feu).
+            Les rapports selftest-*.json disent ce qui a été vérifié sur une vraie machine Windows avant publication.
+          files: |
+            bifrost/dist/Bifrost.exe
+            bifrost/selftest-source.json
+            bifrost/selftest-exe.json
+          fail_on_unmatched_files: false

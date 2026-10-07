@@ -1,0 +1,801 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bifröst · NOEVALKY</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@500;600;700;800&family=JetBrains+Mono:wght@500&family=Press+Start+2P&family=Pixelify+Sans:wght@400;600;700&family=VT323&display=swap">
+<script src="/ui/vendor/d3-array.min.js"></script>
+<script src="/ui/vendor/d3-geo.min.js"></script>
+<style>
+:root{--r:16px;--pill:999px}
+body[data-theme="nuit"]{--bg:#0D0A1E;--panel:#151129;--card:#1D1838;--line:#2C2554;--text:#F3EEFF;--muted:#ABA2D6;--accent:#F56BE2;--accent-ink:#1A0B26;--blue:#5AB0FF;--green:#45E3A0;--red:#FF5D78;--gold:#FFC857;--skull-bg:#3E1424;--heart-bg:#14304F;--green-bg:#163D35;--row-off:#241330;--display:'Fredoka',sans-serif;--body:'Nunito',sans-serif;--mono:'JetBrains Mono',monospace}
+body[data-theme="doux"]{--bg:#FBF6FF;--panel:#FFFFFF;--card:#FFFFFF;--line:#EADFFB;--text:#2B2140;--muted:#6E6290;--accent:#D63DBE;--accent-ink:#FFFFFF;--blue:#3D8BEB;--green:#1FA463;--red:#E5484D;--gold:#B07800;--skull-bg:#FFE6EC;--heart-bg:#E4F0FF;--green-bg:#E2F7EC;--row-off:#FFF1F5;--display:'Fredoka',sans-serif;--body:'Nunito',sans-serif;--mono:'JetBrains Mono',monospace;--r:20px}
+body[data-theme="pixel"]{--bg:#0B0B16;--panel:#12122A;--card:#1A1A3A;--line:#3A2F7A;--text:#EDEBFF;--muted:#A7A3D9;--accent:#FF6BD6;--accent-ink:#1A0B26;--blue:#4FA8FF;--green:#3DF29A;--red:#FF4D6A;--gold:#FFD45C;--skull-bg:#2A0F18;--heart-bg:#0F2140;--green-bg:#0E2A22;--row-off:#2A0F18;--display:'Press Start 2P',monospace;--body:'Pixelify Sans',sans-serif;--mono:'VT323',monospace;--r:0px;--pill:0px}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:15px;overflow:hidden}
+button{font:inherit;color:inherit}
+a{color:var(--accent)}
+.app{display:flex;height:100vh;min-width:0}
+.stage{position:relative;flex:1 1 auto;min-width:0;overflow:hidden}
+.panel{flex:0 0 520px;height:100vh;overflow-y:auto;background:var(--panel);border-left:1px solid var(--line);padding:24px 28px 28px;display:flex;flex-direction:column;gap:16px}
+body[data-theme="pixel"] .panel{border-left:4px solid var(--line)}
+.brand{position:absolute;left:32px;top:24px;display:flex;align-items:center;gap:14px;z-index:3}
+.brand h1{margin:0;font-family:var(--display);font-weight:600;font-size:30px;line-height:1;letter-spacing:.5px}
+body[data-theme="pixel"] .brand h1{font-size:20px;color:var(--accent);font-weight:400}
+.brand small{display:block;margin-top:4px;color:var(--muted);font-weight:700;font-size:13px}
+.themes{position:absolute;right:20px;top:24px;display:flex;gap:6px;z-index:3}
+.themes button{border:1.5px solid var(--line);background:var(--card);border-radius:var(--pill);padding:6px 12px;font-weight:800;font-size:13px;cursor:pointer;min-height:36px}
+.themes button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
+.stars{position:absolute;inset:0;pointer-events:none;opacity:0}
+body[data-theme="nuit"] .stars{opacity:1}
+.globe-wrap{position:absolute;left:50%;top:50%;width:600px;height:600px;transform-origin:center center}
+.globe-wrap svg{position:absolute;left:0;top:0;overflow:visible;touch-action:none;cursor:grab}
+.globe-wrap svg.grabbing{cursor:grabbing}
+.labels{position:absolute;left:0;top:0;width:600px;height:600px;pointer-events:none}
+.lab{position:absolute;white-space:nowrap;display:flex;flex-direction:column;gap:1px;padding:6px 12px;background:var(--panel);border:1.5px solid var(--line);border-radius:var(--pill);font-weight:800;font-size:13px;transition:opacity .15s}
+.lab .sub{font-size:11.5px;font-weight:700}
+.lab .ms{font-family:var(--mono);font-weight:500}
+.lab.small{flex-direction:row;align-items:baseline;gap:6px;padding:3px 9px;font-size:11px;color:var(--muted)}
+.lab.current{border-color:var(--green)} .lab.current .sub{color:var(--green)}
+.lab.blocked{border-color:var(--red)} .lab.blocked .sub{color:var(--red)}
+.lab.home{border-color:var(--accent);border-radius:var(--r)} .lab.home .sub{color:var(--accent);font-family:var(--mono);font-weight:500}
+body[data-theme="doux"] .lab{border-width:2px;border-radius:16px}
+body[data-theme="pixel"] .lab{font-family:'Press Start 2P',monospace;font-weight:400;font-size:9px;padding:6px 9px;border:none;box-shadow:0 -3px 0 0 var(--line),0 3px 0 0 var(--line),-3px 0 0 0 var(--line),3px 0 0 0 var(--line)}
+body[data-theme="pixel"] .lab .sub{font-size:8px;font-weight:400;margin-top:4px}
+body[data-theme="pixel"] .lab.current{box-shadow:0 -3px 0 0 var(--green),0 3px 0 0 var(--green),-3px 0 0 0 var(--green),3px 0 0 0 var(--green)}
+body[data-theme="pixel"] .lab.blocked{box-shadow:0 -3px 0 0 var(--red),0 3px 0 0 var(--red),-3px 0 0 0 var(--red),3px 0 0 0 var(--red)}
+body[data-theme="pixel"] .lab.home{box-shadow:0 -3px 0 0 var(--accent),0 3px 0 0 var(--accent),-3px 0 0 0 var(--accent),3px 0 0 0 var(--accent)}
+.stage-foot{position:absolute;left:32px;right:24px;bottom:20px;display:flex;align-items:center;gap:18px;color:var(--muted);font-weight:700;font-size:13px;z-index:3;flex-wrap:wrap}
+.stage-foot .legend{display:flex;align-items:center;gap:6px}
+.stage-foot .spacer{flex:1}
+.icon-btn{width:44px;height:44px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+body[data-theme="pixel"] .icon-btn{border-radius:0;border-width:3px}
+.noe{position:absolute;left:24px;bottom:56px;z-index:2;display:none;flex-direction:column;align-items:flex-start;gap:8px;pointer-events:none;max-width:260px}
+.noe.on{display:flex}
+.noe img,.noe video{max-height:260px;max-width:240px;object-fit:contain;filter:drop-shadow(0 6px 18px rgba(0,0,0,.25))}
+body[data-theme="pixel"] .noe img,body[data-theme="pixel"] .noe video{image-rendering:pixelated}
+.noe .bubble{background:var(--panel);border:2px solid var(--accent);border-radius:var(--r);padding:8px 12px;font-weight:700;font-size:13px;max-width:240px}
+.noe .bubble:empty{display:none}
+.row{display:flex;align-items:center;gap:10px}
+.between{justify-content:space-between}
+.chip{font-family:var(--mono);font-size:13px;padding:6px 10px;border-radius:10px;background:var(--card);border:1px solid var(--line)}
+.tag{font-size:12px;font-weight:800;padding:6px 12px;border-radius:var(--pill);background:var(--card);border:1px solid var(--line)}
+.tag.ok{color:var(--green)} .tag.warn{color:var(--gold)} .tag.bad{color:var(--red)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;display:flex;flex-direction:column;gap:9px}
+body[data-theme="pixel"] .card{border:none;box-shadow:0 -4px 0 0 var(--line),0 4px 0 0 var(--line),-4px 0 0 0 var(--line),4px 0 0 0 var(--line)}
+.status-line{display:flex;align-items:center;gap:10px;font-weight:700}
+.status-line .grow{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.status-line .val{font-weight:800;font-size:13px}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--muted);flex:0 0 auto}
+body[data-theme="pixel"] .dot{border-radius:0}
+.dot.ok{background:var(--green)} .dot.bad{background:var(--red)} .dot.warn{background:var(--gold)}
+h2{margin:4px 0 0;font-family:var(--display);font-weight:600;font-size:20px}
+body[data-theme="pixel"] h2{font-size:13px;font-weight:400}
+.hint{color:var(--muted);font-weight:700;font-size:13px;margin:0}
+.tabs{display:flex;gap:6px;padding:4px;background:var(--card);border:1px solid var(--line);border-radius:var(--pill)}
+.tabs button{flex:1;border:none;background:transparent;border-radius:var(--pill);padding:10px 12px;font-weight:800;cursor:pointer;min-height:44px}
+.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+body[data-theme="pixel"] .tabs{border:none;box-shadow:0 -3px 0 0 var(--line),0 3px 0 0 var(--line),-3px 0 0 0 var(--line),3px 0 0 0 var(--line)}
+.regions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.regions button{border:1.5px solid var(--line);background:var(--card);border-radius:14px;padding:8px 10px;font-weight:800;font-size:13px;cursor:pointer;min-height:44px;text-align:left}
+.regions button[aria-pressed="true"]{border-color:var(--green);background:var(--green-bg)}
+body[data-theme="pixel"] .regions button{border-radius:0;border-width:3px}
+.group-title{font-size:12px;font-weight:800;letter-spacing:1px;color:var(--muted);margin:6px 0 0;text-transform:uppercase}
+body[data-theme="pixel"] .group-title{font-family:'Press Start 2P',monospace;font-size:9px;font-weight:400;letter-spacing:0}
+.srv{display:flex;align-items:center;gap:12px;min-height:48px;padding:0 6px 0 14px;border-radius:14px;background:var(--card);border:1px solid transparent}
+.srv.off{background:var(--row-off)}
+.srv.current{border-color:var(--green)}
+body[data-theme="pixel"] .srv{border-radius:0}
+.srv .name{flex:1;min-width:0;display:flex;flex-direction:column}
+.srv .name b{font-size:14px;font-weight:800}
+.srv .name span{font-size:12px;color:var(--muted);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.srv .ms{font-family:var(--mono);font-size:13px;color:var(--muted);min-width:56px;text-align:right}
+.srv .ms.good{color:var(--green)} .srv .ms.mid{color:var(--gold)} .srv .ms.bad{color:var(--red)}
+.srv .drops{font-size:11px;font-weight:800;color:var(--red)}
+.toggle{width:48px;height:38px;border-radius:12px;border:none;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;background:var(--heart-bg)}
+.toggle[aria-pressed="true"]{background:var(--skull-bg)}
+.toggle:disabled{opacity:.45;cursor:not-allowed}
+body[data-theme="pixel"] .toggle{border-radius:0}
+.switches{display:flex;flex-direction:column;gap:10px}
+.switch{display:flex;align-items:center;gap:12px;font-weight:700;font-size:14px;cursor:pointer;min-height:36px}
+.switch input{position:absolute;opacity:0;width:1px;height:1px}
+.switch .track{width:40px;height:22px;border-radius:var(--pill);background:var(--line);display:inline-flex;align-items:center;padding:3px;flex:0 0 auto;transition:background .15s}
+.switch .knob{width:16px;height:16px;border-radius:50%;background:var(--panel);transition:transform .15s}
+body[data-theme="pixel"] .switch .knob{border-radius:0}
+.switch input:checked + .track{background:var(--green)}
+.switch input:checked + .track .knob{transform:translateX(18px)}
+.switch input:disabled + .track{opacity:.6}
+.switch input:focus-visible + .track{outline:2px solid var(--accent);outline-offset:2px}
+.switch small{display:block;color:var(--muted);font-weight:600;font-size:12px}
+.actions{display:flex;gap:12px}
+.primary{flex:1;height:54px;border:none;border-radius:16px;background:var(--accent);color:var(--accent-ink);font-family:var(--display);font-weight:600;font-size:18px;cursor:pointer}
+body[data-theme="pixel"] .primary{border-radius:0;font-size:13px;font-weight:400;box-shadow:0 -4px 0 0 #fff,0 4px 0 0 #8E2E7C,-4px 0 0 0 #FFB4EE,4px 0 0 0 #8E2E7C}
+.ghost{height:54px;padding:0 18px;border-radius:16px;border:1.5px solid var(--line);background:transparent;font-weight:800;cursor:pointer}
+body[data-theme="pixel"] .ghost{border-radius:0;border-width:3px}
+.primary:disabled{opacity:.55;cursor:wait}
+.applied{font-size:13px;font-weight:700;color:var(--muted)}
+.applied b{color:var(--text)}
+.dirty{color:var(--gold);font-weight:800}
+.learn{border:2px solid var(--gold)}
+.learn select{font:inherit;font-weight:700;padding:8px;border-radius:10px;border:1.5px solid var(--line);background:var(--panel);color:var(--text);min-height:40px;flex:1;min-width:0}
+.learn button{min-height:40px;border-radius:10px;border:none;background:var(--gold);color:#1A1200;font-weight:800;padding:0 14px;cursor:pointer}
+details.journal{border:1px solid var(--line);border-radius:var(--r);padding:10px 14px;background:var(--card)}
+details.journal summary{cursor:pointer;font-weight:800;min-height:28px}
+.journal ul{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:12.5px}
+.journal li{display:flex;gap:8px}
+.journal li time{color:var(--muted);font-family:var(--mono);flex:0 0 auto}
+.journal li.error{color:var(--red)} .journal li.ok{color:var(--green)}
+.journal table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:8px}
+.journal td,.journal th{text-align:left;padding:3px 4px;border-bottom:1px solid var(--line)}
+.journal td.mono{font-family:var(--mono)}
+.foot{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;font-size:12.5px;color:var(--muted);font-weight:700;margin-top:auto;padding-top:8px}
+.foot button{background:none;border:none;color:var(--accent);font-weight:800;cursor:pointer;padding:6px 0}
+.path{font-family:var(--mono);font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--panel);border:2px solid var(--accent);border-radius:var(--r);padding:12px 18px;font-weight:800;z-index:10;display:none;max-width:80vw}
+.toast.show{display:block}
+.toast.error{border-color:var(--red)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (max-width:1100px){.panel{flex-basis:440px;padding:20px}.regions{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+</head>
+<body data-theme="nuit">
+<div class="app">
+  <main class="stage" id="stage">
+    <svg class="stars" width="100%" height="100%" aria-hidden="true">
+      <g fill="#C9BEFF">
+        <circle cx="4%" cy="18%" r="1.4"><animate attributeName="opacity" values=".2;.9;.2" dur="3.2s" repeatCount="indefinite"/></circle>
+        <circle cx="12%" cy="78%" r="1.2"><animate attributeName="opacity" values=".9;.2;.9" dur="4s" repeatCount="indefinite"/></circle>
+        <circle cx="90%" cy="14%" r="1.6" fill="#FFC857"><animate attributeName="opacity" values=".3;1;.3" dur="2.6s" repeatCount="indefinite"/></circle>
+        <circle cx="94%" cy="66%" r="1.2"><animate attributeName="opacity" values=".2;.8;.2" dur="3.6s" repeatCount="indefinite"/></circle>
+        <circle cx="7%" cy="54%" r="1.6" fill="#F56BE2"><animate attributeName="opacity" values=".8;.2;.8" dur="3s" repeatCount="indefinite"/></circle>
+        <circle cx="80%" cy="94%" r="1.3"><animate attributeName="opacity" values=".2;.9;.2" dur="4.4s" repeatCount="indefinite"/></circle>
+        <circle cx="40%" cy="10%" r="1.1"><animate attributeName="opacity" values=".9;.3;.9" dur="3.4s" repeatCount="indefinite"/></circle>
+        <circle cx="96%" cy="38%" r="1.4" fill="#5AB0FF"><animate attributeName="opacity" values=".3;.9;.3" dur="2.8s" repeatCount="indefinite"/></circle>
+        <circle cx="60%" cy="96%" r="1.1"><animate attributeName="opacity" values=".9;.2;.9" dur="3.8s" repeatCount="indefinite"/></circle>
+      </g>
+    </svg>
+
+    <div class="brand">
+      <svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true"><path d="M6 32a16 16 0 0 1 32 0" fill="none" stroke="#F56BE2" stroke-width="4" stroke-linecap="round"/><path d="M11 32a11 11 0 0 1 22 0" fill="none" stroke="#5AB0FF" stroke-width="4" stroke-linecap="round"/><path d="M16 32a6 6 0 0 1 12 0" fill="none" stroke="#45E3A0" stroke-width="4" stroke-linecap="round"/></svg>
+      <div><h1>Bifröst</h1><small>NOEVALKY · sélecteur de serveurs OW2</small></div>
+    </div>
+    <div class="themes" role="group" aria-label="Thème">
+      <button type="button" data-theme-btn="nuit">Nuit</button>
+      <button type="button" data-theme-btn="doux">Doux</button>
+      <button type="button" data-theme-btn="pixel">Pixel</button>
+    </div>
+
+    <div class="globe-wrap" id="globeWrap">
+      <svg id="globe" width="600" height="600" viewBox="0 0 600 600" role="img" aria-label="Globe des serveurs : attrape-le pour le faire tourner, clique un serveur pour le bloquer ou l'autoriser">
+        <defs>
+          <linearGradient id="bifrost" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#F56BE2"/><stop offset=".5" stop-color="#5AB0FF"/><stop offset="1" stop-color="#45E3A0"/>
+          </linearGradient>
+        </defs>
+        <g id="gBase"></g>
+        <g id="gArcs"></g>
+        <g id="gWaves"></g>
+        <g id="gMarkers"></g>
+        <g id="gHome"></g>
+      </svg>
+      <div class="labels" id="labels"></div>
+    </div>
+
+    <div class="noe" id="noe" aria-live="polite">
+      <div class="bubble" id="noeBubble"></div>
+      <div id="noeArt"></div>
+    </div>
+
+    <div class="stage-foot">
+      <span class="legend" id="lgHeart"></span>
+      <span class="legend" id="lgSkull"></span>
+      <span class="legend"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" style="fill:var(--green)"/><circle cx="12" cy="12" r="9" fill="none" stroke-width="2" style="stroke:var(--green)"/></svg>en partie</span>
+      <span class="legend"><svg width="26" height="16" viewBox="0 0 26 16" aria-hidden="true"><path d="M2 14Q13-6 24 14" fill="none" stroke="url(#bifrost)" stroke-width="3" stroke-linecap="round"/></svg>ta route</span>
+      <span class="spacer"></span>
+      <span id="dragHint">attrape le globe pour le faire tourner</span>
+      <button type="button" class="icon-btn" id="recenter" aria-label="Recentrer le globe chez toi"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><circle cx="12" cy="12" r="2" fill="currentColor"/></svg></button>
+    </div>
+  </main>
+
+  <aside class="panel" aria-label="Réglages">
+    <div class="row between">
+      <div class="row">
+        <span class="hint">Ton IP</span>
+        <span class="chip" id="ipChip">•••.•••.•••.•••</span>
+        <button type="button" class="icon-btn" id="ipEye" aria-label="Afficher mon IP"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
+      <span class="tag" id="owTag">Overwatch fermé</span>
+    </div>
+
+    <section class="card" aria-label="Connexion">
+      <div class="status-line"><span class="dot" id="dotBnet"></span><span class="grow">Battle.net (connexion)</span><span class="val" id="valBnet">—</span></div>
+      <div class="status-line"><span class="dot" id="dotLobby"></span><span class="grow">Lobby Overwatch</span><span class="val" id="valLobby">—</span></div>
+      <div class="status-line"><span class="dot" id="dotGame"></span><span class="grow" id="txtGame">Dernière partie</span><span class="val" id="valGame">—</span></div>
+    </section>
+
+    <section class="card learn" id="learnCard" hidden>
+      <div style="font-weight:800" id="learnText"></div>
+      <p class="hint">Regarde le nom du serveur en jeu avec Ctrl+Maj+N, puis dis-le à Bifröst : elle s'en souviendra.</p>
+      <div class="row">
+        <label class="sr" for="learnSelect">Serveur</label>
+        <select id="learnSelect"></select>
+        <button type="button" id="learnBtn">Retenir</button>
+      </div>
+    </section>
+
+    <div class="tabs" role="tablist" aria-label="Mode">
+      <button type="button" role="tab" id="tabRoute" aria-selected="false">Route</button>
+      <button type="button" role="tab" id="tabNormal" aria-selected="true">Normal</button>
+    </div>
+    <p class="hint" id="modeHint"></p>
+
+    <div id="routeBox" hidden>
+      <h2>Ta région</h2>
+      <div class="regions" id="regions" role="group" aria-label="Région"></div>
+    </div>
+
+    <div>
+      <div class="row between"><h2 id="listTitle">Serveurs</h2><span class="hint" id="listHint">touche le cœur ou le crâne</span></div>
+      <div id="serverList" style="display:flex;flex-direction:column;gap:6px;margin-top:8px"></div>
+    </div>
+
+    <div class="switches">
+      <label class="switch"><input type="checkbox" id="optOw"><span class="track"><span class="knob"></span></span><span>Seulement Overwatch<small id="owPath">Overwatch.exe introuvable : lance le jeu une fois</small></span></label>
+      <label class="switch"><input type="checkbox" id="optDetect"><span class="track"><span class="knob"></span></span><span>Détection en direct<small>voit sur quel serveur tu joues, via le journal du pare-feu</small></span></label>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="primary" id="applyBtn">Appliquer</button>
+      <button type="button" class="ghost" id="unblockBtn">Tout débloquer</button>
+    </div>
+    <div class="applied" id="appliedText">Rien n'est bloqué.</div>
+
+    <details class="journal">
+      <summary>Journal</summary>
+      <ul id="events"></ul>
+      <table aria-label="Adresses vues">
+        <thead><tr><th>Adresse</th><th>Serveur</th><th>Ok</th><th>Bloqué</th><th>Il y a</th></tr></thead>
+        <tbody id="flows"></tbody>
+      </table>
+    </details>
+
+    <div class="foot">
+      <a href="https://noevalky.com/personnages/" target="_blank" rel="noopener">Rencontrer NOE ↗</a>
+      <button type="button" id="noeFolder">Dossier de NOE</button>
+      <span>fork de <a href="https://github.com/foryVERX/Overwatch-Server-Selector" target="_blank" rel="noopener">MINA · foryVERX</a></span>
+      <span id="version"></span>
+      <button type="button" id="quitBtn">Quitter</button>
+    </div>
+  </aside>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+"use strict";
+const TOKEN = "__BIFROST_TOKEN__";
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+async function api(path, body) {
+  const opts = { method: body === undefined ? "GET" : "POST", headers: { "X-Bifrost-Token": TOKEN } };
+  if (body !== undefined) { opts.headers["Content-Type"] = "application/json"; opts.body = JSON.stringify(body); }
+  const r = await fetch(path, opts);
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok || j.ok === false) throw new Error(j.error || ("Erreur " + r.status));
+  return j.result;
+}
+
+let toastTimer = null;
+function toast(text, isError) {
+  const t = $("toast");
+  t.textContent = text; t.className = "toast show" + (isError ? " error" : "");
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.className = "toast"; }, 4200);
+}
+
+// ------------------------------------------------------------------ icons per theme
+const P = {
+  heart: "M12 20.5s-7.6-4.7-9.7-9.4C.8 7.6 3 3.6 6.8 3.6c2.1 0 3.7 1.2 4.4 2.6.7-1.4 2.3-2.6 4.4-2.6 3.8 0 6 4 4.5 7.5-2.1 4.7-8.1 9.4-8.1 9.4z",
+  shine: "M6.3 7.1c.5-1 1.6-1.4 2.3-1 .6.4.3 1.3-.4 1.8-.8.5-1.7.4-1.9-.2z",
+  skull: "M12 4.2c-4.2 0-7.4 2.9-7.4 6.7 0 2.2 1.1 4 2.7 5.1v2.5c0 .6.4 1 1 1h1.3v-1.8h1.5v1.8h1.8v-1.8h1.5v1.8h1.3c.6 0 1-.4 1-1V16c1.6-1.1 2.7-2.9 2.7-5.1 0-3.8-3.2-6.7-7.4-6.7z",
+  eyes: "M9.3 9.2a1.7 1.7 0 1 0 0 3.4a1.7 1.7 0 1 0 0-3.4zM14.7 9.2a1.7 1.7 0 1 0 0 3.4a1.7 1.7 0 1 0 0-3.4z",
+  bow: "M14.2 2.4l3 1.7-3 1.7zM20.2 2.4l-3 1.7 3 1.7zM17.2 3.1a1 1 0 1 0 0 2a1 1 0 1 0 0-2z",
+  pxHeart: "M1 0h2v1h-2zM4 0h2v1h-2zM0 1h7v1h-7zM0 2h7v1h-7zM1 3h5v1h-5zM2 4h3v1h-3zM3 5h1v1h-1z",
+  pxSkull: "M1 0h6v1h-6zM0 1h8v1h-8zM0 2h1v1h-1zM3 2h2v1h-2zM7 2h1v1h-1zM0 3h1v1h-1zM3 3h2v1h-2zM7 3h1v1h-1zM0 4h8v1h-8zM1 5h2v1h-2zM5 5h2v1h-2zM1 6h6v1h-6zM1 7h1v1h-1zM3 7h2v1h-2zM6 7h1v1h-1z"
+};
+function iconSvg(kind, color, size) {
+  const theme = document.body.dataset.theme;
+  if (theme === "pixel") {
+    return kind === "skull"
+      ? `<svg width="${size}" height="${size}" viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true"><path d="${P.pxSkull}" fill="${color}"/></svg>`
+      : `<svg width="${size}" height="${size * 6 / 7}" viewBox="0 0 7 6" shape-rendering="crispEdges" aria-hidden="true"><path d="${P.pxHeart}" fill="${color}"/></svg>`;
+  }
+  const eyes = theme === "doux" ? "#FFFFFF" : cssVar("--skull-bg");
+  if (kind === "skull") return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" aria-hidden="true"><path d="${P.skull}" fill="${color}"/><path d="${P.eyes}" fill="${eyes}"/>${theme === "doux" ? `<path d="${P.bow}" fill="#F56BE2"/>` : ""}</svg>`;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" aria-hidden="true"><path d="${P.heart}" fill="${color}"/>${theme === "doux" ? `<path d="${P.shine}" fill="#FFFFFF"/>` : ""}</svg>`;
+}
+
+// ------------------------------------------------------------------ app state
+let DB = null;          // static server list
+let S = null;           // last /api/state
+let draft = null;       // what the user is choosing (applied with the button)
+let ipShown = false;
+const cssVar = (name) => getComputedStyle(document.body).getPropertyValue(name).trim();
+
+function serverById(id) { return DB.servers.find((s) => s.id === id); }
+function regionName(id) { const r = DB.regions.find((x) => x.id === id); return r ? r.name : id; }
+function pingOf(id) { const p = S && S.pings[id]; return p ? p.ms : null; }
+function pingClass(ms) { return ms == null ? "" : ms < 60 ? "good" : ms < 130 ? "mid" : "bad"; }
+function msText(ms) { return ms == null ? "—" : ms + " ms"; }
+
+// Is a server cut by the current draft?
+function draftBlocks(id) {
+  const s = serverById(id);
+  if (!draft) return false;
+  if (draft.mode === "route") return s.region !== draft.region || draft.blocked.includes(id);
+  return draft.blocked.includes(id);
+}
+function sameDraft(a, b) {
+  if (!a || !b) return false;
+  const bl = (x) => [...(x.blocked || [])].sort().join(",");
+  return a.mode === b.mode && (a.mode !== "route" || a.region === b.region) && bl(a) === bl(b);
+}
+
+// ------------------------------------------------------------------ panel
+function renderPanel() {
+  if (!S || !DB) return;
+  const st = S.settings, det = S.detection;
+  document.body.dataset.theme = st.theme || "nuit";
+  document.querySelectorAll("[data-theme-btn]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.themeBtn === st.theme)));
+  $("lgHeart").innerHTML = iconSvg("heart", cssVar("--blue"), 16) + "autorisé";
+  $("lgSkull").innerHTML = iconSvg("skull", cssVar("--red"), 16) + "bloqué";
+  $("version").textContent = "v" + S.version;
+
+  $("ipChip").textContent = ipShown && S.public_ip ? S.public_ip : "•••.•••.•••.•••";
+  $("ipEye").setAttribute("aria-label", ipShown ? "Masquer mon IP" : "Afficher mon IP");
+
+  const owTag = $("owTag");
+  owTag.textContent = det.running ? "Overwatch lancé" : "Overwatch fermé";
+  owTag.className = "tag " + (det.running ? "ok" : "");
+
+  const bnet = det.battlenet[0], lobby = det.lobby[0], cur = det.current;
+  $("dotBnet").className = "dot " + (bnet ? "ok" : det.running ? "warn" : "");
+  $("valBnet").textContent = bnet ? "connecté" : det.running ? "pas vu" : "—";
+  $("dotLobby").className = "dot " + (lobby ? "ok" : det.running ? "warn" : "");
+  $("valLobby").textContent = lobby ? "connecté" : det.running ? "pas vu" : "—";
+  if (cur) {
+    const s = serverById(cur.server);
+    $("dotGame").className = "dot ok";
+    $("txtGame").textContent = `Partie · ${cur.server} ${s ? s.city : ""}`;
+    $("valGame").textContent = cur.ago < 90 ? msText(pingOf(cur.server)) : `il y a ${Math.round(cur.ago / 60)} min`;
+  } else {
+    $("dotGame").className = "dot";
+    $("txtGame").textContent = S.logging_on ? "Dernière partie" : "Détection en direct éteinte";
+    $("valGame").textContent = S.logging_error ? "indisponible" : "—";
+  }
+
+  // learning
+  const unk = det.unknown[0];
+  const card = $("learnCard");
+  if (unk && !learnDismissed.has(unk.ip)) {
+    card.hidden = false;
+    const guess = unk.region ? ` (plutôt ${regionName(unk.region)})` : "";
+    $("learnText").textContent = `Overwatch a parlé à ${unk.ip}${guess}. C'est quel serveur ?`;
+    if (card.dataset.ip !== unk.ip) {
+      card.dataset.ip = unk.ip;
+      const sel = $("learnSelect");
+      const first = DB.servers.filter((s) => s.region === unk.region), rest = DB.servers.filter((s) => s.region !== unk.region);
+      sel.innerHTML = [...first, ...rest].map((s) => `<option value="server:${s.id}">${esc(s.id)} · ${esc(s.city)}</option>`).join("")
+        + DB.regions.map((r) => `<option value="region:${r.id}">Une autre adresse de ${esc(r.name)} (relais, voix…)</option>`).join("")
+        + `<option value="ignore">Je ne sais pas, ignorer</option>`;
+    }
+  } else { card.hidden = true; }
+
+  // mode
+  $("tabRoute").setAttribute("aria-selected", String(draft.mode === "route"));
+  $("tabNormal").setAttribute("aria-selected", String(draft.mode === "normal"));
+  $("modeHint").textContent = draft.mode === "route"
+    ? "Tu choisis ta région : tout le reste du monde est coupé pour Overwatch. Mets un crâne pour éviter un serveur de la région."
+    : "Rien n'est coupé, sauf les serveurs où tu mets un crâne.";
+  $("routeBox").hidden = draft.mode !== "route";
+  if (draft.mode === "route") {
+    $("regions").innerHTML = DB.regions.map((r) => {
+      const n = DB.servers.filter((s) => s.region === r.id).map((s) => s.id).join(" · ");
+      return `<button type="button" data-region="${r.id}" aria-pressed="${r.id === draft.region}">${esc(r.name)}<br><span class="hint" style="font-size:11px">${esc(n)}</span></button>`;
+    }).join("");
+  }
+
+  // server list
+  const list = draft.mode === "route" ? DB.servers.filter((s) => s.region === draft.region) : DB.servers;
+  $("listTitle").textContent = draft.mode === "route" ? "Serveurs · " + regionName(draft.region) : "Serveurs";
+  const groups = [];
+  list.forEach((s) => {
+    const g = draft.mode === "route" ? "" : DB.regions.find((r) => r.id === s.region).group;
+    let grp = groups.find((x) => x.name === g);
+    if (!grp) groups.push(grp = { name: g, items: [] });
+    grp.items.push(s);
+  });
+  const drops = det.drops || {};
+  $("serverList").innerHTML = groups.map((g) =>
+    (g.name ? `<div class="group-title">${esc(g.name)}</div>` : "") + g.items.map((s) => {
+      const off = draft.blocked.includes(s.id);
+      const ms = pingOf(s.id);
+      const isCur = cur && cur.server === s.id;
+      return `<div class="srv${off ? " off" : ""}${isCur ? " current" : ""}">
+        <div class="name"><b>${esc(s.id)}${isCur ? " · en partie" : ""}</b><span>${esc(s.city)}, ${esc(s.country)}${drops[s.id] ? ` · <span class="drops">${drops[s.id]} tentative${drops[s.id] > 1 ? "s" : ""} bloquée${drops[s.id] > 1 ? "s" : ""}</span>` : ""}</span></div>
+        <span class="ms ${pingClass(ms)}">${msText(ms)}</span>
+        <button type="button" class="toggle" data-toggle="${s.id}" aria-pressed="${off}" aria-label="${esc(s.id)} ${off ? "bloqué, autoriser" : "autorisé, bloquer"}">${iconSvg(off ? "skull" : "heart", off ? cssVar("--red") : cssVar("--blue"), 22)}</button>
+      </div>`;
+    }).join("")).join("");
+
+  // options
+  const path = st.overwatch_path;
+  $("owPath").textContent = path ? path : "Overwatch.exe introuvable : lance le jeu une fois";
+  const optOw = $("optOw");
+  optOw.checked = draft.mode === "route" ? true : draft.overwatch_only;
+  optOw.disabled = draft.mode === "route";
+  $("optDetect").checked = !!st.detection;
+
+  // applied
+  const a = S.applied;
+  let txt;
+  if (!a) txt = "Rien n'est bloqué : Overwatch choisit seul.";
+  else if (a.unknown) txt = `<b>${a.rules} règles Bifröst</b> déjà présentes dans le pare-feu.`;
+  else if (a.mode === "route") txt = `Actif : <b>Route ${esc(regionName(a.region))}${a.blocked.length ? " sans " + esc(a.blocked.join(", ")) : ""}</b> · ${a.rules} règles`;
+  else txt = a.blocked.length ? `Actif : <b>${esc(a.blocked.join(", "))} bloqué${a.blocked.length > 1 ? "s" : ""}</b> · ${a.rules} règles` : "Rien n'est bloqué.";
+  if (!sameDraft(draft, a)) txt += ` · <span class="dirty">changements à appliquer</span>`;
+  $("appliedText").innerHTML = txt;
+
+  // journal
+  $("events").innerHTML = S.events.slice(0, 12).map((e) => `<li class="${e.level}"><time>${esc(e.at.slice(11, 16))}</time><span>${esc(e.text)}</span></li>`).join("") || "<li>Rien pour l'instant.</li>";
+  $("flows").innerHTML = det.flows.slice(0, 15).map((f) => `<tr><td class="mono">${esc(f.ip)}</td><td>${esc(f.server || (f.region ? "? " + regionName(f.region) : "?"))}</td><td>${f.allow}</td><td>${f.drop}</td><td>${Math.round(f.ago / 60)} min</td></tr>`).join("")
+    || `<tr><td colspan="5">${S.logging_on ? "Lance une partie : les adresses apparaîtront ici." : "Active la détection en direct pour voir les adresses."}</td></tr>`;
+}
+
+const learnDismissed = new Set();
+
+// ------------------------------------------------------------------ NOE
+let noeMood = null;
+function renderNoe() {
+  const box = $("noe");
+  const imgs = (S && S.noe && S.noe.images) || {};
+  const keys = Object.keys(imgs);
+  if (!keys.length) { box.className = "noe"; return; }
+  box.className = "noe on";
+  const mood = imgs[S.mood] ? S.mood : (imgs.neutre ? "neutre" : keys[0]);
+  if (mood === noeMood) return;
+  noeMood = mood;
+  const url = imgs[mood];
+  $("noeArt").innerHTML = /\.webm$/i.test(url)
+    ? `<video src="${url}" autoplay loop muted playsinline aria-label="NOE, ${esc(mood)}"></video>`
+    : `<img src="${url}" alt="NOE, ${esc(mood)}">`;
+  const lines = (S.noe.lines && S.noe.lines[S.mood]) || [];
+  $("noeBubble").textContent = lines.length ? lines[Math.floor(Math.random() * lines.length)] : "";
+}
+
+// ------------------------------------------------------------------ globe
+const G = { R: 290, C: 300, rot: null, data: null, bits: null, grat: null, drag: null, anim: null, waves: {}, markers: {}, labels: {} };
+const SVGNS = "http://www.w3.org/2000/svg";
+const THEME = {
+  nuit: { sphere: "#1C1846", grat: "#2E2868", land: "#4A3C9E", landStroke: "#6F5BD6", landW: .8, rim: "#7D69E8", halo: "#6F5BD6", haloOp: .14, pixel: false },
+  doux: { sphere: "#D6EAFF", grat: "#C2DDFA", land: "#FFFFFF", landStroke: "#A9CCF2", landW: 1.2, rim: "#9CC3F0", halo: "#E7D9FF", haloOp: 1, pixel: false },
+  pixel: { pixel: true }
+};
+
+async function loadGlobe() {
+  const r = await fetch("/ui/globe-data.json");
+  const d = await r.json();
+  const bits = new Uint8Array(d.mask.w * d.mask.h);
+  for (let i = 0; i < d.mask.hex.length; i++) { const v = parseInt(d.mask.hex[i], 16); for (let b = 0; b < 4; b++) bits[i * 4 + b] = (v >> (3 - b)) & 1; }
+  G.data = d; G.bits = bits; G.grat = d3.geoGraticule10();
+}
+function isLand(lon, lat) {
+  let col = Math.floor(lon + 180), row = Math.floor(90 - lat);
+  col = Math.max(0, Math.min(359, col)); row = Math.max(0, Math.min(179, row));
+  return G.bits[row * 360 + col] === 1;
+}
+function homeLL() { return (DB && DB.home && DB.home.lonlat) || [2.35, 48.86]; }
+function defaultRot() { const h = homeLL(); return [-(h[0] + 12), -(h[1] - 6)]; }
+
+function fitGlobe() {
+  const stage = $("stage"), wrap = $("globeWrap");
+  const k = Math.max(.5, Math.min(1.25, (stage.clientHeight - 150) / 600, (stage.clientWidth - 60) / 600));
+  wrap.style.transform = `translate(-50%,-50%) scale(${k})`;
+  G.scale = k;
+}
+
+function p3(rotate, ll, h) {
+  const r = rotate(ll), RAD = Math.PI / 180;
+  const L = r[0] * RAD, Pp = r[1] * RAD;
+  const X = Math.cos(Pp) * Math.sin(L), Y = Math.sin(Pp), Z = Math.cos(Pp) * Math.cos(L);
+  const k = G.R * (1 + h);
+  return { x: G.C + k * X, y: G.C - k * Y, z: Z, out: (1 + h) * Math.hypot(X, Y) > 1 };
+}
+function arcPath(rotate, a, b, lift) {
+  const interp = d3.geoInterpolate(a, b);
+  let d = "", pen = false;
+  for (let i = 0; i <= 48; i++) {
+    const t = i / 48, p = p3(rotate, interp(t), lift * Math.sin(Math.PI * t));
+    if (p.z > 0 || p.out) { d += (pen ? "L" : "M") + p.x.toFixed(1) + "," + p.y.toFixed(1); pen = true; } else pen = false;
+  }
+  return d;
+}
+function el(tag, attrs) { const e = document.createElementNS(SVGNS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; }
+
+function markerIconMarkup(kind, color, size, theme) {
+  if (theme === "pixel") {
+    const w = kind === "skull" ? 8 : 7, h = kind === "skull" ? 8 : 6, sc = size >= 1 ? 3 : 2;
+    return `<g transform="translate(${-w * sc / 2} ${-h * sc / 2}) scale(${sc})" shape-rendering="crispEdges"><path d="${kind === "skull" ? P.pxSkull : P.pxHeart}" fill="${color}"/></g>`;
+  }
+  const s = size, doux = theme === "doux";
+  const stroke = doux ? ` stroke="#FFFFFF" stroke-width="1.6"` : "";
+  if (kind === "skull") return `<g transform="translate(${-12 * s} ${-12 * s}) scale(${s})"><path d="${P.skull}" fill="${color}"${stroke}/><path d="${P.eyes}" fill="${doux ? "#FFFFFF" : "#1C1846"}"/>${doux ? `<path d="${P.bow}" fill="#F56BE2"/>` : ""}</g>`;
+  return `<g transform="translate(${-12 * s} ${-12 * s}) scale(${s})"><path d="${P.heart}" fill="${color}"${stroke}/>${doux ? `<path d="${P.shine}" fill="#FFFFFF"/>` : ""}</g>`;
+}
+
+function renderGlobeBase(proj, theme) {
+  const base = $("gBase"), T = THEME[theme];
+  const sig = theme + "|" + (G.rot || []).join(",");
+  if (base.dataset.sig === sig) return;
+  base.dataset.sig = sig;
+  if (T.pixel) {
+    let rim = "", sea = "", earth = "";
+    for (let gy = 0; gy < 600; gy += 10) for (let gx = 0; gx < 600; gx += 10) {
+      const cx = gx + 5, cy = gy + 5, dd = Math.hypot(cx - 300, cy - 300);
+      if (dd > G.R + 6) continue;
+      const cell = `M${gx + 1},${gy + 1}h8v8h-8z`;
+      if (dd > G.R - 4) { rim += cell; continue; }
+      const ll = proj.invert([cx, cy]);
+      if (ll && isLand(ll[0], ll[1])) earth += cell; else sea += cell;
+    }
+    base.innerHTML = `<g shape-rendering="crispEdges"><path d="${rim}" fill="#3A2F7A"/><path d="${sea}" fill="#18204F"/><path d="${earth}" fill="#8A6CF0"/></g>`;
+  } else {
+    const path = d3.geoPath(proj).digits(1);
+    base.innerHTML = `<circle cx="300" cy="300" r="312" fill="${T.halo}" fill-opacity="${T.haloOp}"/><circle cx="300" cy="300" r="290" fill="${T.sphere}"/>`
+      + `<path d="${path(G.grat) || ""}" fill="none" stroke="${T.grat}" stroke-width="1"/>`
+      + `<path d="${path(G.data.land) || ""}" fill="${T.land}" stroke="${T.landStroke}" stroke-width="${T.landW}" stroke-linejoin="round"/>`
+      + `<circle cx="300" cy="300" r="290" fill="none" stroke="${T.rim}" stroke-width="2.5"/>`;
+  }
+}
+
+function setWave(id, p, color, theme) {
+  let w = G.waves[id];
+  const sig = color + theme;
+  if (!w || w.sig !== sig) {
+    if (w) w.g.remove();
+    const g = el("g", {});
+    if (theme === "pixel") {
+      g.innerHTML = ["0s", "0.66s", "1.33s"].map((b) => `<rect x="-10" y="-10" width="20" height="20" fill="none" stroke="${color}" stroke-width="3" shape-rendering="crispEdges"><animateTransform attributeName="transform" type="scale" values="0.4;0.8;1.2;1.6;2;2.4" dur="2s" begin="${b}" calcMode="discrete" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0.8;0.6;0.4;0.2;0" dur="2s" begin="${b}" calcMode="discrete" repeatCount="indefinite"/></rect>`).join("");
+    } else {
+      g.innerHTML = ["0s", "0.8s", "1.6s"].map((b) => `<circle r="6" fill="none" stroke="${color}" stroke-width="2.5"><animate attributeName="r" values="6;30" dur="2.4s" begin="${b}" repeatCount="indefinite"/><animate attributeName="opacity" values="0.95;0" dur="2.4s" begin="${b}" repeatCount="indefinite"/></circle>`).join("");
+    }
+    $("gWaves").appendChild(g);
+    w = G.waves[id] = { g, sig };
+  }
+  w.used = true;
+  if (p) { w.g.setAttribute("transform", `translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})`); w.g.style.display = ""; }
+  else w.g.style.display = "none";
+}
+
+function renderGlobe() {
+  if (!G.data || !DB || !S || !window.d3) return;
+  const theme = S.settings.theme || "nuit";
+  if (!G.rot) G.rot = defaultRot();
+  const proj = d3.geoOrthographic().scale(G.R).translate([G.C, G.C]).rotate(G.rot).clipAngle(90).precision(.6);
+  const rotate = d3.geoRotation(G.rot);
+  renderGlobeBase(proj, theme);
+
+  const det = S.detection, cur = det.current, home = homeLL();
+  const blue = cssVar("--blue"), red = cssVar("--red"), green = cssVar("--green");
+
+  // route line: to the server you play on, else to where your choice sends you
+  let target = null, preview = false;
+  if (cur && serverById(cur.server)) target = serverById(cur.server);
+  else if (draft) {
+    const allowed = DB.servers.filter((s) => !draftBlocks(s.id));
+    allowed.sort((a, b) => (pingOf(a.id) ?? 999) - (pingOf(b.id) ?? 999));
+    if (allowed.length && (draft.mode === "route" || draft.blocked.length)) { target = allowed[0]; preview = true; }
+  }
+  const arcs = $("gArcs");
+  if (target) {
+    const d = arcPath(rotate, home, target.lonlat, .12);
+    if (theme === "pixel") {
+      arcs.innerHTML = `<g shape-rendering="crispEdges"><path d="${d}" transform="translate(0 -5)" fill="none" stroke="#FF6BD6" stroke-width="4" stroke-dasharray="8 4"/><path d="${d}" fill="none" stroke="#4FA8FF" stroke-width="4" stroke-dasharray="8 4"/><path d="${d}" transform="translate(0 5)" fill="none" stroke="#3DF29A" stroke-width="4" stroke-dasharray="8 4"/></g>`;
+    } else {
+      arcs.innerHTML = `<path d="${d}" fill="none" stroke="url(#bifrost)" stroke-width="5" stroke-linecap="round"${preview ? ' stroke-dasharray="10 8" opacity=".7"' : ""}/>`
+        + (preview ? "" : `<path d="${d}" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-dasharray="2 16" stroke-linecap="round"><animate attributeName="stroke-dashoffset" values="0;-36" dur="1.1s" repeatCount="indefinite"/></path>`);
+    }
+  } else arcs.innerHTML = "";
+
+  // markers, waves, labels
+  Object.values(G.waves).forEach((w) => { w.used = false; });
+  let markup = "";
+  const labels = [];
+  const drops = det.drops || {};
+  DB.servers.forEach((s) => {
+    const p = p3(rotate, s.lonlat, 0);
+    const off = draftBlocks(s.id);
+    const isCur = cur && cur.server === s.id;
+    if (p.z > .05) {
+      const kind = off ? "skull" : "heart";
+      const color = isCur ? green : off ? red : blue;
+      const size = isCur || (off && (draft.mode === "normal" || s.region === draft.region)) ? 1.1 : off ? .8 : .75;
+      markup += `<g transform="translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})" data-srv="${s.id}" style="cursor:pointer" opacity="${off && draft.mode === "route" && s.region !== draft.region ? .75 : 1}">${markerIconMarkup(kind, color, size, theme)}<circle r="16" fill="transparent"/></g>`;
+      if (isCur) setWave("w" + s.id, p, green, theme);
+      else if (drops[s.id]) setWave("w" + s.id, p, red, theme);
+    }
+    if (p.z > .2) {
+      const ms = pingOf(s.id);
+      const big = isCur || (off && (draft.mode === "normal" || s.region === draft.region));
+      labels.push({ id: s.id, x: p.x, y: p.y, big, cls: isCur ? "current" : off ? "blocked" : "",
+        title: `${s.id} · ${s.city}`, sub: isCur ? `en partie · ${msText(ms)}` : off ? `bloqué · ${msText(ms)}` : msText(ms), prio: isCur ? 3 : big ? 2 : 1 });
+    }
+  });
+  Object.entries(G.waves).forEach(([k, w]) => { if (!w.used) { w.g.remove(); delete G.waves[k]; } });
+  $("gMarkers").innerHTML = markup;
+
+  const hp = p3(rotate, home, 0);
+  const gh = $("gHome");
+  if (hp.z > .05) {
+    gh.innerHTML = theme === "pixel"
+      ? `<rect x="${(hp.x - 8).toFixed(0)}" y="${(hp.y - 8).toFixed(0)}" width="16" height="16" fill="#FF6BD6" shape-rendering="crispEdges"/><rect x="${(hp.x - 4).toFixed(0)}" y="${(hp.y - 4).toFixed(0)}" width="8" height="8" fill="#0B0B16" shape-rendering="crispEdges"/>`
+      : `<circle cx="${hp.x.toFixed(1)}" cy="${hp.y.toFixed(1)}" r="12" fill="#F56BE2" fill-opacity=".25"/><circle cx="${hp.x.toFixed(1)}" cy="${hp.y.toFixed(1)}" r="6" fill="#F56BE2" stroke="${theme === "doux" ? "#FFFFFF" : "#0D0A1E"}" stroke-width="2.5"/>`;
+    if (hp.z > .2) labels.push({ id: "_home", x: hp.x, y: hp.y, big: true, cls: "home", title: `Toi · ${(DB.home && DB.home.name) || "chez toi"}`, sub: ipShown && S.public_ip ? S.public_ip : "IP masquée", prio: 4, home: true });
+  } else gh.innerHTML = "";
+
+  placeLabels(labels, theme);
+}
+
+function placeLabels(labels, theme) {
+  const box = $("labels");
+  const placed = [];
+  labels.sort((a, b) => b.prio - a.prio);
+  const html = [];
+  for (const l of labels) {
+    const w = (theme === "pixel" ? 9.5 : 7.2) * Math.max(l.title.length, l.sub.length + 2) + 26;
+    const h = l.big ? (theme === "pixel" ? 38 : 44) : 22;
+    const tries = l.home ? [[-w - 14, 18], [16, 18], [-w - 14, -h - 10]] : l.big ? [[18, -h - 6], [-w - 18, -h - 6], [18, 10], [-w - 18, 10]] : [[12, -h - 4], [12, 6], [-w - 12, -h - 4], [-w - 12, 6], [12, 22], [-w / 2, 14]];
+    let spot = null;
+    for (const [dx, dy] of tries) {
+      const r = { x: l.x + dx, y: l.y + dy, w, h };
+      if (!placed.some((q) => r.x < q.x + q.w && q.x < r.x + r.w && r.y < q.y + q.h && q.y < r.y + r.h)) { spot = r; break; }
+    }
+    if (!spot) continue;
+    placed.push(spot);
+    const sub = l.big ? `<span class="sub">${esc(l.sub)}</span>` : `<span class="ms">${esc(l.sub)}</span>`;
+    html.push(`<div class="lab ${l.big ? l.cls : "small"}" style="left:${spot.x.toFixed(0)}px;top:${spot.y.toFixed(0)}px"><span>${esc(l.title)}</span>${sub}</div>`);
+  }
+  box.innerHTML = html.join("");
+}
+
+// drag to rotate, click to toggle
+function setupGlobe() {
+  const svg = $("globe");
+  svg.addEventListener("pointerdown", (e) => {
+    if (G.anim) { cancelAnimationFrame(G.anim); G.anim = null; }
+    G.drag = { x: e.clientX, y: e.clientY, rot: (G.rot || defaultRot()).slice(), moved: false, target: e.target };
+    svg.setPointerCapture(e.pointerId);
+    svg.classList.add("grabbing");
+  });
+  svg.addEventListener("pointermove", (e) => {
+    if (!G.drag) return;
+    const dx = e.clientX - G.drag.x, dy = e.clientY - G.drag.y;
+    if (Math.hypot(dx, dy) > 4) G.drag.moved = true;
+    const k = .3 / (G.scale || 1);
+    G.rot = [G.drag.rot[0] + dx * k, Math.max(-85, Math.min(85, G.drag.rot[1] - dy * k))];
+    if (!G.raf) G.raf = requestAnimationFrame(() => { G.raf = null; renderGlobe(); });
+  });
+  const end = () => {
+    if (!G.drag) return;
+    const d = G.drag; G.drag = null;
+    svg.classList.remove("grabbing");
+    if (!d.moved) {
+      const g = d.target.closest && d.target.closest("[data-srv]");
+      if (g) toggleServer(g.dataset.srv);
+    }
+  };
+  svg.addEventListener("pointerup", end);
+  svg.addEventListener("pointercancel", end);
+  $("recenter").addEventListener("click", () => rotateTo(defaultRot()));
+}
+function rotateTo(to) {
+  const from = (G.rot || defaultRot()).slice();
+  const dl = ((to[0] - from[0]) % 360 + 540) % 360 - 180;
+  const t0 = performance.now();
+  const step = (now) => {
+    const p = Math.min(1, (now - t0) / 650), e = 1 - Math.pow(1 - p, 3);
+    G.rot = [from[0] + dl * e, from[1] + (to[1] - from[1]) * e];
+    renderGlobe();
+    G.anim = p < 1 ? requestAnimationFrame(step) : null;
+  };
+  if (G.anim) cancelAnimationFrame(G.anim);
+  G.anim = requestAnimationFrame(step);
+}
+
+// ------------------------------------------------------------------ actions
+function toggleServer(id) {
+  const s = serverById(id);
+  if (draft.mode === "route" && s.region !== draft.region) {
+    toast(`${id} est hors de ta région : choisis ${regionName(s.region)} pour y jouer.`);
+    return;
+  }
+  const i = draft.blocked.indexOf(id);
+  if (i >= 0) draft.blocked.splice(i, 1); else draft.blocked.push(id);
+  renderAll();
+}
+function renderAll() { renderPanel(); renderGlobe(); renderNoe(); }
+
+document.addEventListener("click", async (e) => {
+  const t = e.target.closest("button");
+  if (!t) return;
+  if (t.dataset.toggle) return toggleServer(t.dataset.toggle);
+  if (t.dataset.region) { draft.region = t.dataset.region; draft.blocked = draft.blocked.filter((id) => serverById(id).region === draft.region); return renderAll(); }
+  if (t.dataset.themeBtn) {
+    S.settings.theme = t.dataset.themeBtn; $("gBase").dataset.sig = ""; noeMood = null;
+    Object.values(G.waves).forEach((w) => w.g.remove()); G.waves = {};
+    renderAll();
+    api("/api/settings", { theme: t.dataset.themeBtn }).catch((err) => toast(err.message, true));
+    return;
+  }
+  switch (t.id) {
+    case "tabRoute": draft.mode = "route"; draft.blocked = draft.blocked.filter((id) => serverById(id).region === draft.region); return renderAll();
+    case "tabNormal": draft.mode = "normal"; return renderAll();
+    case "applyBtn": {
+      t.disabled = true;
+      try { await api("/api/apply", draft); toast("Appliqué ! Relance Overwatch si une partie était en cours."); await refresh(); }
+      catch (err) { toast(err.message, true); }
+      finally { t.disabled = false; }
+      return;
+    }
+    case "unblockBtn":
+      try { await api("/api/unblock", {}); draft.blocked = []; toast("Tout est débloqué."); await refresh(); } catch (err) { toast(err.message, true); }
+      return;
+    case "ipEye":
+      if (!ipShown && !S.public_ip) { try { await api("/api/publicip", {}); await refresh(); } catch (err) { return toast("IP introuvable : " + err.message, true); } }
+      ipShown = !ipShown; renderAll(); return;
+    case "learnBtn": {
+      const card = $("learnCard"), v = $("learnSelect").value, ip = card.dataset.ip;
+      if (v === "ignore") { learnDismissed.add(ip); return renderPanel(); }
+      const [kind, id] = v.split(":");
+      try { await api("/api/learn", kind === "server" ? { ip, server: id } : { ip, region: id }); toast("Retenu !"); await refresh(); } catch (err) { toast(err.message, true); }
+      return;
+    }
+    case "noeFolder": api("/api/open-noe-folder", {}).catch((err) => toast(err.message, true)); return;
+    case "quitBtn":
+      await api("/api/quit", {}).catch(() => {});
+      document.body.innerHTML = "<p style='padding:40px;font-weight:800'>Bifröst est fermée. Les règles appliquées restent actives dans le pare-feu.</p>";
+      setTimeout(() => window.close(), 600);
+      return;
+  }
+});
+$("optOw").addEventListener("change", (e) => { draft.overwatch_only = e.target.checked; renderPanel(); });
+$("optDetect").addEventListener("change", async (e) => {
+  try { await api("/api/settings", { detection: e.target.checked }); await refresh(); } catch (err) { toast(err.message, true); }
+});
+
+// ------------------------------------------------------------------ boot
+async function refresh() {
+  S = await api("/api/state");
+  if (!draft) {
+    const st = S.settings;
+    draft = { mode: st.mode, region: st.region, blocked: [...st.blocked], overwatch_only: st.overwatch_only };
+  }
+  renderAll();
+}
+async function boot() {
+  fitGlobe();
+  window.addEventListener("resize", () => { fitGlobe(); });
+  setupGlobe();
+  try {
+    DB = await api("/api/db");
+    await loadGlobe();
+    await refresh();
+  } catch (err) { toast("Bifröst ne répond pas : " + err.message, true); }
+  setInterval(() => { refresh().catch(() => {}); }, 1500);
+}
+boot();
+</script>
+</body>
+</html>

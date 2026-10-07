@@ -6,6 +6,7 @@ name: Build Windows exe
 on:
   push:
     branches: [main]
+    paths-ignore: ["bifrost/**", ".github/workflows/bifrost.yaml"]
   workflow_dispatch:
 
 permissions:
