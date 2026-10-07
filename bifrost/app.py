@@ -33,7 +33,7 @@ import core
 import detect
 import latency
 
-VERSION = "0.1.3"
+VERSION = "0.1.4"
 PORT = 47815
 ON_WINDOWS = os.name == "nt"
 if ON_WINDOWS:

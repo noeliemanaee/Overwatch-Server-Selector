@@ -766,6 +766,10 @@
      "type": "tcp",
      "host": "dynamodb.me-south-1.amazonaws.com",
      "port": 443
+    },
+    {
+     "type": "gcp",
+     "region": "me-central2"
     }
    ]
   },

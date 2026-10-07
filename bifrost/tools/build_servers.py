@@ -88,7 +88,7 @@ SERVERS = [
     dict(id="GEN1", city="Hamina", country="Finlande", region="EU", lonlat=[27.20, 60.57], provider="Google",
          ranges=cfg("EU - Finland 2 - GEN1"), probes=[gcp("europe-north1")]),
     dict(id="MES1", city="Manama", country="Bahreïn", region="ME", lonlat=[50.58, 26.07], provider="AWS",
-         ranges=cfg("Other - Bahrain - MES1"), probes=[tcp("dynamodb.me-south-1.amazonaws.com")]),
+         ranges=cfg("Other - Bahrain - MES1"), probes=[tcp("dynamodb.me-south-1.amazonaws.com"), gcp("me-central2")]),
     dict(id="GMEC1", city="Doha", country="Qatar", region="ME", lonlat=[51.53, 25.29], provider="Google",
          ranges=cfg("Other - Qatar - GMEC1"), probes=[gcp("me-central1")]),
     dict(id="GMEC2", city="Dammam", country="Arabie saoudite", region="ME", lonlat=[50.10, 26.43], provider="Google",
