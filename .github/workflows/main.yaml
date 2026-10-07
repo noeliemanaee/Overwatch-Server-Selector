@@ -1,40 +1,41 @@
+name: Build Windows exe
 
-name: Overwatch-Server-Selector
+# Builds "MINA Overwatch 2 Server Selector.exe" on a Windows machine at every push to main,
+# then publishes it as a release so it can be downloaded from the Releases page.
 
-on: 
-  pull_request:
-    types:
-      - closed
-    branches:
-      - main
+on:
+  push:
+    branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: write
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
-      - name: gh_checkout
-        uses: actions/checkout@v2
-      - name: Package Application
-        uses: JackMcKew/pyinstaller-action-windows@main
-        with:
-          path: .
-      - name: exe_to_workflow
-        uses: actions/upload-artifact@v2
-        with:
-          name: MINA Overwatch 2 Server Selector.exe
-          path: dist
-      - name: gh_tag
-        id: gh_tag
-        uses: anothrNick/github-tag-action@1.52.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: gh_release
-        uses: softprops/action-gh-release@v0.1.14
-        if: ${{ github.ref == 'refs/heads/main' || github.event_name == 'pull_request'}}
-        with:
-          files: dist/windows/MINA Overwatch 2 Server Selector.exe
-          token: ${{ secrets.GITHUB_TOKEN }}
-          tag_name: ${{ steps.gh_tag.outputs.tag }}
+      - uses: actions/checkout@v4
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install pyinstaller pywin32 pillow requests urllib3 pythonping
+
+      - name: Build exe
+        run: pyinstaller Overwatch-Server-Selector.exe.spec
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MINA-Overwatch-2-Server-Selector-login-fix
+          path: dist/*.exe
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v5.3.1-loginfix-${{ github.run_number }}
+          name: 5.3.1 + login fix (build ${{ github.run_number }})
+          body: Blocks only game traffic (UDP/ICMP) so logging in keeps working when AMS1 is blocked.
+          files: dist/*.exe

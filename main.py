@@ -7,7 +7,6 @@ import win32com.client
 import win32serviceutil
 from win32com.client import Dispatch as DispatchCOMObject
 import pythoncom
-from itertools import groupby
 from PIL import ImageTk
 import pic2str
 import ctypes
@@ -162,6 +161,11 @@ FIREWALL_ACTION_ALLOW = 1
 FIREWALL_DIRECTION_IN = 1
 FIREWALL_DIRECTION_OUT = 2
 
+PROTOCOL_ICMPV4 = 1
+PROTOCOL_TCP = 6
+PROTOCOL_UDP = 17
+PORTS_WITHOUT_3724 = "0-3723,3725-65535"
+
 
 # https://stackoverflow.com/a/27966218
 # DO NOT PASS TO OTHER THREADS
@@ -203,6 +207,8 @@ def restart_FirewallService():
 def addNewRuleToFirewall(name, direction, action, port=None, protocol=None, remoteAddresses=None, applicationName=None,
                          grouping=None,
                          enabled=True):
+    # protocol=None means every protocol. Which protocols and ports a block covers is decided by
+    # blockingRuleSpecs(); this function only writes the rule it is given.
     firewall = dispatchFirewall()
     rule = dispatchFirewallRule()
     rule.Name = name
@@ -214,14 +220,9 @@ def addNewRuleToFirewall(name, direction, action, port=None, protocol=None, remo
         rule.ApplicationName = applicationName
     if grouping is not None:
         rule.Grouping = grouping
-    config = configparser.ConfigParser()
-    config.read(config_path)
-    exclude_port = get_state('exclude_udp_port_3724')
     if protocol is not None:
-        if exclude_port:
-            rule.Protocol = protocol  # For TCP use 6, for UDP use 17
-    if port is not None:
-        if exclude_port:
+        rule.Protocol = protocol  # Must be set before ports
+        if port is not None and protocol in (PROTOCOL_TCP, PROTOCOL_UDP):  # Windows only takes ports on TCP/UDP
             rule.RemotePorts = str(port)
     rule.enabled = enabled
     logging.debug(f"addNewRuleToFirewall adding rule {name}")
@@ -675,43 +676,35 @@ def blockServers(server_exception, block_exception=True, rule_name=DEFAULT_BLOCK
     controlButtons('normal')
 
 
+def blockingRuleSpecs():
+    """Return the (protocol, remote ports) pairs that a block covers; None means every protocol / every port.
+
+    Game-traffic-only mode (the default) blocks UDP and ICMP and leaves TCP open. Matches are played over UDP,
+    while logging in and the lobby go over TCP, sometimes to Blizzard addresses inside the same ranges as a game
+    server (Amsterdam / AMS1). Blocking every protocol on those ranges stopped the game at authentication.
+    """
+    exclude_3724 = get_state('exclude_udp_port_3724')
+    ports = PORTS_WITHOUT_3724 if exclude_3724 else None
+    if get_state_default('game_traffic_only', True):
+        return [(PROTOCOL_UDP, ports), (PROTOCOL_ICMPV4, None)]
+    if exclude_3724:
+        return [(PROTOCOL_TCP, ports), (PROTOCOL_UDP, ports)]
+    return [(None, None)]  # Original behaviour: block everything
+
+
 def blockIpRanges(ip_list, rule_name, rule_grouping):
     # A Windows Firewall Rule supports blocking unique 10_000 IP range entries. (Tested on Windows 8.1 and Windows 10)
-    overwatch_path = get_state("overwatch_path", as_boolean=False) if detectTunnelOption() else None
-    print(detectTunnelOption())
-    applicationName = overwatch_path if detectTunnelOption() else None
-    logging.debug("blockIpRanges function")
-    if (len(ip_list) <= 10_000):
-        ipRangesString = ','.join(ip_list)
-        addNewRuleToFirewall(rule_name, FIREWALL_DIRECTION_IN, FIREWALL_ACTION_BLOCK, "0-3723,3725-65535", 6,
-                             ipRangesString, applicationName, rule_grouping)
-        addNewRuleToFirewall(rule_name, FIREWALL_DIRECTION_OUT, FIREWALL_ACTION_BLOCK, "0-3723,3725-65535", 6
-                             , ipRangesString, applicationName, rule_grouping)
-        if get_state('exclude_udp_port_3724'):
-            addNewRuleToFirewall(rule_name, FIREWALL_DIRECTION_IN, FIREWALL_ACTION_BLOCK, "0-3723,3725-65535", 17,
-                                 ipRangesString, applicationName, rule_grouping)
-            addNewRuleToFirewall(rule_name, FIREWALL_DIRECTION_OUT, FIREWALL_ACTION_BLOCK, "0-3723,3725-65535", 17
-                                 , ipRangesString, applicationName, rule_grouping)
-        logging.info(f'Made rules "{rule_name} for IN/OUT"')
-    else:
-        indexedIpRangeList = list(enumerate(ip_list))
-        ipRangesGrouped = groupby(indexedIpRangeList, key=lambda item: item[0] // 10_000)  # Make 10_000 chunks
-        ipRangesGroupedDict = {k: [x[1] for x in v] for k, v in ipRangesGrouped}
-        ipRangesStringChunks = {key: ','.join(data) for (key, data) in ipRangesGroupedDict.items()}
-
-        for chunkNum, ipStringChunk in ipRangesStringChunks.items():
-            if chunkNum > 0:
-                rule_name = f'{rule_name} {chunkNum}'
-            addNewRuleToFirewall(rule_name, FIREWALL_DIRECTION_IN, FIREWALL_ACTION_BLOCK, ipStringChunk,
-                                 applicationName, rule_grouping, "0-3723,3725-65535", 6)
-            addNewRuleToFirewall(rule_name, FIREWALL_DIRECTION_OUT, FIREWALL_ACTION_BLOCK, ipStringChunk,
-                                 applicationName, rule_grouping, "0-3723,3725-65535", 6)
-            if get_state('exclude_udp_port_3724'):
-                addNewRuleToFirewall(rule_name, FIREWALL_DIRECTION_IN, FIREWALL_ACTION_BLOCK, ipStringChunk,
-                                     applicationName, rule_grouping, "0-3723,3725-65535", 17)
-                addNewRuleToFirewall(rule_name, FIREWALL_DIRECTION_OUT, FIREWALL_ACTION_BLOCK, ipStringChunk,
-                                     applicationName, rule_grouping, "0-3723,3725-65535", 17)
-            logging.info(f'Made rules "{rule_name} for IN/OUT"')
+    applicationName = get_state("overwatch_path", as_boolean=False) if detectTunnelOption() else None
+    ruleSpecs = blockingRuleSpecs()
+    logging.debug(f"blockIpRanges function, rule specs (protocol, ports): {ruleSpecs}")
+    for chunkNum, start in enumerate(range(0, len(ip_list), 10_000)):
+        ipRangesString = ','.join(ip_list[start:start + 10_000])
+        chunkRuleName = rule_name if chunkNum == 0 else f'{rule_name} {chunkNum}'
+        for protocol, ports in ruleSpecs:
+            for direction in (FIREWALL_DIRECTION_IN, FIREWALL_DIRECTION_OUT):
+                addNewRuleToFirewall(chunkRuleName, direction, FIREWALL_ACTION_BLOCK, ports, protocol,
+                                     ipRangesString, applicationName, rule_grouping)
+        logging.info(f'Made rules "{chunkRuleName}" for IN/OUT')
 
 
 def deleteRule(rule_name):  # Delete rule by exact name, name must be a string '' or list of strings
@@ -825,6 +818,20 @@ def get_state(checkbox_name, as_boolean=True):
         return state
     except (configparser.NoOptionError, configparser.NoSectionError):
         return False
+
+
+def get_state_default(checkbox_name, default):
+    # Like get_state, but for options that are on until the user turns them off.
+    if not exists(config_path):
+        return default
+    config = configparser.ConfigParser()
+    config.read(config_path)
+    if not config.has_option('OPTIONS', checkbox_name):
+        return default
+    try:
+        return config.getboolean('OPTIONS', checkbox_name)
+    except ValueError:
+        return default
 
 
 def tunnel():  # Handle tunnelling options for Overwatch.exe
@@ -1425,6 +1432,12 @@ def create_options_ini():
             config.write(configfile)
 
 
+def toggle_game_traffic_only():
+    add_option('game_traffic_only', game_traffic_only_state.get())
+    messagebox.showinfo("Setting saved", "Click your blocking button again (preset or Custom) "
+                                         "so the new setting is applied.")
+
+
 def exclude_udp():
     state = exclude_udp_in_block_state.get()
     if state:
@@ -1555,6 +1568,11 @@ exclude_udp_in_block_state.set(get_state('exclude_udp_port_3724'))  # Unchecked 
 options_menu.add_checkbutton(label='Exclude UDP Port 3724 from Blocking [Experimental]',
                              variable=exclude_udp_in_block_state,
                              command=lambda: threading.Thread(target=exclude_udp).start())
+game_traffic_only_state = BooleanVar()
+game_traffic_only_state.set(get_state_default('game_traffic_only', True))  # Checked by default
+options_menu.add_checkbutton(label='Block game traffic only (keeps login working)',
+                             variable=game_traffic_only_state,
+                             command=toggle_game_traffic_only)
 options_menu.add_command(label="Uninstall Me", command=uninstall)
 options_menu.add_command(label="Exit", command=app.quit)
 
@@ -1571,7 +1589,7 @@ internetLabel = Label(app, text='', bg='#282828', fg='#26ef4c', font=futrabook_f
 internetLabel.grid(row=0, column=0)
 internetLabel.place(x=250, y=420, anchor="center")
 
-versionLabel = Label(app, text=f'V {__version__}', bg='#282828', fg='#26ef4c', font=futrabook_font)
+versionLabel = Label(app, text=f'V {__version__} + login fix', bg='#282828', fg='#26ef4c', font=futrabook_font)
 versionLabel.grid(row=0, column=0)
 versionLabel.place(x=415, y=15, anchor="center")
 
