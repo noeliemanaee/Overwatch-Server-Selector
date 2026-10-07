@@ -33,7 +33,7 @@ import core
 import detect
 import latency
 
-VERSION = "0.1.4"
+VERSION = "0.1.5"
 PORT = 47815
 ON_WINDOWS = os.name == "nt"
 if ON_WINDOWS:
@@ -86,8 +86,20 @@ class Store:
         os.replace(tmp, os.path.join(self.folder, name))
 
 
-DEFAULT_SETTINGS = dict(theme="nuit", mode="normal", region="EU", blocked=["AMS1"], overwatch_only=True,
+DEFAULT_SETTINGS = dict(theme="nuit", regions=None, blocked=[], strict=True, overwatch_only=True,
                         overwatch_path=None, mask_ip=True, detection=True)
+
+
+def upgrade_settings(settings, db):
+    """Settings saved by 0.1.x used Route/Normal modes; turn them into the region selection."""
+    if "mode" in settings:
+        mode, region = settings.pop("mode"), settings.pop("region", None)
+        if settings.get("regions") is None:
+            settings["regions"] = [region] if mode == "route" and region in db.regions else None
+    if settings.get("regions") is None:
+        settings["regions"] = list(db.region_order)
+    settings["regions"] = [r for r in settings["regions"] if r in db.regions] or list(db.region_order)
+    return settings
 
 
 class App:
@@ -98,6 +110,10 @@ class App:
         self.settings = {**DEFAULT_SETTINGS, **self.store.load("settings.json", {})}
         self.learned = self.store.load("learned.json", {})
         self.db = core.ServerDB.load(resource("data", "servers.json"), self.learned)
+        self.settings = upgrade_settings(self.settings, self.db)
+        old_applied = self.store.load("applied.json", None)
+        if old_applied and "mode" in old_applied:  # saved by 0.1.x: describe it in today's terms
+            self.store.save("applied.json", dict(unknown=True, rules=old_applied.get("rules", 0), at=old_applied.get("at")))
         self.applied = self.store.load("applied.json", None)
         self.pings = {}
         self.measuring = set()
@@ -279,15 +295,15 @@ class App:
 
     # ------------------------------------------------------------ actions
     def apply(self, body):
-        mode = body.get("mode", self.settings["mode"])
-        region = body.get("region", self.settings["region"])
+        regions = [r for r in body.get("regions", self.settings["regions"]) if r in self.db.regions]
         blocked = [b for b in body.get("blocked", self.settings["blocked"]) if b in self.db.servers]
+        strict = bool(body.get("strict", self.settings["strict"]))
         overwatch_only = bool(body.get("overwatch_only", self.settings["overwatch_only"]))
         path = self.settings.get("overwatch_path") or (self._find_overwatch() if ON_WINDOWS else None)
-        specs = core.plan(self.db, mode, region=region, blocked=blocked, overwatch_path=path,
+        specs = core.plan(self.db, regions=regions, blocked=blocked, strict=strict, overwatch_path=path,
                           overwatch_only=overwatch_only)
         with self.lock:
-            self.settings.update(mode=mode, region=region, blocked=blocked, overwatch_only=overwatch_only)
+            self.settings.update(regions=regions, blocked=blocked, strict=strict, overwatch_only=overwatch_only)
             self.store.save("settings.json", self.settings)
         if not ON_WINDOWS:
             raise RuntimeError("Bifröst ne peut modifier le pare-feu que sous Windows.")
@@ -296,17 +312,19 @@ class App:
             count = 0
         else:
             count = self.fw.apply(specs)
+        all_regions = len(regions) == len(self.db.region_order)
         self.rule_count = count
-        self.applied = dict(mode=mode, region=region, blocked=blocked, overwatch_only=overwatch_only or mode == "route",
-                            rules=count, addresses=len(specs[0]["addresses"]) if specs else 0, at=now_iso())
+        self.applied = dict(regions=regions, blocked=blocked, strict=strict, rules=count,
+                            overwatch_only=overwatch_only or (strict and not all_regions), at=now_iso())
         self.store.save("applied.json", self.applied)
-        if mode == "route":
-            name = self.db.regions[region]["name"]
-            extra = f", sans {', '.join(blocked)}" if blocked else ""
-            text = f"Route {name}{extra} appliquée. Relance Overwatch si une partie était en cours."
+        names = ", ".join(self.db.regions[r]["name"] for r in regions)
+        if not count:
+            text = "Rien n'est bloqué : Overwatch choisit seul."
+        elif all_regions:
+            text = f"Serveurs évités : {', '.join(blocked)}."
         else:
-            text = (f"Liste noire appliquée : {', '.join(blocked)}." if blocked else "Aucun serveur bloqué.")
-        self.event(text, "ok", "excitee", 6)
+            text = f"Tu joues avec les joueurs de : {names}" + (f", sans {', '.join(blocked)}" if blocked else "") + "."
+        self.event(text + " Relance Overwatch si une partie était en cours.", "ok", "excitee", 6)
         return self.applied
 
     def unblock(self):
@@ -314,11 +332,14 @@ class App:
             self.fw.remove_all()
         self.rule_count = 0
         self.applied = None
+        with self.lock:
+            self.settings.update(regions=list(self.db.region_order), blocked=[])
+            self.store.save("settings.json", self.settings)
         try:
             os.remove(os.path.join(self.folder, "applied.json"))
         except OSError:
             pass
-        self.event("Tout est débloqué : Overwatch choisit à nouveau seul.", "ok", "rieuse", 5)
+        self.event("Tout est débloqué : toutes les régions sont rallumées, Overwatch choisit seul.", "ok", "rieuse", 5)
 
     def learn(self, body):
         ip = body.get("ip", "")
@@ -600,14 +621,14 @@ def selftest(report_path):
 
     db = core.ServerDB.load(resource("data", "servers.json"))
     notepad = os.path.join(os.environ.get("SystemRoot", r"C:\Windows"), "System32", "notepad.exe")
-    step("plan route EU sans AMS1", lambda: len(core.plan(db, "route", region="EU", blocked=["AMS1"], overwatch_path=notepad)))
-    step("plan liste noire", lambda: len(core.plan(db, "normal", blocked=["AMS1", "MES1"], overwatch_path=None, overwatch_only=False)))
+    step("plan Europe seule sans AMS1", lambda: len(core.plan(db, regions=["EU"], blocked=["AMS1"], overwatch_path=notepad)))
+    step("plan crânes seuls", lambda: len(core.plan(db, blocked=["AMS1", "MES1"], overwatch_path=None, overwatch_only=False)))
 
     fw = winfw.Firewall(group="Bifrost selftest")
     step("état du pare-feu", fw.status)
-    step("appliquer route EU (notepad)", lambda: fw.apply(core.plan(db, "route", region="EU", blocked=["AMS1"], overwatch_path=notepad)))
+    step("appliquer Europe seule (notepad)", lambda: fw.apply(core.plan(db, regions=["EU"], blocked=["AMS1"], overwatch_path=notepad)))
     step("règles visibles", lambda: sorted(fw.our_rules()))
-    step("appliquer liste noire (tout le PC)", lambda: fw.apply(core.plan(db, "normal", blocked=["AMS1", "MES1"], overwatch_only=False)))
+    step("appliquer crânes (tout le PC)", lambda: fw.apply(core.plan(db, blocked=["AMS1", "MES1"], overwatch_only=False)))
     step("tout débloquer", lambda: (fw.remove_all(), fw.our_rules())[1])
 
     step("ping 1.1.1.1", lambda: winfw.ping("1.1.1.1"), critical=False)

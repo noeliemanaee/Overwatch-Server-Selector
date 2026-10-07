@@ -86,11 +86,14 @@ body[data-theme="pixel"] h2{font-size:13px;font-weight:400}
 .hint{color:var(--muted);font-weight:700;font-size:13px;margin:0}
 .tabs{display:flex;gap:6px;padding:4px;background:var(--card);border:1px solid var(--line);border-radius:var(--pill)}
 .tabs button{flex:1;border:none;background:transparent;border-radius:var(--pill);padding:10px 12px;font-weight:800;cursor:pointer;min-height:44px}
-.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+.tabs button[aria-selected="true"],.tabs button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.linkish{background:none;border:none;color:var(--accent);font-weight:800;cursor:pointer;padding:6px 0;min-height:36px;white-space:nowrap}
 body[data-theme="pixel"] .tabs{border:none;box-shadow:0 -3px 0 0 var(--line),0 3px 0 0 var(--line),-3px 0 0 0 var(--line),3px 0 0 0 var(--line)}
 .regions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.regions button{border:1.5px solid var(--line);background:var(--card);border-radius:14px;padding:8px 10px;font-weight:800;font-size:13px;cursor:pointer;min-height:44px;text-align:left}
-.regions button[aria-pressed="true"]{border-color:var(--green);background:var(--green-bg)}
+.regions button{position:relative;border:1.5px solid var(--line);background:var(--card);border-radius:14px;padding:8px 10px;font-weight:800;font-size:13px;cursor:pointer;min-height:58px;text-align:left;opacity:.55;transition:opacity .15s,background .15s,border-color .15s}
+.regions button[aria-pressed="true"]{border-color:var(--green);background:var(--green-bg);opacity:1;box-shadow:0 0 0 3px color-mix(in srgb,var(--green) 22%,transparent)}
+.regions button .mark{position:absolute;right:8px;top:8px;line-height:0}
+.regions button[aria-pressed="false"] .rname{text-decoration:line-through;text-decoration-thickness:2px}
 body[data-theme="pixel"] .regions button{border-radius:0;border-width:3px}
 .group-title{font-size:12px;font-weight:800;letter-spacing:1px;color:var(--muted);margin:6px 0 0;text-transform:uppercase}
 body[data-theme="pixel"] .group-title{font-family:'Press Start 2P',monospace;font-size:9px;font-weight:400;letter-spacing:0}
@@ -242,23 +245,23 @@ details.journal summary{cursor:pointer;font-weight:800;min-height:28px}
       </div>
     </section>
 
-    <div class="tabs" role="tablist" aria-label="Mode">
-      <button type="button" role="tab" id="tabRoute" aria-selected="false">Route</button>
-      <button type="button" role="tab" id="tabNormal" aria-selected="true">Normal</button>
-    </div>
-    <p class="hint" id="modeHint"></p>
-
-    <div id="routeBox" hidden>
-      <h2>Ta région</h2>
-      <div class="regions" id="regions" role="group" aria-label="Région"></div>
-    </div>
+    <section aria-labelledby="regTitle" style="display:flex;flex-direction:column;gap:10px">
+      <h2 id="regTitle">Je joue avec les joueurs de…</h2>
+      <div class="tabs" role="group" aria-label="Façon de choisir les régions">
+        <button type="button" id="multiBtn" aria-pressed="true">Plusieurs régions</button>
+        <button type="button" id="singleBtn" aria-pressed="false">Une seule</button>
+      </div>
+      <div class="regions" id="regions" role="group" aria-label="Régions"></div>
+      <div class="row between"><p class="hint" id="regHint"></p><button type="button" class="linkish" id="allBtn" hidden>Tout rallumer</button></div>
+    </section>
 
     <div>
-      <div class="row between"><h2 id="listTitle">Serveurs</h2><span class="hint" id="listHint">touche le cœur ou le crâne</span></div>
+      <div class="row between"><h2 id="listTitle">Serveurs</h2><span class="hint" id="listHint">un crâne pour éviter un serveur</span></div>
       <div id="serverList" style="display:flex;flex-direction:column;gap:6px;margin-top:8px"></div>
     </div>
 
     <div class="switches">
+      <label class="switch"><input type="checkbox" id="optStrict"><span class="track"><span class="knob"></span></span><span>Couper aussi les adresses inconnues<small>quand une région est éteinte, même les serveurs absents des listes sont coupés (conseillé)</small></span></label>
       <label class="switch"><input type="checkbox" id="optOw"><span class="track"><span class="knob"></span></span><span>Seulement Overwatch<small id="owPath">Overwatch.exe introuvable : lance le jeu une fois</small></span></label>
       <label class="switch"><input type="checkbox" id="optDetect"><span class="track"><span class="knob"></span></span><span>Détection en direct<small>voit sur quel serveur tu joues, via le journal du pare-feu</small></span></label>
     </div>
@@ -279,7 +282,7 @@ details.journal summary{cursor:pointer;font-weight:800;min-height:28px}
     </details>
 
     <div class="foot">
-      <a href="https://noevalky.com/personnages/" target="_blank" rel="noopener">Rencontrer NOE ↗</a>
+      <a href="https://noevalky.com/" target="_blank" rel="noopener">Rencontrer NOE ↗</a>
       <button type="button" id="noeFolder">Dossier de NOE</button>
       <span>fork de <a href="https://github.com/foryVERX/Overwatch-Server-Selector" target="_blank" rel="noopener">MINA · foryVERX</a></span>
       <span id="version"></span>
@@ -367,17 +370,21 @@ function regionMsHtml(rid) {
   return `<span class="${pingClass(best.ms)}">${best.estimate ? "≈ " : ""}${best.ms} ms</span>${busy ? DOTS : ""}`;
 }
 
-// Is a server cut by the current draft?
+let pickOne = false;    // "Une seule" : a tile click keeps only that region
+function allRegionIds() { return DB.regions.map((r) => r.id); }
+function regionOn(rid) { return !!draft && draft.regions.includes(rid); }
+function allOn() { return !!draft && draft.regions.length === DB.regions.length; }
+// Is a server cut by the current draft? (its region is off, or it wears a skull)
 function draftBlocks(id) {
   const s = serverById(id);
   if (!draft) return false;
-  if (draft.mode === "route") return s.region !== draft.region || draft.blocked.includes(id);
-  return draft.blocked.includes(id);
+  return !regionOn(s.region) || draft.blocked.includes(id);
 }
 function sameDraft(a, b) {
-  if (!a || !b) return false;
-  const bl = (x) => [...(x.blocked || [])].sort().join(",");
-  return a.mode === b.mode && (a.mode !== "route" || a.region === b.region) && bl(a) === bl(b);
+  if (!b) return allOn() && !a.blocked.length;  // nothing applied: same only if nothing is chosen
+  if (b.unknown) return false;
+  const key = (x) => [...(x || [])].sort().join(",");
+  return key(a.regions) === key(b.regions) && key(a.blocked) === key(b.blocked) && (allOn() || a.strict === b.strict);
 }
 
 // ------------------------------------------------------------------ panel
@@ -430,49 +437,53 @@ function renderPanel() {
     }
   } else { card.hidden = true; }
 
-  // mode
-  $("tabRoute").setAttribute("aria-selected", String(draft.mode === "route"));
-  $("tabNormal").setAttribute("aria-selected", String(draft.mode === "normal"));
-  $("modeHint").textContent = draft.mode === "route"
-    ? "Tu choisis ta région : tout le reste du monde est coupé pour Overwatch. Mets un crâne pour éviter un serveur de la région."
-    : "Rien n'est coupé, sauf les serveurs où tu mets un crâne.";
-  $("routeBox").hidden = draft.mode !== "route";
-  if (draft.mode === "route") {
-    $("regions").innerHTML = DB.regions.map((r) => {
-      const n = DB.servers.filter((s) => s.region === r.id).map((s) => s.id).join(" · ");
-      return `<button type="button" data-region="${r.id}" aria-pressed="${r.id === draft.region}">${esc(r.name)}<span class="rping">${regionMsHtml(r.id)}</span><span class="hint" style="font-size:11px">${esc(n)}</span></button>`;
-    }).join("");
-  }
+  // regions
+  $("multiBtn").setAttribute("aria-pressed", String(!pickOne));
+  $("singleBtn").setAttribute("aria-pressed", String(pickOne));
+  $("regions").innerHTML = DB.regions.map((r) => {
+    const on = regionOn(r.id);
+    const n = DB.servers.filter((s) => s.region === r.id).map((s) => s.id).join(" · ");
+    return `<button type="button" data-region="${r.id}" aria-pressed="${on}" aria-label="${esc(r.name)} : ${on ? "allumée, cliquer pour l'exclure" : "exclue, cliquer pour la reprendre"}">`
+      + `<span class="mark">${iconSvg(on ? "heart" : "skull", on ? cssVar("--blue") : cssVar("--red"), 14)}</span>`
+      + `<span class="rname">${esc(r.name)}</span><span class="rping">${regionMsHtml(r.id)}</span><span class="hint" style="font-size:11px">${esc(n)}</span></button>`;
+  }).join("");
+  const offCount = DB.regions.length - draft.regions.length;
+  $("regHint").textContent = !offCount ? (pickOne ? "Clique une région pour ne garder qu'elle." : "Toutes les régions sont allumées : Overwatch choisit librement.")
+    : draft.regions.length === 1 ? `Seulement ${regionName(draft.regions[0])} : le reste du monde est coupé pour Overwatch.`
+    : `${offCount} région${offCount > 1 ? "s" : ""} exclue${offCount > 1 ? "s" : ""}. Reclique une tuile pour la reprendre.`;
+  $("allBtn").hidden = !offCount;
 
   // server list
-  const list = draft.mode === "route" ? DB.servers.filter((s) => s.region === draft.region) : DB.servers;
-  $("listTitle").textContent = draft.mode === "route" ? "Serveurs · " + regionName(draft.region) : "Serveurs";
   const groups = [];
-  list.forEach((s) => {
-    const g = draft.mode === "route" ? "" : DB.regions.find((r) => r.id === s.region).group;
+  DB.servers.forEach((s) => {
+    const g = DB.regions.find((r) => r.id === s.region).group;
     let grp = groups.find((x) => x.name === g);
     if (!grp) groups.push(grp = { name: g, items: [] });
     grp.items.push(s);
   });
   const drops = det.drops || {};
   $("serverList").innerHTML = groups.map((g) =>
-    (g.name ? `<div class="group-title">${esc(g.name)}</div>` : "") + g.items.map((s) => {
-      const off = draft.blocked.includes(s.id);
+    `<div class="group-title">${esc(g.name)}</div>` + g.items.map((s) => {
+      const regionOff = !regionOn(s.region);
+      const off = regionOff || draft.blocked.includes(s.id);
       const ms = pingOf(s.id);
       const isCur = cur && cur.server === s.id;
+      const why = regionOff ? ` · région exclue` : "";
       return `<div class="srv${off ? " off" : ""}${isCur ? " current" : ""}">
-        <div class="name"><b>${esc(s.id)}${isCur ? " · en partie" : ""}</b><span>${esc(s.city)}, ${esc(s.country)}${drops[s.id] ? ` · <span class="drops">${drops[s.id]} tentative${drops[s.id] > 1 ? "s" : ""} bloquée${drops[s.id] > 1 ? "s" : ""}</span>` : ""}</span></div>
+        <div class="name"><b>${esc(s.id)}${isCur ? " · en partie" : ""}</b><span>${esc(s.city)}, ${esc(s.country)}${why}${drops[s.id] ? ` · <span class="drops">${drops[s.id]} tentative${drops[s.id] > 1 ? "s" : ""} bloquée${drops[s.id] > 1 ? "s" : ""}</span>` : ""}</span></div>
         <span class="ms ${pingClass(ms)}">${msHtml(s.id)}</span>
-        <button type="button" class="toggle" data-toggle="${s.id}" aria-pressed="${off}" aria-label="${esc(s.id)} ${off ? "bloqué, autoriser" : "autorisé, bloquer"}">${iconSvg(off ? "skull" : "heart", off ? cssVar("--red") : cssVar("--blue"), 22)}</button>
+        <button type="button" class="toggle" data-toggle="${s.id}" aria-pressed="${off}"${regionOff ? " disabled" : ""} aria-label="${esc(s.id)} ${regionOff ? "exclu avec sa région" : off ? "bloqué, autoriser" : "autorisé, bloquer"}">${iconSvg(off ? "skull" : "heart", off ? cssVar("--red") : cssVar("--blue"), 22)}</button>
       </div>`;
     }).join("")).join("");
 
   // options
   const path = st.overwatch_path;
   $("owPath").textContent = path ? path : "Overwatch.exe introuvable : lance le jeu une fois";
+  const forced = !allOn() && draft.strict;
   const optOw = $("optOw");
-  optOw.checked = draft.mode === "route" ? true : draft.overwatch_only;
-  optOw.disabled = draft.mode === "route";
+  optOw.checked = forced ? true : draft.overwatch_only;
+  optOw.disabled = forced;
+  $("optStrict").checked = !!draft.strict;
   $("optDetect").checked = !!st.detection;
 
   // applied
@@ -480,8 +491,9 @@ function renderPanel() {
   let txt;
   if (!a) txt = "Rien n'est bloqué : Overwatch choisit seul.";
   else if (a.unknown) txt = `<b>${a.rules} règles Bifröst</b> déjà présentes dans le pare-feu.`;
-  else if (a.mode === "route") txt = `Actif : <b>Route ${esc(regionName(a.region))}${a.blocked.length ? " sans " + esc(a.blocked.join(", ")) : ""}</b> · ${a.rules} règles`;
-  else txt = a.blocked.length ? `Actif : <b>${esc(a.blocked.join(", "))} bloqué${a.blocked.length > 1 ? "s" : ""}</b> · ${a.rules} règles` : "Rien n'est bloqué.";
+  else if (!a.rules) txt = "Rien n'est bloqué : Overwatch choisit seul.";
+  else if (a.regions.length === DB.regions.length) txt = `Actif : <b>${esc(a.blocked.join(", "))} évité${a.blocked.length > 1 ? "s" : ""}</b> · ${a.rules} règles`;
+  else txt = `Actif : <b>joueurs de ${esc(a.regions.map(regionName).join(", "))}${a.blocked.length ? " · sans " + esc(a.blocked.join(", ")) : ""}</b> · ${a.rules} règles`;
   if (!sameDraft(draft, a)) txt += ` · <span class="dirty">changements à appliquer</span>`;
   $("appliedText").innerHTML = txt;
 
@@ -633,7 +645,7 @@ function renderGlobe() {
   else if (draft) {
     const allowed = DB.servers.filter((s) => !draftBlocks(s.id));
     allowed.sort((a, b) => (pingOf(a.id) ?? 999) - (pingOf(b.id) ?? 999));
-    if (allowed.length && (draft.mode === "route" || draft.blocked.length)) { target = allowed[0]; preview = true; }
+    if (allowed.length && (!allOn() || draft.blocked.length)) { target = allowed[0]; preview = true; }
   }
   const arcs = $("gArcs");
   if (target) {
@@ -658,14 +670,15 @@ function renderGlobe() {
     if (p.z > .05) {
       const kind = off ? "skull" : "heart";
       const color = isCur ? green : off ? red : blue;
-      const size = isCur || (off && (draft.mode === "normal" || s.region === draft.region)) ? 1.1 : off ? .8 : .75;
-      markup += `<g transform="translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})" data-srv="${s.id}" style="cursor:pointer" opacity="${off && draft.mode === "route" && s.region !== draft.region ? .75 : 1}">${markerIconMarkup(kind, color, size, theme)}<circle r="16" fill="transparent"/></g>`;
+      const regionOff = !regionOn(s.region);
+      const size = isCur || (off && !regionOff) ? 1.1 : off ? .8 : .75;
+      markup += `<g transform="translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})" data-srv="${s.id}" style="cursor:pointer" opacity="${regionOff ? .75 : 1}">${markerIconMarkup(kind, color, size, theme)}<circle r="16" fill="transparent"/></g>`;
       if (isCur) setWave("w" + s.id, p, green, theme);
       else if (drops[s.id]) setWave("w" + s.id, p, red, theme);
     }
     if (p.z > .2) {
       const ms = pingOf(s.id);
-      const big = isCur || (off && (draft.mode === "normal" || s.region === draft.region));
+      const big = isCur || (off && regionOn(s.region));
       const lead = isCur ? "en partie · " : off ? "bloqué · " : "";
       labels.push({ id: s.id, x: p.x, y: p.y, big, cls: isCur ? "current" : off ? "blocked" : "",
         title: `${s.id} · ${s.city}`, sub: lead + msText(ms), subHtml: esc(lead) + msHtml(s.id), prio: isCur ? 3 : big ? 2 : 1 });
@@ -756,8 +769,8 @@ function rotateTo(to) {
 // ------------------------------------------------------------------ actions
 function toggleServer(id) {
   const s = serverById(id);
-  if (draft.mode === "route" && s.region !== draft.region) {
-    toast(`${id} est hors de ta région : choisis ${regionName(s.region)} pour y jouer.`);
+  if (!regionOn(s.region)) {
+    toast(`${regionName(s.region)} est exclue : rallume sa tuile pour jouer sur ${id}.`);
     return;
   }
   const i = draft.blocked.indexOf(id);
@@ -770,7 +783,15 @@ document.addEventListener("click", async (e) => {
   const t = e.target.closest("button");
   if (!t) return;
   if (t.dataset.toggle) return toggleServer(t.dataset.toggle);
-  if (t.dataset.region) { draft.region = t.dataset.region; draft.blocked = draft.blocked.filter((id) => serverById(id).region === draft.region); return renderAll(); }
+  if (t.dataset.region) {
+    const rid = t.dataset.region;
+    if (pickOne) draft.regions = [rid];
+    else if (regionOn(rid)) {
+      if (draft.regions.length === 1) return toast("Garde au moins une région allumée.");
+      draft.regions = draft.regions.filter((r) => r !== rid);
+    } else draft.regions = allRegionIds().filter((r) => r === rid || draft.regions.includes(r));
+    return renderAll();
+  }
   if (t.dataset.themeBtn) {
     S.settings.theme = t.dataset.themeBtn; $("gBase").dataset.sig = ""; noeMood = null;
     Object.values(G.waves).forEach((w) => w.g.remove()); G.waves = {};
@@ -779,8 +800,9 @@ document.addEventListener("click", async (e) => {
     return;
   }
   switch (t.id) {
-    case "tabRoute": draft.mode = "route"; draft.blocked = draft.blocked.filter((id) => serverById(id).region === draft.region); return renderAll();
-    case "tabNormal": draft.mode = "normal"; return renderAll();
+    case "multiBtn": pickOne = false; return renderAll();
+    case "singleBtn": pickOne = true; return renderAll();
+    case "allBtn": draft.regions = allRegionIds(); return renderAll();
     case "applyBtn": {
       t.disabled = true;
       try { await api("/api/apply", draft); toast("Appliqué ! Relance Overwatch si une partie était en cours."); await refresh(); }
@@ -789,7 +811,7 @@ document.addEventListener("click", async (e) => {
       return;
     }
     case "unblockBtn":
-      try { await api("/api/unblock", {}); draft.blocked = []; toast("Tout est débloqué."); await refresh(); } catch (err) { toast(err.message, true); }
+      try { await api("/api/unblock", {}); draft.regions = allRegionIds(); draft.blocked = []; toast("Tout est débloqué : cœurs partout !"); await refresh(); } catch (err) { toast(err.message, true); }
       return;
     case "ipEye":
       if (!ipShown && !S.public_ip) { try { await api("/api/publicip", {}); await refresh(); } catch (err) { return toast("IP introuvable : " + err.message, true); } }
@@ -810,6 +832,7 @@ document.addEventListener("click", async (e) => {
   }
 });
 $("optOw").addEventListener("change", (e) => { draft.overwatch_only = e.target.checked; renderPanel(); });
+$("optStrict").addEventListener("change", (e) => { draft.strict = e.target.checked; renderPanel(); });
 $("optDetect").addEventListener("change", async (e) => {
   try { await api("/api/settings", { detection: e.target.checked }); await refresh(); } catch (err) { toast(err.message, true); }
 });
@@ -819,7 +842,7 @@ async function refresh() {
   S = await api("/api/state");
   if (!draft) {
     const st = S.settings;
-    draft = { mode: st.mode, region: st.region, blocked: [...st.blocked], overwatch_only: st.overwatch_only };
+    draft = { regions: [...(st.regions || allRegionIds())], blocked: [...st.blocked], strict: st.strict !== false, overwatch_only: st.overwatch_only };
   }
   renderAll();
 }

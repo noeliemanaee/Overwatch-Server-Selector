@@ -4,15 +4,17 @@ Sélecteur de serveurs Overwatch 2 de l'univers NOEVALKY. Fork de
 [MINA Overwatch 2 Server Selector](https://github.com/foryVERX/Overwatch-Server-Selector) par foryVERX,
 dont il reprend les listes d'adresses.
 
-## Les deux modes
+## Choisir avec qui jouer
 
-- **Route** : tu choisis une région. Tout le trafic de jeu d'Overwatch vers le reste du monde est coupé,
-  y compris vers des adresses qu'aucune liste ne connaît encore. Un crâne sur un serveur de la région l'évite aussi
-  (« Europe, mais pas AMS1 »).
-- **Normal** : rien n'est coupé, sauf les serveurs où tu mets un crâne.
+- **Les tuiles de régions** (« Je joue avec les joueurs de… ») sont toutes allumées au départ. Un clic éteint une région,
+  un second la reprend. Le sélecteur « Une seule » garde seulement la région cliquée.
+- **Un crâne sur un serveur** l'évite même si sa région est allumée (« Europe, mais pas AMS1 »).
+- **« Couper aussi les adresses inconnues »** (conseillé) : quand une région est éteinte, tout le trafic de jeu d'Overwatch
+  hors des régions allumées est coupé, y compris vers des adresses qu'aucune liste ne connaît encore.
+- **« Tout débloquer »** retire les règles et rallume toutes les régions.
 
-Dans les deux cas, seuls l'UDP et l'ICMP sont bloqués : la connexion Battle.net et le lobby (TCP) passent toujours.
-Le mode Route ne touche qu'à Overwatch.exe ; le mode Normal aussi, tant que « Seulement Overwatch » reste coché.
+Seuls l'UDP et l'ICMP sont bloqués : la connexion Battle.net et le lobby (TCP) passent toujours.
+Le blocage ne touche qu'à Overwatch.exe (forcé dès qu'une région est coupée strictement, au choix sinon).
 
 ## Détection en direct
 

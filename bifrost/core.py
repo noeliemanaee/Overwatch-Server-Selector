@@ -161,38 +161,42 @@ class ServerDB:
         return None
 
 
-def plan(db, mode, region=None, blocked=(), overwatch_path=None, overwatch_only=True):
+def plan(db, regions=None, blocked=(), strict=True, overwatch_path=None, overwatch_only=True):
     """Turn the user's choice into rule specs.
 
-    mode "route":  every UDP/ICMP flow of Overwatch is blocked except towards `region`
-                   (minus the servers in `blocked`) and the home network. Needs Overwatch's path.
-    mode "normal": only the servers in `blocked` are cut.
-    TCP is never touched, so Battle.net login and the game lobby always keep working.
+    regions: the regions whose players you want to play with (None or all of them = no region cut).
+    blocked: servers to avoid even inside those regions (a skull on the globe).
+    strict:  when some regions are left out, cut *every* address outside the chosen regions for Overwatch,
+             including addresses no list knows yet (needs Overwatch's path). Without it, only the known
+             addresses of the left-out regions are cut.
+    Only UDP and ICMP are blocked: TCP stays open, so Battle.net login and the game lobby always work.
     """
+    all_regions = list(db.region_order)
+    regions = [r for r in (regions if regions is not None else all_regions) if r in db.regions]
+    if not regions:
+        raise ValueError("Garde au moins une région allumée.")
     blocked = [b for b in blocked if b in db.servers]
-    if mode == "route":
-        if region not in db.regions:
-            raise ValueError("Choisis une région pour le mode Route.")
-        if not overwatch_path:
-            raise ValueError("Le mode Route a besoin de savoir où est Overwatch.exe : lance le jeu une fois.")
-        allowed = db.region_intervals(region)
-        cut = []
-        for sid in blocked:
-            cut += db.server_intervals(sid)
-        allowed = subtract(allowed, cut)
-        keep = merge(allowed + [parse_entry(p) for p in PRIVATE])
-        target = complement(keep)
-        label = f"Route {region}"
-        app = overwatch_path
-    elif mode == "normal":
-        target = []
-        for sid in blocked:
-            target += db.server_intervals(sid)
-        target = subtract(merge(target), [parse_entry(p) for p in PRIVATE])
-        label = "Liste noire " + " ".join(blocked) if blocked else "Liste noire"
+    cut_servers = merge(i for sid in blocked for i in db.server_intervals(sid))
+    private = [parse_entry(p) for p in PRIVATE]
+    left_out = [r for r in all_regions if r not in regions]
+
+    if not left_out:
+        target = subtract(cut_servers, private)
         app = overwatch_path if (overwatch_only and overwatch_path) else None
+        label = "Sans " + " ".join(blocked) if blocked else "Libre"
+    elif strict:
+        if not overwatch_path:
+            raise ValueError("Pour couper les autres régions, Bifröst doit savoir où est Overwatch.exe : lance le jeu une fois.")
+        allowed = subtract(merge(i for r in regions for i in db.region_intervals(r)), cut_servers)
+        target = complement(merge(allowed + private))
+        app = overwatch_path
+        label = "Avec " + " ".join(regions)
     else:
-        raise ValueError(f"Mode inconnu : {mode}")
+        allowed = merge(i for r in regions for i in db.region_intervals(r))
+        excluded = merge(i for r in left_out for i in db.region_intervals(r))
+        target = subtract(merge(subtract(excluded, allowed) + cut_servers), private)
+        app = overwatch_path if (overwatch_only and overwatch_path) else None
+        label = "Sans " + " ".join(left_out + blocked)
 
     if not target:
         return []
