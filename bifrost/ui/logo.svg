@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="night" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2A2063"/><stop offset="1" stop-color="#0D0A1E"/></linearGradient>
+    <radialGradient id="sea" cx=".38" cy=".32" r=".8"><stop offset="0" stop-color="#8FD0FF"/><stop offset=".55" stop-color="#5AB0FF"/><stop offset="1" stop-color="#3B6FD8"/></radialGradient>
+    <clipPath id="ball"><circle cx="128" cy="178" r="30"/></clipPath>
+  </defs>
+  <rect x="8" y="8" width="240" height="240" rx="58" fill="url(#night)"/>
+  <g fill="#D9D0FF">
+    <circle cx="52" cy="58" r="3"/><circle cx="196" cy="44" r="2.4"/><circle cx="88" cy="34" r="2"/><circle cx="214" cy="104" r="2"/><circle cx="40" cy="118" r="2.2"/>
+  </g>
+  <path d="M176 60l4.5 13.5L194 78l-13.5 4.5L176 96l-4.5-13.5L158 78l13.5-4.5z" fill="#FFC857"/>
+  <g fill="none" stroke-width="19" stroke-linecap="round">
+    <path d="M38 186a90 90 0 0 1 180 0" stroke="#F56BE2"/>
+    <path d="M60 186a68 68 0 0 1 136 0" stroke="#5AB0FF"/>
+    <path d="M82 186a46 46 0 0 1 92 0" stroke="#45E3A0"/>
+  </g>
+  <circle cx="128" cy="178" r="30" fill="url(#sea)" stroke="#0D0A1E" stroke-width="5"/>
+  <g clip-path="url(#ball)" fill="#2F7A5A" opacity=".9">
+    <path d="M104 166c8-6 18-4 22 2s-2 12 4 16 4 12-4 14-14-2-18-8-12-18-4-24z"/>
+    <path d="M140 156c8 0 14 6 12 12s-10 4-12 10-8 4-10-2 2-20 10-20z"/>
+  </g>
+  <path d="M128 182c-4-6-14-5-14 2 0 6 8 10 14 15 6-5 14-9 14-15 0-7-10-8-14-2z" fill="#F56BE2" stroke="#FFFFFF" stroke-width="3"/>
+  <circle cx="117" cy="166" r="5" fill="#FFFFFF" opacity=".55"/>
+</svg>

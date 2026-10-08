@@ -46,6 +46,7 @@ jobs:
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
+          make_latest: true
           tag_name: bifrost-v0.1.${{ github.run_number }}
           name: Bifröst 0.1 (build ${{ github.run_number }})
           body: |

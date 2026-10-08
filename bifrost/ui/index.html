@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bifröst · NOEVALKY</title>
+<link rel="icon" type="image/png" sizes="256x256" href="/ui/logo-256.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/ui/logo-32.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@500;600;700;800&family=JetBrains+Mono:wght@500&family=Press+Start+2P&family=Pixelify+Sans:wght@400;600;700&family=VT323&display=swap">
 <script src="/ui/i18n.js"></script>
@@ -75,7 +77,8 @@ body[data-theme="pixel"] .icon-btn{border-radius:0;border-width:3px}
 .noe-bg{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity .5s;pointer-events:none}
 .noe-bg.on{opacity:1}
 .noe-bg::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at var(--gx,50%) 50%,color-mix(in srgb,var(--bg) 70%,transparent) 0,color-mix(in srgb,var(--bg) 45%,transparent) 330px,color-mix(in srgb,var(--bg) 10%,transparent) 560px),linear-gradient(to bottom,color-mix(in srgb,var(--bg) 55%,transparent) 0,transparent 120px,transparent calc(100% - 90px),color-mix(in srgb,var(--bg) 70%,transparent) 100%)}
-.has-bg .brand small,.has-bg .stage-foot{text-shadow:0 0 6px var(--bg),0 0 2px var(--bg)}
+.has-bg .brand small,.has-bg .stage-foot .legend{background:color-mix(in srgb,var(--panel) 84%,transparent);border-radius:var(--pill);padding:3px 10px}
+.has-bg .brand small{display:inline-block;margin-top:6px}
 body[data-theme="pixel"] .noe-bg{image-rendering:pixelated}
 .noetty{position:absolute;right:24px;bottom:78px;z-index:4;display:flex;align-items:flex-end;gap:8px;max-width:420px}
 .noetty .art{border:none;background:none;padding:0;cursor:pointer;animation:flotte 3.6s ease-in-out infinite;line-height:0}
@@ -335,8 +338,10 @@ function pickLang() {
 }
 function t(key, vars) {
   const s = (I18N.strings[LANG] || {})[key] ?? I18N.strings.fr[key] ?? key;
-  return fill(s, vars);
+  return typo(fill(s, vars));
 }
+// In French the space before ! ? : ; » (and after «) must never break the line.
+function typo(text) { return LANG === "fr" ? text.replace(/ ([!?:;»])/g, "\u202F$1").replace(/« /g, "«\u202F") : text; }
 // Same, for innerHTML: the template may hold <b>, the values are escaped.
 function tHtml(key, vars) {
   const safe = {};
@@ -648,7 +653,7 @@ function noettySay(key, vars) {
   if (!line) return false;
   const m = /^\[(\w+)\]\s*/.exec(line);  // "[mdr] …": the face she makes for this line
   const box = $("noettySay");
-  box.textContent = fill(m ? line.slice(m[0].length) : line, vars);
+  box.textContent = typo(fill(m ? line.slice(m[0].length) : line, vars));
   box.classList.add("show");
   N.face = m ? m[1] : "parle";
   N.talking = true; renderNoetty();
@@ -901,7 +906,8 @@ function placeLabels(labels, theme) {
   labels.sort((a, b) => b.prio - a.prio);
   const html = [];
   for (const l of labels) {
-    const w = (theme === "pixel" ? 9.5 : 7.2) * Math.max(textUnits(l.title), textUnits(l.sub) + 2) + 26;
+    const unit = theme === "pixel" ? 9.5 : 7.2;
+    const w = l.big ? unit * Math.max(textUnits(l.title), textUnits(l.sub) + 2) + 26 : unit * (textUnits(l.title) + textUnits(l.sub) + 2) + 22;
     const h = l.big ? (theme === "pixel" ? 38 : 44) : 22;
     const tries = l.home ? [[-w - 14, 18], [16, 18], [-w - 14, -h - 10]] : l.big ? [[18, -h - 6], [-w - 18, -h - 6], [18, 10], [-w - 18, 10]] : [[12, -h - 4], [12, 6], [-w - 12, -h - 4], [-w - 12, 6], [12, 22], [-w / 2, 14]];
     let spot = null;
@@ -976,31 +982,31 @@ function toggleServer(id) {
 function renderAll() { renderPanel(); renderGlobe(); renderNoe(); renderNoetty(); noettyTick(); }
 
 document.addEventListener("click", async (e) => {
-  const t = e.target.closest("button");
-  if (!t) return;
-  if (t.dataset.toggle) return toggleServer(t.dataset.toggle);
-  if (t.dataset.region) {
-    const rid = t.dataset.region;
+  const btn = e.target.closest("button");
+  if (!btn) return;
+  if (btn.dataset.toggle) return toggleServer(btn.dataset.toggle);
+  if (btn.dataset.region) {
+    const rid = btn.dataset.region;
     if (pickOne) draft.regions = [rid];
     else if (regionOn(rid)) draft.regions = draft.regions.filter((r) => r !== rid); else draft.regions = allRegionIds().filter((r) => r === rid || draft.regions.includes(r));
     return renderAll();
   }
-  if (t.dataset.themeBtn) {
-    S.settings.theme = t.dataset.themeBtn; $("gBase").dataset.sig = "";
+  if (btn.dataset.themeBtn) {
+    S.settings.theme = btn.dataset.themeBtn; $("gBase").dataset.sig = "";
     Object.values(G.waves).forEach((w) => w.g.remove()); G.waves = {};
     renderAll();
-    api("/api/settings", { theme: t.dataset.themeBtn }).catch((err) => toast(err.message, true));
+    api("/api/settings", { theme: btn.dataset.themeBtn }).catch((err) => toast(err.message, true));
     return;
   }
-  switch (t.id) {
+  switch (btn.id) {
     case "multiBtn": pickOne = false; return renderAll();
     case "singleBtn": pickOne = true; return renderAll();
     case "allBtn": draft.regions = allRegionIds(); return renderAll();
     case "applyBtn": {
-      t.disabled = true;
+      btn.disabled = true;
       try { await api("/api/apply", draft); toast(t("toast_applied")); noettySay("applique"); await refresh(); }
       catch (err) { toast(err.message, true); }
-      finally { t.disabled = false; }
+      finally { btn.disabled = false; }
       return;
     }
     case "unblockBtn":

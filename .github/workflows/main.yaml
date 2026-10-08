@@ -36,6 +36,7 @@ jobs:
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
+          make_latest: false
           tag_name: v5.3.1-loginfix-${{ github.run_number }}
           name: 5.3.1 + login fix (build ${{ github.run_number }})
           body: Blocks only game traffic (UDP/ICMP) so logging in keeps working when AMS1 is blocked.
