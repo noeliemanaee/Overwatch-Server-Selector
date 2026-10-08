@@ -16,6 +16,7 @@ import http.server
 import json
 import mimetypes
 import os
+import re
 import secrets
 import socket
 import subprocess
@@ -33,7 +34,7 @@ import detect
 import latency
 import noetty
 
-VERSION = "0.1.10"
+VERSION = "0.1.11"
 PORT = 47815
 ON_WINDOWS = os.name == "nt"
 if ON_WINDOWS:
@@ -575,15 +576,60 @@ def open_window(url, folder):
     return None
 
 
+LOCAL = urllib.request.build_opener(urllib.request.ProxyHandler({}))  # never through a proxy: it's this PC
+
+
+def port_busy(port):
+    try:
+        socket.create_connection(("127.0.0.1", port), timeout=0.5).close()
+        return True
+    except OSError:
+        return False
+
+
+def running_instance(port=PORT):
+    """(version, token) of a Bifröst already serving on this PC, or None. Works with every 0.1.x: the token is
+    in the page it serves, and /api/state gives the version."""
+    try:
+        with LOCAL.open(f"http://127.0.0.1:{port}/", timeout=4) as r:
+            page = r.read().decode("utf-8", "replace")
+        m = re.search(r'const TOKEN = "([^"]+)"', page)
+        if not m:
+            return None
+        req = urllib.request.Request(f"http://127.0.0.1:{port}/api/state", headers={"X-Bifrost-Token": m.group(1)})
+        with LOCAL.open(req, timeout=6) as r:
+            return json.load(r)["result"]["version"], m.group(1)
+    except Exception:
+        return None
+
+
+def ask_to_quit(port, token):
+    req = urllib.request.Request(f"http://127.0.0.1:{port}/api/quit", data=b"{}", method="POST",
+                                 headers={"X-Bifrost-Token": token, "Content-Type": "application/json"})
+    try:
+        with LOCAL.open(req, timeout=6) as r:
+            r.read()
+    except Exception:
+        pass
+
+
 def run(no_window=False):
     folder = data_dir()
-    try:
-        probe = socket.create_connection(("127.0.0.1", PORT), timeout=0.5)
-        probe.close()
-        open_window(f"http://127.0.0.1:{PORT}/", folder)  # already running: just show it
-        return 0
-    except OSError:
-        pass
+    if port_busy(PORT):
+        other = running_instance()
+        if other and other[0] == VERSION:
+            open_window(f"http://127.0.0.1:{PORT}/", folder)  # already running: just show it
+            return 0
+        # Another version is still running (often the previous one, left open during an update): it would keep
+        # serving its old interface. Ask it to quit and take its place.
+        if other:
+            ask_to_quit(PORT, other[1])
+        deadline = time.time() + 15
+        while port_busy(PORT) and time.time() < deadline:
+            time.sleep(0.5)
+        if port_busy(PORT):
+            open_window(f"http://127.0.0.1:{PORT}/", folder)
+            return 0
     app = App(folder)
     server, _ = make_server(app, PORT)
     threading.Thread(target=server.serve_forever, daemon=True).start()
@@ -659,6 +705,7 @@ def selftest(report_path):
     step("journal : restaurer", lambda: (winfw.restore_logging(saved), winfw.logging_state())[1])
 
     step("API web locale", _api_roundtrip)
+    step("reprise d'une instance déjà lancée", _takeover_roundtrip)
 
     ok = all(r["ok"] for r in results if r["critical"])
     report = dict(version=VERSION, ok=ok, at=now_iso(), results=results)
@@ -745,6 +792,27 @@ def _api_roundtrip():
     finally:
         server.shutdown()
         app.shutdown()
+
+
+def _takeover_roundtrip():
+    """A running Bifröst is found (version + token) and quits when asked, as when a new version starts."""
+    folder = os.path.join(data_dir(), "selftest")
+    os.makedirs(folder, exist_ok=True)
+    app = App(folder)
+    port = 47898
+    server, token = make_server(app, port)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    try:
+        info = running_instance(port)
+        if not info or info[1] != token:
+            raise RuntimeError(f"instance non trouvée : {info}")
+        ask_to_quit(port, info[1])
+        if not app.stopping.wait(5):
+            raise RuntimeError("l'instance n'a pas accepté de s'arrêter")
+        return dict(version=info[0])
+    finally:
+        server.shutdown()
+        server.server_close()
 
 
 def main():
