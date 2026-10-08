@@ -33,7 +33,7 @@ import detect
 import latency
 import noetty
 
-VERSION = "0.1.7"
+VERSION = "0.1.8"
 PORT = 47815
 ON_WINDOWS = os.name == "nt"
 if ON_WINDOWS:

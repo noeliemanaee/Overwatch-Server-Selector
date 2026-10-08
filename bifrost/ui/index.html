@@ -49,7 +49,7 @@ body[data-theme="pixel"] .lang{border-radius:0;border-width:3px}
 .themes button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
 .stars{position:absolute;inset:0;pointer-events:none;opacity:0}
 body[data-theme="nuit"] .stars{opacity:1}
-.globe-wrap{position:absolute;left:50%;top:50%;width:600px;height:600px;transform-origin:center center}
+.globe-wrap{position:absolute;left:50%;top:50%;width:600px;height:600px;transform-origin:center center;transition:left .5s}
 .globe-wrap svg{position:absolute;left:0;top:0;overflow:visible;touch-action:none;cursor:grab}
 .globe-wrap svg.grabbing{cursor:grabbing}
 .labels{position:absolute;left:0;top:0;width:600px;height:600px;pointer-events:none}
@@ -74,7 +74,7 @@ body[data-theme="pixel"] .icon-btn{border-radius:0;border-width:3px}
 /* NOE, in the background of the globe; a veil in the theme's colour keeps the globe readable */
 .noe-bg{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity .5s;pointer-events:none}
 .noe-bg.on{opacity:1}
-.noe-bg::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,color-mix(in srgb,var(--bg) 72%,transparent) 0,color-mix(in srgb,var(--bg) 48%,transparent) 62%,color-mix(in srgb,var(--bg) 34%,transparent) 100%),linear-gradient(to bottom,color-mix(in srgb,var(--bg) 55%,transparent) 0,transparent 120px,transparent calc(100% - 90px),color-mix(in srgb,var(--bg) 70%,transparent) 100%)}
+.noe-bg::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at var(--gx,50%) 50%,color-mix(in srgb,var(--bg) 70%,transparent) 0,color-mix(in srgb,var(--bg) 45%,transparent) 330px,color-mix(in srgb,var(--bg) 10%,transparent) 560px),linear-gradient(to bottom,color-mix(in srgb,var(--bg) 55%,transparent) 0,transparent 120px,transparent calc(100% - 90px),color-mix(in srgb,var(--bg) 70%,transparent) 100%)}
 .has-bg .brand small,.has-bg .stage-foot{text-shadow:0 0 6px var(--bg),0 0 2px var(--bg)}
 body[data-theme="pixel"] .noe-bg{image-rendering:pixelated}
 .noetty{position:absolute;right:24px;bottom:78px;z-index:4;display:flex;align-items:flex-end;gap:8px;max-width:420px}
@@ -595,16 +595,26 @@ function renderPanel() {
 const learnDismissed = new Set();
 
 // ------------------------------------------------------------------ NOE (background)
-let noeBgUrl = null;
+let noeBgUrl = null, noeBgRatio = 0;
 function renderNoe() {
   const bgs = (S && S.noe && S.noe.backgrounds) || {};
   const url = bgs[S.settings.theme || "nuit"] || null;
   if (url === noeBgUrl) return;
   noeBgUrl = url;
   const box = $("noeBg");
-  box.style.backgroundImage = url ? `url("${url}")` : "";
-  box.classList.toggle("on", !!url);
-  $("stage").classList.toggle("has-bg", !!url);
+  if (!url) {
+    box.style.backgroundImage = ""; box.classList.remove("on"); $("stage").classList.remove("has-bg"); fitGlobe();
+    return;
+  }
+  const img = new Image();
+  img.onload = () => {
+    if (noeBgUrl !== url) return;
+    noeBgRatio = img.naturalWidth / img.naturalHeight;
+    box.style.backgroundImage = `url("${url}")`;
+    box.classList.add("on"); $("stage").classList.add("has-bg");
+    fitGlobe();
+  };
+  img.src = url;
 }
 
 // ------------------------------------------------------------------ Nœtty
@@ -716,11 +726,28 @@ function isLand(lon, lat) {
 function homeLL() { return (DB && DB.home && DB.home.lonlat) || [2.35, 48.86]; }
 function defaultRot() { const h = homeLL(); return [-(h[0] + 12), -(h[1] - 6)]; }
 
+// With NOE in the background, the globe moves right so she keeps the left of the stage.
 function fitGlobe() {
   const stage = $("stage"), wrap = $("globeWrap");
-  const k = Math.max(.5, Math.min(1.25, (stage.clientHeight - 150) / 600, (stage.clientWidth - 60) / 600));
+  const W = stage.clientWidth, H = stage.clientHeight, side = stage.classList.contains("has-bg");
+  const k = Math.max(.5, Math.min(1.25, (H - 150) / 600, (side ? W * .6 : W - 60) / 600));
+  const cx = side ? Math.min(W * .64, W - 300 * k - 16) : W / 2;
+  wrap.style.left = cx + "px";
   wrap.style.transform = `translate(-50%,-50%) scale(${k})`;
+  stage.style.setProperty("--gx", (cx / Math.max(W, 1) * 100).toFixed(1) + "%");
   G.scale = k;
+  placeNoe();
+}
+// NOE's face (about 30 % from the left of her picture) lands at 20 % of the stage.
+const NOE_FOCUS = .3;
+function placeNoe() {
+  const box = $("noeBg"), ratio = noeBgRatio;
+  if (!ratio) return;
+  const W = $("stage").clientWidth, H = $("stage").clientHeight;
+  const Wi = Math.max(W, H * ratio);
+  const x = Math.min(0, Math.max(W - Wi, W * .2 - NOE_FOCUS * Wi));
+  box.style.backgroundSize = "cover";
+  box.style.backgroundPosition = `${x.toFixed(0)}px center`;
 }
 
 function p3(rotate, ll, h) {

@@ -33,7 +33,8 @@ quel serveur c'est (le nom s'affiche en jeu avec Ctrl+Maj+N) et s'en souvient.
 NOE apparaît en fond, derrière le globe, sous un voile aux couleurs du thème. Son image va dans
 `%LOCALAPPDATA%\Bifrost\noe` (bouton « Dossier des personnages ») : `fond.png` pour tous les thèmes, ou
 `fond-nuit.png`, `fond-doux.png`, `fond-pixel.png` pour un thème précis. Format conseillé : 16:9, NOE dans le tiers
-gauche, en bas, le centre calme pour le globe. Une image intégrée peut aussi être posée dans `data/noe/`.
+gauche, en bas. Sans image dans ce dossier, Bifröst montre celle intégrée (`data/noe/fond.webp`, NOE sur un toit
+sous le Bifröst). Avec un fond, le globe se décale à droite pour laisser NOE visible à gauche.
 
 ## Nœtty
 
