@@ -1,0 +1,78 @@
+{
+ "tout_coupe": [
+  "[malice] Ehm… così non potrai più giocare a OW. Vai a toccare l'erba, è questo il piano?",
+  "[ko] Tutto tagliato. Neanche Mercy può resuscitarti adesso.",
+  "[clin] Zero server. La pausa più efficace della storia di Overwatch.",
+  "[triste] Nemmeno un server… Guardiamo le stelle, invece?"
+ ],
+ "tout_allume": [
+  "[boude] Comportamento predefinito di OW, come se l'app non avesse fatto niente.",
+  "[popcorn] Tutto acceso: Overwatch sceglie da solo. Io mi giro i pollici.",
+  "[coeur] Cuori ovunque! Tutto il mondo può venire a giocare con te.",
+  "[inquiete] Modalità «mi fido del matchmaking». Che coraggio."
+ ],
+ "ping_bon": [
+  "[rire] {region}: {ms} ms. Vedrai i proiettili prima ancora che partano.",
+  "[coeur] {ms} ms verso {region}… praticamente telepatia.",
+  "[malice] {region} risponde in {ms} ms. Niente scuse se manchi gli headshot.",
+  "[sourire] Ping di {ms} ms in {region}. Il tuo raggio di Mercy sarà di una precisione chirurgica."
+ ],
+ "ping_moyen": [
+  "[sourire] {region}: {ms} ms. Giocabile, ma tieni i riflessi caldi.",
+  "[clin] {ms} ms verso {region}. Va bene, finché non giochi Genji contro un Winston.",
+  "[timide] {region} a {ms} ms: una gitarella, non ancora una spedizione."
+ ],
+ "ping_haut": [
+  "[inquiete] Il ping di {region} è di {ms} ms. Conoscerai gente nuova, ma laggherà!",
+  "[clin] {region} a {ms} ms… Ti consiglio Reinhardt: nessuno si accorgerà che non ci vedi.",
+  "[bleh] {ms} ms verso {region}: i tuoi «Mi servono cure!» arriveranno un po' dopo di te.",
+  "[inquiete] {ms} ms… Le tue resurrezioni arriveranno con un piccolo ritardo poetico."
+ ],
+ "ping_enorme": [
+  "[malice] Con un ping di {ms}, se pensavi di giocare Widow, non aspettarti di giocare come Kenzo.",
+  "[mdr] {region} a {ms} ms. Non stai più giocando, stai spedendo lettere.",
+  "[mdr] {ms} ms verso {region}… Il tuo Hanzo tira oggi e colpisce domani.",
+  "[popcorn] {region}: {ms} ms. Non è lag, è un rallenty da cinema.",
+  "[ko] {ms} ms? Quando arriva il tuo proiettile, la partita è già finita."
+ ],
+ "applique": [
+  "[rire] Fatto! Riavvia Overwatch per farmi entrare in azione.",
+  "[plisse] Regole impostate. Il Bifröst è aperto nella direzione giusta.",
+  "[clin] Applicato! Faccio la guardia alla porta, promesso."
+ ],
+ "bloque": [
+  "[bleh] {server} ha provato a prenderti {n} volte. Mancato!",
+  "[fachee] Ho rispedito {server} a casa. {n} volte.",
+  "[boude] {server} bussa alla porta. Non apre nessuno."
+ ],
+ "partie": [
+  "[rire] Stai giocando su {server}. Buona partita!",
+  "[coeur] In viaggio verso {server}, {ms} ms. Che la cura sia con te.",
+  "[sourire] {server} trovato! Ricordati di bere tra una partita e l'altra."
+ ],
+ "inconnu": [
+  "[supplie] Oh? Overwatch parla con un indirizzo che non conosco. Mi dici che server è?",
+  "[rire] Nuovo indirizzo trovato! Premi Ctrl+Maiusc+N in gioco e dimmi come si chiama."
+ ],
+ "ow_ferme": [
+  "[plisse] Overwatch è chiuso. Ti aspetto qui, con calma.",
+  "[sourire] Nessun Overwatch all'orizzonte. Puoi preparare il percorso prima di avviare il gioco."
+ ],
+ "astuces": [
+  "[rire] Afferra il globo per farlo girare!",
+  "[malice] Clicca un server sul globo per mettergli un teschio… o ridargli il suo cuore.",
+  "[sourire] In gioco, Ctrl+Maiusc+N mostra il nome del tuo server.",
+  "[sourire] Il piccolo mirino sotto il globo ti riporta a casa.",
+  "[sourire] In modalità «Una sola», un clic su una regione tiene solo quella.",
+  "[timide] I ping con ≈ sono stime. Passaci sopra col mouse per sapere da dove vengono.",
+  "[sourire] Dopo «Applica», riavvia Overwatch se eri in partita.",
+  "[clin] Il tuo IP è nascosto di default. Comodo quando sei in live.",
+  "[sourire] Il rilevamento dal vivo vede il tuo server circa 30 secondi dopo l'inizio della partita.",
+  "[sourire] Il Registro, in fondo al pannello, elenca gli indirizzi contattati da Overwatch.",
+  "[sourire] «Sblocca tutto» riaccende tutte le regioni e toglie tutte le mie regole.",
+  "[coeur] Puoi cambiare tema in alto a destra: Notte, Morbido o Pixel.",
+  "[inquiete] Quando chiudi la finestra, le mie regole restano attive. «Sblocca tutto» se vuoi tornare alla normalità.",
+  "[clin] Cliccami per un'altra nuvoletta!",
+  "[rire] Parlo nove lingue! Scegli la tua in alto a destra."
+ ]
+}

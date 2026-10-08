@@ -23,7 +23,6 @@ import sys
 import threading
 import time
 import traceback
-import unicodedata
 import urllib.parse
 import urllib.request
 import webbrowser
@@ -34,7 +33,7 @@ import detect
 import latency
 import noetty
 
-VERSION = "0.1.6"
+VERSION = "0.1.7"
 PORT = 47815
 ON_WINDOWS = os.name == "nt"
 if ON_WINDOWS:
@@ -44,8 +43,11 @@ for _ext, _type in ((".js", "application/javascript"), (".json", "application/js
                     (".webp", "image/webp"), (".svg", "image/svg+xml"), (".html", "text/html")):
     mimetypes.add_type(_type, _ext)  # the Windows registry sometimes says text/plain
 
-MOODS = ["neutre", "souriante", "rieuse", "excitee", "surprise", "boudeuse", "triste", "genee"]
-NOE_EXT = (".png", ".webp", ".gif", ".jpg", ".jpeg", ".webm")
+LANGS = ("fr", "en", "de", "es", "it", "ja", "ko", "sv", "zh")
+# Windows primary language ids (LANGID & 0x3ff) of the languages Bifröst speaks.
+WINDOWS_LANG = {0x0C: "fr", 0x09: "en", 0x07: "de", 0x0A: "es", 0x10: "it", 0x11: "ja", 0x12: "ko", 0x1D: "sv", 0x04: "zh"}
+THEMES = ("nuit", "doux", "pixel")
+NOE_EXT = (".png", ".webp", ".gif", ".jpg", ".jpeg")
 
 
 def resource(*parts):
@@ -60,13 +62,19 @@ def data_dir():
     return path
 
 
+def system_lang():
+    """Windows display language as one of LANGS ('en' for any other language, None off Windows)."""
+    if not ON_WINDOWS:
+        return None
+    try:
+        import ctypes
+        return WINDOWS_LANG.get(ctypes.windll.kernel32.GetUserDefaultUILanguage() & 0x3FF, "en")
+    except Exception:
+        return None
+
+
 def now_iso():
     return datetime.datetime.now().isoformat(timespec="seconds")
-
-
-def plain(s):
-    """'Excitée' -> 'excitee' (file names of NOE's moods)."""
-    return "".join(c for c in unicodedata.normalize("NFD", s.lower()) if unicodedata.category(c) != "Mn")
 
 
 class Store:
@@ -87,7 +95,7 @@ class Store:
         os.replace(tmp, os.path.join(self.folder, name))
 
 
-DEFAULT_SETTINGS = dict(theme="nuit", regions=None, blocked=[], strict=True, overwatch_only=True,
+DEFAULT_SETTINGS = dict(theme="nuit", lang=None, regions=None, blocked=[], strict=True, overwatch_only=True,
                         overwatch_path=None, mask_ip=True, detection=True)
 
 
@@ -120,7 +128,6 @@ class App:
         self.measuring = set()
         self.public_ip = None
         self.events = deque(maxlen=40)
-        self.flash = None  # (mood, until)
         self.firewall_state = {}
         self.rule_count = None
         self.logging_saved = self.store.load("logging-original.json", None)
@@ -128,28 +135,17 @@ class App:
         self.logging_error = None
         self.last_heartbeat = time.time()
         self.stopping = threading.Event()
+        self.system_lang = system_lang()
         self.fw = winfw.Firewall() if ON_WINDOWS else None
         self.detector = detect.Detector(lambda: self.db, winfw.overwatch_process if ON_WINDOWS else (lambda: None))
         self._prepare_noe_folder()
-        noetty.prepare(folder)
+        noetty.prepare(folder, resource("data", "noetty"))
 
-    # ------------------------------------------------------------ journal & mood
-    def event(self, text, level="info", mood=None, seconds=6):
+    # ------------------------------------------------------------ journal
+    def event(self, key, params=None, level="info"):
+        """A journal line: `key` names its text in the interface's translations (ui/i18n.js), `params` fill it in."""
         with self.lock:
-            self.events.appendleft(dict(at=now_iso(), text=text, level=level))
-            if mood:
-                self.flash = (mood, time.time() + seconds)
-
-    def mood(self, snap):
-        if self.flash and self.flash[1] > time.time():
-            return self.flash[0]
-        if snap.get("unknown"):
-            return "surprise"
-        if any(f["drop"] and f["ago"] < 120 for f in snap.get("flows", [])):
-            return "boudeuse"
-        if snap.get("running") and snap.get("current") and snap["current"]["ago"] < 1800:
-            return "souriante"
-        return "neutre"
+            self.events.appendleft(dict(at=now_iso(), key=key, params=params or {}, level=level))
 
     # ------------------------------------------------------------ start / stop
     def start(self):
@@ -162,15 +158,15 @@ class App:
         try:
             self.firewall_state = self.fw.status()
             if not all(self.firewall_state.values()):
-                self.event("Le pare-feu Windows est désactivé sur ce réseau : aucun blocage ne peut marcher.", "error", "triste", 20)
+                self.event("ev_fw_off", None, "error")
         except Exception as e:
-            self.event(f"Impossible de lire l'état du pare-feu : {e}", "error", "triste")
+            self.event("ev_fw_read_error", dict(e=str(e)), "error")
         try:
             self.rule_count = len(self.fw.our_rules())
             if self.rule_count and not self.applied:
                 self.applied = dict(unknown=True, rules=self.rule_count, at=now_iso())
         except Exception as e:
-            self.event(f"Impossible de lister les règles : {e}", "error")
+            self.event("ev_rules_list_error", dict(e=str(e)), "error")
         if not self.settings.get("overwatch_path"):
             self._find_overwatch()
         if self.settings.get("detection"):
@@ -185,7 +181,7 @@ class App:
             with self.lock:
                 self.settings["overwatch_path"] = path
                 self.store.save("settings.json", self.settings)
-            self.event(f"Overwatch trouvé : {path}")
+            self.event("ev_ow_found", dict(path=path))
         return path
 
     def set_detection(self, on):
@@ -202,14 +198,14 @@ class App:
                 winfw.enable_logging()
                 self.detector.set_log_files(winfw.log_files(self.logging_saved))
                 self.logging_on, self.logging_error = True, None
-                self.event("Détection en direct activée (journal du pare-feu).")
+                self.event("ev_detect_on")
             elif not on and self.logging_on:
                 self._restore_logging()
                 self.detector.set_log_files([])
-                self.event("Détection en direct désactivée.")
+                self.event("ev_detect_off")
         except Exception as e:
             self.logging_error = str(e)
-            self.event(f"Détection indisponible : {e}", "error", "triste")
+            self.event("ev_detect_unavailable", dict(e=str(e)), "error")
 
     def _restore_logging(self):
         if self.logging_saved:
@@ -292,7 +288,7 @@ class App:
                         elif sid in self.pings and not self.pings[sid].get("stale"):
                             self.pings[sid] = dict(self.pings[sid], stale=True)
             except Exception as e:
-                self.event(f"Mesure des pings impossible : {e}", "error")
+                self.event("ev_ping_error", dict(e=str(e)), "error")
             self.stopping.wait(60)
 
     # ------------------------------------------------------------ actions
@@ -308,7 +304,7 @@ class App:
             self.settings.update(regions=regions, blocked=blocked, strict=strict, overwatch_only=overwatch_only)
             self.store.save("settings.json", self.settings)
         if not ON_WINDOWS:
-            raise RuntimeError("Bifröst ne peut modifier le pare-feu que sous Windows.")
+            raise core.UserError("err_windows_only", "Bifröst ne peut modifier le pare-feu que sous Windows.")
         if not specs:
             self.fw.remove_all()
             count = 0
@@ -319,14 +315,13 @@ class App:
         self.applied = dict(regions=regions, blocked=blocked, strict=strict, rules=count,
                             overwatch_only=overwatch_only or (strict and not all_regions), at=now_iso())
         self.store.save("applied.json", self.applied)
-        names = ", ".join(self.db.regions[r]["name"] for r in regions)
         if not count:
-            text = "Rien n'est bloqué : Overwatch choisit seul."
+            key = "ev_applied_free"
         elif all_regions:
-            text = f"Serveurs évités : {', '.join(blocked)}."
+            key = "ev_applied_avoided"
         else:
-            text = f"Tu joues avec les joueurs de : {names}" + (f", sans {', '.join(blocked)}" if blocked else "") + "."
-        self.event(text + " Relance Overwatch si une partie était en cours.", "ok", "excitee", 6)
+            key = "ev_applied_regions_without" if blocked else "ev_applied_regions"
+        self.event(key, dict(regions=regions, servers=blocked), "ok")
         return self.applied
 
     def unblock(self):
@@ -341,7 +336,7 @@ class App:
             os.remove(os.path.join(self.folder, "applied.json"))
         except OSError:
             pass
-        self.event("Tout est débloqué : toutes les régions sont rallumées, Overwatch choisit seul.", "ok", "rieuse", 5)
+        self.event("ev_unblocked", None, "ok")
 
     def learn(self, body):
         ip = body.get("ip", "")
@@ -352,13 +347,12 @@ class App:
         elif body.get("region") in self.db.regions:
             entry["region"] = body["region"]
         else:
-            raise ValueError("Choisis un serveur ou une région.")
+            raise core.UserError("err_choose", "Choisis un serveur ou une région.")
         with self.lock:
             self.learned[ip] = entry
             self.store.save("learned.json", self.learned)
             self.db.set_learned(self.learned)
-        label = entry.get("server") or self.db.regions[entry["region"]]["name"]
-        self.event(f"Retenu : {ip} → {label}. Pense à réappliquer pour que le blocage en tienne compte.", "ok", "rieuse", 5)
+        self.event("ev_learned", dict(ip=ip, server=entry.get("server"), region=entry.get("region")), "ok")
 
     def forget(self, body):
         with self.lock:
@@ -371,10 +365,12 @@ class App:
             for key in ("theme", "mask_ip"):
                 if key in body:
                     self.settings[key] = body[key]
+            if "lang" in body:
+                self.settings["lang"] = body["lang"] if body["lang"] in LANGS else None
             if body.get("overwatch_path"):
                 path = body["overwatch_path"].strip().strip('"')
                 if not path.lower().endswith("overwatch.exe") or not os.path.isfile(path):
-                    raise ValueError("Ce chemin ne mène pas à Overwatch.exe.")
+                    raise core.UserError("err_bad_ow_path", "Ce chemin ne mène pas à Overwatch.exe.")
                 self.settings["overwatch_path"] = path
             self.store.save("settings.json", self.settings)
         if "detection" in body:
@@ -393,34 +389,52 @@ class App:
         folder = self.noe_folder()
         os.makedirs(folder, exist_ok=True)
         readme = os.path.join(folder, "LISEZ-MOI.txt")
-        if not os.path.exists(readme):
+        text = ("NOE apparaît en fond, derrière le globe.\n\n"
+                "Pose ici son image :\n"
+                "  fond.png                  pour tous les thèmes\n"
+                "  fond-nuit.png, fond-doux.png, fond-pixel.png   pour un thème précis (prioritaires)\n"
+                "(.png, .webp, .jpg ou .gif). Format conseillé : 16:9, NOE dans le tiers gauche, en bas,\n"
+                "le centre calme pour le globe. Sans image ici, Bifröst garde le fond intégré.\n")
+        try:
+            with open(readme, encoding="utf-8") as f:
+                same = f.read() == text
+        except OSError:
+            same = False
+        if not same:
             with open(readme, "w", encoding="utf-8") as f:
-                f.write("Dépose ici les images de NOE, une par humeur, nommées :\n"
-                        + "\n".join(f"  {m}.png  (ou .webp, .gif, .webm)" for m in MOODS)
-                        + "\n\nBifröst choisit l'humeur selon ce qui se passe (connectée, bloquée, inconnue...).\n"
-                          "Les répliques de la bulle se mettent dans repliques.json, une liste de phrases par humeur.\n")
-        lines = os.path.join(folder, "repliques.json")
-        if not os.path.exists(lines):
-            with open(lines, "w", encoding="utf-8") as f:
-                json.dump({m: [] for m in MOODS}, f, ensure_ascii=False, indent=1)
+                f.write(text)
+        old_lines = os.path.join(folder, "repliques.json")  # 0.1.6 template; NOE has no bubble any more
+        try:
+            with open(old_lines, encoding="utf-8") as f:
+                empty = not any(json.load(f).values())
+            if empty:
+                os.remove(old_lines)
+        except (OSError, ValueError, AttributeError):
+            pass
 
     def noe(self):
-        folder = self.noe_folder()
-        images = {}
-        try:
-            for name in sorted(os.listdir(folder)):
+        """NOE's background for each theme: fond-<theme> then fond, from her folder first, then built in."""
+        def find(folder, prefix):
+            try:
+                names = sorted(os.listdir(folder))
+            except OSError:
+                return {}
+            found = {}
+            for name in names:
                 stem, ext = os.path.splitext(name)
-                key = plain(stem)
-                if ext.lower() in NOE_EXT and key in MOODS and key not in images:
-                    images[key] = "/noe/" + urllib.parse.quote(name)
-        except OSError:
-            pass
-        try:
-            with open(os.path.join(folder, "repliques.json"), encoding="utf-8") as f:
-                lines = {plain(k): [str(x) for x in v if str(x).strip()] for k, v in json.load(f).items() if isinstance(v, list)}
-        except (OSError, ValueError, AttributeError):
-            lines = {}
-        return dict(images=images, lines=lines, folder=folder)
+                if ext.lower() in NOE_EXT and stem.lower().startswith("fond") and stem.lower() not in found:
+                    found[stem.lower()] = prefix + urllib.parse.quote(name)
+            return found
+        local = find(self.noe_folder(), "/noe/")
+        builtin = find(resource("data", "noe"), "/media/noe/")
+        backgrounds = {}
+        for theme in THEMES:
+            for source in (local, builtin):
+                url = source.get(f"fond-{theme}") or source.get("fond")
+                if url:
+                    backgrounds[theme] = url
+                    break
+        return dict(backgrounds=backgrounds, folder=self.noe_folder())
 
     # ------------------------------------------------------------ state for the interface
     def static_db(self):
@@ -429,11 +443,20 @@ class App:
                     servers=[{k: self.db.servers[s][k] for k in ("id", "city", "country", "region", "lonlat", "provider")}
                              for s in self.db.server_order])
 
-    def state(self):
+    def lang(self, asked=None):
+        """The interface's language: the one it asks for, else the one chosen in Bifröst, else Windows'."""
+        for lang in (asked, self.settings.get("lang"), self.system_lang):
+            if lang in LANGS:
+                return lang
+        return "en"
+
+    def state(self, lang=None):
         self.last_heartbeat = time.time()
         snap = self.detector.snapshot()
-        return dict(version=VERSION, settings=self.settings, applied=self.applied, rule_count=self.rule_count,
-                    pings=self.pings, measuring=sorted(self.measuring), detection=snap, mood=self.mood(snap), noe=self.noe(), noetty=noetty.load(self.folder),
+        lang = self.lang(lang)
+        return dict(version=VERSION, lang=lang, system_lang=self.system_lang, settings=self.settings, applied=self.applied, rule_count=self.rule_count,
+                    pings=self.pings, measuring=sorted(self.measuring), detection=snap, noe=self.noe(),
+                    noetty=noetty.load(self.folder, resource("data", "noetty"), lang),
                     learned=self.learned, firewall=self.firewall_state, logging_on=self.logging_on,
                     logging_error=self.logging_error, public_ip=self.public_ip, events=list(self.events),
                     windows=ON_WINDOWS)
@@ -494,11 +517,17 @@ class Handler(http.server.BaseHTTPRequestHandler):
         if p.startswith("/noetty/"):
             name = os.path.basename(urllib.parse.unquote(p[8:]))
             return self._file(os.path.join(noetty.folder(self.app.folder), name))
+        if p.startswith("/media/"):  # pictures built into Bifröst: /media/noetty/<file>, /media/noe/<file>
+            kind, _, name = urllib.parse.unquote(p[7:]).partition("/")
+            if kind in ("noetty", "noe"):
+                sub = ("noetty", "img") if kind == "noetty" else ("noe",)
+                return self._file(resource("data", *sub, os.path.basename(name)))
+            return self._send(404, {"error": "introuvable"})
         if p.startswith("/noe/"):
             name = os.path.basename(urllib.parse.unquote(p[5:]))
             return self._file(os.path.join(self.app.noe_folder(), name))
         if p.startswith("/api/"):
-            return self._api("GET", p, {})
+            return self._api("GET", p, dict(urllib.parse.parse_qsl(url.query)))
         self._send(404, {"error": "introuvable"})
 
     def do_POST(self):
@@ -516,7 +545,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return self._send(403, {"error": "jeton manquant"})
         app = self.app
         routes = {
-            ("GET", "/api/state"): app.state,
+            ("GET", "/api/state"): lambda: app.state(body.get("lang")),
             ("GET", "/api/db"): app.static_db,
             ("POST", "/api/apply"): lambda: app.apply(body),
             ("POST", "/api/unblock"): app.unblock,
@@ -533,11 +562,14 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return self._send(404, {"error": "route inconnue"})
         try:
             self._send(200, {"ok": True, "result": fn()})
+        except core.UserError as e:
+            app.event(e.key, e.params, "error")
+            self._send(400, {"ok": False, "error": str(e), "error_key": e.key, "params": e.params})
         except (ValueError, RuntimeError) as e:
-            app.event(str(e), "error", "triste", 8)
+            app.event("ev_error", dict(e=str(e)), "error")
             self._send(400, {"ok": False, "error": str(e)})
         except Exception as e:
-            app.event(f"Erreur : {e}", "error", "triste", 8)
+            app.event("ev_error", dict(e=str(e)), "error")
             self._send(500, {"ok": False, "error": str(e), "trace": traceback.format_exc()[-1500:]})
 
 

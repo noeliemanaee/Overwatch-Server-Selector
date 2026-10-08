@@ -1,134 +1,137 @@
 """Nœtty, the NOEVALKY mascot floating next to the globe: her image(s) and the lines she says.
 
-Her pictures are Noelie's own: Bifröst never draws her. Drop them in %LOCALAPPDATA%\\Bifrost\\noetty :
-  noetty.png  (or .webp, .gif, .webm)  floating, smiling with squinted eyes
-  parle.png   (optional)               shown while a bubble is open
-Her lines live in repliques.json in that folder, created from the defaults below on first run and
-then never overwritten: edit it freely. {region}, {ms}, {server} and {n} are filled in by the app.
+Her pictures are Noelie's own: 16 faces ship in data/noetty/img (plisse, the squinted-eyes smile, is the
+one she floats with). A picture with the same name in %LOCALAPPDATA%\\Bifrost\\noetty replaces a face
+(noetty.png counts as plisse, as in 0.1.6). A line may start with [face] to pick the face she makes.
+Her lines ship in data/noetty/<lang>.json, one file per language. To change them, put a
+repliques.<lang>.json in that folder (copies of the shipped ones sit in modeles/): each situation
+listed there replaces the shipped list. {region}, {ms}, {server} and {n} are filled in by the app.
 """
+import hashlib
 import json
 import os
 import urllib.parse
 
 IMAGE_EXT = (".png", ".webp", ".gif", ".jpg", ".jpeg", ".webm")
+FACES = ("plisse", "rire", "sourire", "timide", "coeur", "clin", "malice", "mdr", "popcorn", "bleh",
+         "inquiete", "supplie", "fachee", "boude", "triste", "ko")
+IDLE = "plisse"
+LANGS = ("fr", "en", "de", "es", "it", "ja", "ko", "sv", "zh")
 
-DEFAULT_LINES = {
-    "tout_coupe": [
-        "Heeeu… tu pourras plus jouer à OW. Tu comptes aller toucher de l'herbe, c'est ça le plan ?",
-        "Tout est coupé. Même Mercy ne peut plus te ressusciter, là.",
-        "Zéro serveur. La pause la plus efficace de l'histoire d'Overwatch.",
-        "Plus aucun serveur… On regarde les étoiles à la place ?",
-    ],
-    "tout_allume": [
-        "Comportement par défaut d'OW, comme si l'appli n'avait rien fait.",
-        "Tout est allumé : Overwatch choisit tout seul. Je me tourne les pouces.",
-        "Cœurs partout ! Le monde entier peut venir jouer avec toi.",
-        "Mode « je fais confiance au matchmaking ». Courageuse.",
-    ],
-    "ping_bon": [
-        "{region} : {ms} ms. Tu vas voir les balles avant qu'elles partent.",
-        "{ms} ms vers {region}… c'est presque de la télépathie.",
-        "{region} répond en {ms} ms. Aucune excuse si tu rates tes headshots.",
-        "Ping de {ms} ms en {region}. Ton bâton de Mercy va être d'une précision chirurgicale.",
-    ],
-    "ping_moyen": [
-        "{region} : {ms} ms. Jouable, mais garde tes réflexes au chaud.",
-        "{ms} ms vers {region}. Ça passe, tant que tu ne joues pas Genji contre un Winston.",
-        "{region} à {ms} ms : un petit voyage, pas encore une expédition.",
-    ],
-    "ping_haut": [
-        "Le ping de {region} est de {ms} ms. Tu vas rencontrer de nouvelles personnes, mais ça va lagger !",
-        "{region} à {ms} ms… Je te conseille de jouer Reinhardt, ils verront pas que t'es aveugle.",
-        "{ms} ms vers {region} : tes « Je suis là ! » arriveront un peu après toi.",
-        "{ms} ms… Tes résurrections vont arriver avec un petit délai poétique.",
-    ],
-    "ping_enorme": [
-        "Avec ton ping de {ms}, si tu comptais jouer Widow, t'attends pas à jouer comme Kenzo.",
-        "{region} à {ms} ms. Tu ne joues plus, tu envoies des lettres.",
-        "{ms} ms vers {region}… Ton Hanzo va tirer aujourd'hui et toucher demain.",
-        "{region} : {ms} ms. Ça ne lag pas, c'est un ralenti cinématique.",
-        "{ms} ms ? Le temps que ta balle arrive, la partie est finie.",
-    ],
-    "applique": [
-        "C'est noté ! Relance Overwatch pour que je fasse effet.",
-        "Règles posées. Le Bifröst est ouvert dans la bonne direction.",
-        "Appliqué ! Je garde la porte, promis.",
-    ],
-    "bloque": [
-        "{server} a essayé de t'attraper {n} fois. Raté !",
-        "J'ai renvoyé {server} chez lui. {n} fois.",
-        "{server} toque à la porte. Personne n'ouvre.",
-    ],
-    "partie": [
-        "Tu joues sur {server}. Bonne game !",
-        "En route vers {server}, {ms} ms. Que la force du soin soit avec toi.",
-        "{server} trouvé ! Pense à t'hydrater entre deux games.",
-    ],
-    "inconnu": [
-        "Oh ? Overwatch parle à une adresse que je ne connais pas. Tu me dis c'est quel serveur ?",
-        "Nouvelle adresse repérée ! Fais Ctrl+Maj+N en jeu et dis-moi son nom.",
-    ],
-    "ow_ferme": [
-        "Overwatch est fermé. Je t'attends ici, tranquille.",
-        "Pas d'Overwatch à l'horizon. Tu peux préparer ta route avant de lancer le jeu.",
-    ],
-    "astuces": [
-        "Attrape le globe pour le faire tourner !",
-        "Clique un serveur sur le globe pour lui mettre un crâne… ou lui rendre son cœur.",
-        "En jeu, Ctrl+Maj+N affiche le nom de ton serveur.",
-        "Le petit viseur sous le globe te ramène à la maison.",
-        "En mode « Une seule », un clic sur une tuile ne garde que cette région.",
-        "Les pings avec ≈ sont des estimations. Passe ta souris dessus pour savoir d'où ils viennent.",
-        "Après « Appliquer », relance Overwatch si une partie était en cours.",
-        "Ton IP est masquée par défaut, pratique quand tu streames.",
-        "La détection voit ton serveur environ 30 secondes après le début de la partie.",
-        "Le Journal, en bas du panneau, liste les adresses qu'Overwatch a contactées.",
-        "« Tout débloquer » rallume toutes les régions et retire toutes mes règles.",
-        "Tu peux changer de thème en haut à droite : Nuit, Doux ou Pixel.",
-        "Quand tu fermes la fenêtre, mes règles restent actives. « Tout débloquer » si tu veux revenir à la normale.",
-        "Clique sur moi pour une autre bulle !",
-    ],
-}
+# 0.1.6 wrote its French defaults to noetty/repliques.json. A file still equal to them (this hash of the
+# sorted JSON) was never edited and is removed; an edited one becomes repliques.fr.json.
+LEGACY_DEFAULTS_SHA256 = "da10afd6305b8452aa48db4d26259cd5ee0e66844d0e9eee7cc2b95e8de3278c"
+
+README = """\
+Nœtty
+=====
+
+Têtes
+  Nœtty a 16 têtes intégrées : plisse (au repos), rire, sourire, timide, coeur, clin, malice, mdr,
+  popcorn, bleh, inquiete, supplie, fachee, boude, triste, ko.
+  Pour en remplacer une, pose ici une image du même nom (plisse.png, rire.webp, ko.gif...).
+  noetty.png remplace plisse ; parle.png sert aux phrases qui ne choisissent pas de tête.
+
+Phrases
+  Bifröst a ses phrases dans chaque langue. Pour les changer, copie modeles\\repliques.fr.json
+  (ou .en, .de, .es, .it, .ja, .ko, .sv, .zh) ici, à côté de ce fichier, et modifie-le.
+  Chaque situation présente dans ta copie remplace celle d'origine ; les autres restent.
+  {region}, {ms}, {server} et {n} sont remplis tout seuls.
+  [tete] au début d'une phrase choisit la tête de Nœtty : « [mdr] Ton Hanzo tire aujourd'hui... »
+  Le dossier modeles est réécrit à chaque démarrage : ne modifie pas les fichiers qui s'y trouvent.
+
+---
+
+Faces
+  16 faces are built in (names above). Put a picture with the same name here to replace one.
+
+Lines
+  To change her lines, copy modeles\\repliques.<language>.json here, next to this file, and edit it.
+  Each situation in your copy replaces the built-in one; the others stay.
+  [face] at the start of a line picks her face.
+  The modeles folder is rewritten at every start: don't edit the files inside it.
+"""
 
 
 def folder(base):
     return os.path.join(base, "noetty")
 
 
-def prepare(base):
+def _read(path):
+    try:
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+        return data if isinstance(data, dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+
+def _canon(data):
+    return hashlib.sha256(json.dumps(data, ensure_ascii=False, sort_keys=True).encode("utf-8")).hexdigest()
+
+
+def defaults(lines_dir, lang):
+    return _read(os.path.join(lines_dir, f"{lang}.json"))
+
+
+def _write_if_changed(path, text):
+    try:
+        with open(path, encoding="utf-8") as f:
+            if f.read() == text:
+                return
+    except OSError:
+        pass
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(text)
+
+
+def prepare(base, lines_dir):
     path = folder(base)
     os.makedirs(path, exist_ok=True)
-    readme = os.path.join(path, "LISEZ-MOI.txt")
-    if not os.path.exists(readme):
-        with open(readme, "w", encoding="utf-8") as f:
-            f.write("Dépose ici l'image de Nœtty :\n"
-                    "  noetty.png  (ou .webp, .gif, .webm) : elle flotte à côté du globe\n"
-                    "  parle.png   (facultatif) : affichée pendant qu'elle parle\n\n"
-                    "Ses phrases sont dans repliques.json, une liste par situation. Modifie-les librement :\n"
-                    "Bifröst ne réécrit jamais ce fichier. {region}, {ms}, {server} et {n} sont remplis tout seuls.\n")
-    lines = os.path.join(path, "repliques.json")
-    if not os.path.exists(lines):
-        with open(lines, "w", encoding="utf-8") as f:
-            json.dump(DEFAULT_LINES, f, ensure_ascii=False, indent=1)
+    _write_if_changed(os.path.join(path, "LISEZ-MOI.txt"), README)
+    models = os.path.join(path, "modeles")
+    os.makedirs(models, exist_ok=True)
+    for lang in LANGS:
+        data = defaults(lines_dir, lang)
+        if data:
+            _write_if_changed(os.path.join(models, f"repliques.{lang}.json"), json.dumps(data, ensure_ascii=False, indent=1) + "\n")
+    legacy = os.path.join(path, "repliques.json")
+    if os.path.exists(legacy):
+        data = _read(legacy)
+        try:
+            if data and _canon(data) == LEGACY_DEFAULTS_SHA256:
+                os.remove(legacy)
+            elif not os.path.exists(os.path.join(path, "repliques.fr.json")):
+                os.replace(legacy, os.path.join(path, "repliques.fr.json"))
+        except OSError:
+            pass
 
 
-def load(base):
+def load(base, lines_dir, lang, img_dir=None):
+    """Her faces (face -> URL), the face she floats with, and her lines in `lang`."""
+    lang = lang if lang in LANGS else "en"
     path = folder(base)
     images = {}
     try:
-        for name in sorted(os.listdir(path)):
+        for name in sorted(os.listdir(img_dir or os.path.join(lines_dir, "img"))):
             stem, ext = os.path.splitext(name)
-            key = stem.lower()
-            if ext.lower() in IMAGE_EXT and key in ("noetty", "parle") and key not in images:
-                images[key] = "/noetty/" + urllib.parse.quote(name)
+            if stem in FACES and ext.lower() in IMAGE_EXT:
+                images[stem] = "/media/noetty/" + urllib.parse.quote(name)
     except OSError:
         pass
-    lines = {k: list(v) for k, v in DEFAULT_LINES.items()}
+    local = set()
     try:
-        with open(os.path.join(path, "repliques.json"), encoding="utf-8") as f:
-            for k, v in json.load(f).items():
-                if isinstance(v, list):
-                    lines[k] = [str(x) for x in v if str(x).strip()]
-    except (OSError, ValueError, AttributeError):
+        for name in sorted(os.listdir(path)):
+            stem, ext = os.path.splitext(name)
+            key = {"noetty": IDLE}.get(stem.lower(), stem.lower())
+            if ext.lower() in IMAGE_EXT and (key in FACES or key == "parle") and key not in local:
+                images[key] = "/noetty/" + urllib.parse.quote(name)
+                local.add(key)
+    except OSError:
         pass
-    return dict(images=images, lines=lines)
+    lines = {k: [str(x) for x in v] for k, v in (defaults(lines_dir, lang) or defaults(lines_dir, "en")).items()
+             if isinstance(v, list)}
+    for k, v in _read(os.path.join(path, f"repliques.{lang}.json")).items():
+        if isinstance(v, list):
+            lines[k] = [str(x) for x in v if str(x).strip()]
+    return dict(images=images, idle=IDLE, lines=lines, lang=lang)

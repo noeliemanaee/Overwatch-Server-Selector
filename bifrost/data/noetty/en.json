@@ -1,0 +1,78 @@
+{
+ "tout_coupe": [
+  "[malice] Uhh… you won't be able to play OW anymore. Going out to touch grass, is that the plan?",
+  "[ko] Everything's cut. Not even Mercy can rez you now.",
+  "[clin] Zero servers. The most efficient break in Overwatch history.",
+  "[triste] Not a single server left… Wanna look at the stars instead?"
+ ],
+ "tout_allume": [
+  "[boude] Default OW behavior, as if the app had done nothing at all.",
+  "[popcorn] Everything's on: Overwatch picks by itself. I'm just twiddling my thumbs.",
+  "[coeur] Hearts everywhere! The whole world can come play with you.",
+  "[inquiete] \"I trust the matchmaking\" mode. Bold move."
+ ],
+ "ping_bon": [
+  "[rire] {region}: {ms} ms. You'll see the bullets before they're even fired.",
+  "[coeur] {ms} ms to {region}… that's basically telepathy.",
+  "[malice] {region} answers in {ms} ms. No excuses if you miss your headshots.",
+  "[sourire] {ms} ms ping in {region}. Your Mercy beam is going to be surgically precise."
+ ],
+ "ping_moyen": [
+  "[sourire] {region}: {ms} ms. Playable, but keep your reflexes warmed up.",
+  "[clin] {ms} ms to {region}. Fine, as long as you're not playing Genji into a Winston.",
+  "[timide] {region} at {ms} ms: a little trip, not quite an expedition yet."
+ ],
+ "ping_haut": [
+  "[inquiete] {region}'s ping is {ms} ms. You'll meet new people, but it's gonna lag!",
+  "[clin] {region} at {ms} ms… Play Reinhardt, they won't notice you're blind.",
+  "[bleh] {ms} ms to {region}: your \"I need healing!\" will show up a little after you do.",
+  "[inquiete] {ms} ms… Your rezzes will land with a slight poetic delay."
+ ],
+ "ping_enorme": [
+  "[malice] With a {ms} ping, if you were planning on Widow, don't expect to play like Kenzo.",
+  "[mdr] {region} at {ms} ms. You're not playing anymore, you're writing letters.",
+  "[mdr] {ms} ms to {region}… Your Hanzo shoots today and hits tomorrow.",
+  "[popcorn] {region}: {ms} ms. It's not lag, it's cinematic slow motion.",
+  "[ko] {ms} ms? By the time your bullet lands, the match is over."
+ ],
+ "applique": [
+  "[rire] Got it! Restart Overwatch so I can kick in.",
+  "[plisse] Rules are set. The Bifröst is open in the right direction.",
+  "[clin] Applied! I'll guard the door, promise."
+ ],
+ "bloque": [
+  "[bleh] {server} tried to grab you {n} times. Missed!",
+  "[fachee] I sent {server} packing. {n} times.",
+  "[boude] {server} keeps knocking. Nobody's home."
+ ],
+ "partie": [
+  "[rire] You're playing on {server}. GLHF!",
+  "[coeur] Heading to {server}, {ms} ms. May the heals be with you.",
+  "[sourire] Found {server}! Remember to stay hydrated between matches."
+ ],
+ "inconnu": [
+  "[supplie] Oh? Overwatch is talking to an address I don't know. Can you tell me which server it is?",
+  "[rire] New address spotted! Press Ctrl+Shift+N in game and tell me its name."
+ ],
+ "ow_ferme": [
+  "[plisse] Overwatch is closed. I'll wait right here, no rush.",
+  "[sourire] No Overwatch in sight. You can plan your route before launching the game."
+ ],
+ "astuces": [
+  "[rire] Grab the globe to spin it!",
+  "[malice] Click a server on the globe to give it a skull… or give it its heart back.",
+  "[sourire] In game, Ctrl+Shift+N shows your server's name.",
+  "[sourire] The little crosshair under the globe brings you back home.",
+  "[sourire] In \"Just one\" mode, clicking a region keeps only that one.",
+  "[timide] Pings with ≈ are estimates. Hover over them to see where they come from.",
+  "[sourire] After \"Apply\", restart Overwatch if you were mid-match.",
+  "[clin] Your IP is hidden by default. Handy when you're streaming.",
+  "[sourire] Live detection spots your server about 30 seconds into the match.",
+  "[sourire] The Log at the bottom of the panel lists the addresses Overwatch contacted.",
+  "[sourire] \"Unblock all\" turns every region back on and removes all my rules.",
+  "[coeur] You can switch themes at the top right: Night, Soft or Pixel.",
+  "[inquiete] When you close the window, my rules stay active. Hit \"Unblock all\" to go back to normal.",
+  "[clin] Click me for another bubble!",
+  "[rire] I speak nine languages! Pick yours at the top right."
+ ]
+}

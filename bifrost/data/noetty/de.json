@@ -1,0 +1,78 @@
+{
+ "tout_coupe": [
+  "[malice] Ähm… so kannst du kein OW mehr spielen. Gehst du jetzt raus, Gras anfassen? Ist das der Plan?",
+  "[ko] Alles gekappt. Jetzt kann dich nicht mal Mercy wiederbeleben.",
+  "[clin] Null Server. Die effektivste Pause der Overwatch-Geschichte.",
+  "[triste] Kein einziger Server mehr… Schauen wir stattdessen Sterne an?"
+ ],
+ "tout_allume": [
+  "[boude] Standardverhalten von OW, als hätte die App gar nichts gemacht.",
+  "[popcorn] Alles an: Overwatch sucht sich selbst was aus. Ich dreh Däumchen.",
+  "[coeur] Überall Herzen! Die ganze Welt darf mit dir spielen.",
+  "[inquiete] Modus „Ich vertrau dem Matchmaking“. Mutig."
+ ],
+ "ping_bon": [
+  "[rire] {region}: {ms} ms. Du siehst die Kugeln, bevor sie überhaupt abgefeuert werden.",
+  "[coeur] {ms} ms nach {region}… das ist schon fast Telepathie.",
+  "[malice] {region} antwortet in {ms} ms. Keine Ausreden mehr bei verfehlten Headshots.",
+  "[sourire] {ms} ms Ping in {region}. Dein Mercy-Strahl wird chirurgisch präzise."
+ ],
+ "ping_moyen": [
+  "[sourire] {region}: {ms} ms. Spielbar, aber halt deine Reflexe warm.",
+  "[clin] {ms} ms nach {region}. Passt, solange du nicht Genji gegen einen Winston spielst.",
+  "[timide] {region} mit {ms} ms: ein kleiner Ausflug, noch keine Expedition."
+ ],
+ "ping_haut": [
+  "[inquiete] Der Ping nach {region} liegt bei {ms} ms. Du lernst neue Leute kennen, aber es wird laggen!",
+  "[clin] {region} mit {ms} ms… Spiel lieber Reinhardt, dann merkt keiner, dass du blind bist.",
+  "[bleh] {ms} ms nach {region}: Dein „Brauche Heilung!“ kommt ein bisschen nach dir an.",
+  "[inquiete] {ms} ms… Deine Wiederbelebungen kommen mit einer kleinen poetischen Verzögerung."
+ ],
+ "ping_enorme": [
+  "[malice] Mit {ms} Ping: Wenn du Widow spielen wolltest, erwarte nicht, wie Kenzo zu spielen.",
+  "[mdr] {region} mit {ms} ms. Du spielst nicht mehr, du schreibst Briefe.",
+  "[mdr] {ms} ms nach {region}… Dein Hanzo schießt heute und trifft morgen.",
+  "[popcorn] {region}: {ms} ms. Das ist kein Lag, das ist Zeitlupe in Kinoqualität.",
+  "[ko] {ms} ms? Bis deine Kugel ankommt, ist das Match vorbei."
+ ],
+ "applique": [
+  "[rire] Notiert! Starte Overwatch neu, damit ich wirke.",
+  "[plisse] Regeln gesetzt. Der Bifröst zeigt in die richtige Richtung.",
+  "[clin] Übernommen! Ich bewache die Tür, versprochen."
+ ],
+ "bloque": [
+  "[bleh] {server} wollte dich {n}-mal schnappen. Daneben!",
+  "[fachee] Ich hab {server} heimgeschickt. {n}-mal.",
+  "[boude] {server} klopft an. Keiner macht auf."
+ ],
+ "partie": [
+  "[rire] Du spielst auf {server}. Viel Glück, viel Spaß!",
+  "[coeur] Unterwegs nach {server}, {ms} ms. Möge die Heilung mit dir sein.",
+  "[sourire] {server} gefunden! Denk dran, zwischen den Matches was zu trinken."
+ ],
+ "inconnu": [
+  "[supplie] Oh? Overwatch redet mit einer Adresse, die ich nicht kenne. Sagst du mir, welcher Server das ist?",
+  "[rire] Neue Adresse entdeckt! Drück im Spiel Strg+Umschalt+N und sag mir den Servernamen."
+ ],
+ "ow_ferme": [
+  "[plisse] Overwatch ist zu. Ich warte hier ganz entspannt.",
+  "[sourire] Kein Overwatch in Sicht. Du kannst deine Route planen, bevor du das Spiel startest."
+ ],
+ "astuces": [
+  "[rire] Schnapp dir den Globus und dreh ihn!",
+  "[malice] Klick auf einen Server auf dem Globus, um ihm einen Totenkopf zu verpassen… oder sein Herz zurückzugeben.",
+  "[sourire] Im Spiel zeigt Strg+Umschalt+N den Namen deines Servers.",
+  "[sourire] Das kleine Fadenkreuz unter dem Globus bringt dich nach Hause.",
+  "[sourire] Im Modus „Nur eine“ behält ein Klick auf eine Region nur diese eine.",
+  "[timide] Pings mit ≈ sind Schätzungen. Fahr mit der Maus drüber, um zu sehen, woher sie kommen.",
+  "[sourire] Nach „Übernehmen“ starte Overwatch neu, falls gerade ein Match lief.",
+  "[clin] Deine IP ist standardmäßig verborgen. Praktisch beim Streamen.",
+  "[sourire] Die Live-Erkennung sieht deinen Server etwa 30 Sekunden nach Matchbeginn.",
+  "[sourire] Das Protokoll unten im Panel listet die Adressen auf, die Overwatch kontaktiert hat.",
+  "[sourire] „Alles freigeben“ schaltet alle Regionen wieder ein und entfernt alle meine Regeln.",
+  "[coeur] Oben rechts kannst du das Design wechseln: Nacht, Sanft oder Pixel.",
+  "[inquiete] Wenn du das Fenster schließt, bleiben meine Regeln aktiv. „Alles freigeben“, wenn du zurück zum Normalzustand willst.",
+  "[clin] Klick mich an für eine neue Sprechblase!",
+  "[rire] Ich spreche neun Sprachen! Such dir oben rechts deine aus."
+ ]
+}

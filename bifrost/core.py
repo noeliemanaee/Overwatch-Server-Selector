@@ -15,6 +15,16 @@ PRIVATE = ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "127.0.0.0/8", "169.
            "224.0.0.0/4", "255.255.255.255/32", "100.64.0.0/10", "0.0.0.0/8"]
 
 
+class UserError(ValueError):
+    """A message for the user: `key` is looked up in the interface's translations, `params` fill it in.
+    str(e) stays French, for logs and older interfaces."""
+
+    def __init__(self, key, text, **params):
+        super().__init__(text)
+        self.key = key
+        self.params = params
+
+
 def ip_to_int(ip):
     return int(ipaddress.IPv4Address(ip))
 
@@ -186,7 +196,8 @@ def plan(db, regions=None, blocked=(), strict=True, overwatch_path=None, overwat
         label = "Sans " + " ".join(blocked) if blocked else "Libre"
     elif strict:
         if not overwatch_path:
-            raise ValueError("Pour couper les autres régions, Bifröst doit savoir où est Overwatch.exe : lance le jeu une fois.")
+            raise UserError("err_need_ow_path", "Pour couper les autres régions, Bifröst doit savoir où est Overwatch.exe : "
+                            "lance le jeu une fois.")
         allowed = subtract(merge(i for r in regions for i in db.region_intervals(r)), cut_servers)
         target = complement(merge(allowed + private))
         app = overwatch_path

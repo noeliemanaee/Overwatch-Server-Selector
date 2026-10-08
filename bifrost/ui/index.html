@@ -6,14 +6,19 @@
 <title>Bifröst · NOEVALKY</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@500;600;700;800&family=JetBrains+Mono:wght@500&family=Press+Start+2P&family=Pixelify+Sans:wght@400;600;700&family=VT323&display=swap">
+<script src="/ui/i18n.js"></script>
 <script src="/ui/vendor/d3-array.min.js"></script>
 <script src="/ui/vendor/d3-geo.min.js"></script>
 <style>
 :root{--r:16px;--pill:999px}
-body[data-theme="nuit"]{--bg:#0D0A1E;--panel:#151129;--card:#1D1838;--line:#2C2554;--text:#F3EEFF;--muted:#ABA2D6;--accent:#F56BE2;--accent-ink:#1A0B26;--blue:#5AB0FF;--green:#45E3A0;--red:#FF5D78;--gold:#FFC857;--skull-bg:#3E1424;--heart-bg:#14304F;--green-bg:#163D35;--row-off:#241330;--display:'Fredoka',sans-serif;--body:'Nunito',sans-serif;--mono:'JetBrains Mono',monospace}
-body[data-theme="doux"]{--bg:#FBF6FF;--panel:#FFFFFF;--card:#FFFFFF;--line:#EADFFB;--text:#2B2140;--muted:#6E6290;--accent:#D63DBE;--accent-ink:#FFFFFF;--blue:#3D8BEB;--green:#1FA463;--red:#E5484D;--gold:#B07800;--skull-bg:#FFE6EC;--heart-bg:#E4F0FF;--green-bg:#E2F7EC;--row-off:#FFF1F5;--display:'Fredoka',sans-serif;--body:'Nunito',sans-serif;--mono:'JetBrains Mono',monospace;--r:20px}
-body[data-theme="pixel"]{--bg:#0B0B16;--panel:#12122A;--card:#1A1A3A;--line:#3A2F7A;--text:#EDEBFF;--muted:#A7A3D9;--accent:#FF6BD6;--accent-ink:#1A0B26;--blue:#4FA8FF;--green:#3DF29A;--red:#FF4D6A;--gold:#FFD45C;--skull-bg:#2A0F18;--heart-bg:#0F2140;--green-bg:#0E2A22;--row-off:#2A0F18;--display:'Press Start 2P',monospace;--body:'Pixelify Sans',sans-serif;--mono:'VT323',monospace;--r:0px;--pill:0px}
+html[lang="ja"]{--cjk:"Yu Gothic UI","Meiryo UI","Meiryo"}
+html[lang="ko"]{--cjk:"Malgun Gothic"}
+html[lang="zh-CN"]{--cjk:"Microsoft YaHei UI","Microsoft YaHei"}
+body[data-theme="nuit"]{--bg:#0D0A1E;--panel:#151129;--card:#1D1838;--line:#2C2554;--text:#F3EEFF;--muted:#ABA2D6;--accent:#F56BE2;--accent-ink:#1A0B26;--blue:#5AB0FF;--green:#45E3A0;--red:#FF5D78;--gold:#FFC857;--skull-bg:#3E1424;--heart-bg:#14304F;--green-bg:#163D35;--row-off:#241330;--display:'Fredoka',var(--cjk,sans-serif),sans-serif;--body:'Nunito',var(--cjk,sans-serif),sans-serif;--mono:'JetBrains Mono',monospace}
+body[data-theme="doux"]{--bg:#FBF6FF;--panel:#FFFFFF;--card:#FFFFFF;--line:#EADFFB;--text:#2B2140;--muted:#6E6290;--accent:#D63DBE;--accent-ink:#FFFFFF;--blue:#3D8BEB;--green:#1FA463;--red:#E5484D;--gold:#B07800;--skull-bg:#FFE6EC;--heart-bg:#E4F0FF;--green-bg:#E2F7EC;--row-off:#FFF1F5;--display:'Fredoka',var(--cjk,sans-serif),sans-serif;--body:'Nunito',var(--cjk,sans-serif),sans-serif;--mono:'JetBrains Mono',monospace;--r:20px}
+body[data-theme="pixel"]{--bg:#0B0B16;--panel:#12122A;--card:#1A1A3A;--line:#3A2F7A;--text:#EDEBFF;--muted:#A7A3D9;--accent:#FF6BD6;--accent-ink:#1A0B26;--blue:#4FA8FF;--green:#3DF29A;--red:#FF4D6A;--gold:#FFD45C;--skull-bg:#2A0F18;--heart-bg:#0F2140;--green-bg:#0E2A22;--row-off:#2A0F18;--display:'Press Start 2P',var(--cjk,monospace),monospace;--body:'Pixelify Sans',var(--cjk,sans-serif),sans-serif;--mono:'VT323',monospace;--r:0px;--pill:0px}
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html,body{margin:0;height:100%}
 body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:15px;overflow:hidden}
 button{font:inherit;color:inherit}
@@ -35,7 +40,11 @@ body[data-theme="pixel"] .panel::-webkit-scrollbar-thumb{border-radius:0;border:
 .brand h1{margin:0;font-family:var(--display);font-weight:600;font-size:30px;line-height:1;letter-spacing:.5px}
 body[data-theme="pixel"] .brand h1{font-size:20px;color:var(--accent);font-weight:400}
 .brand small{display:block;margin-top:4px;color:var(--muted);font-weight:700;font-size:13px}
-.themes{position:absolute;right:20px;top:24px;display:flex;gap:6px;z-index:3}
+.topright{position:absolute;right:20px;top:24px;display:flex;gap:10px;z-index:3;align-items:center}
+.themes{display:flex;gap:6px}
+.lang{border:1.5px solid var(--line);background:var(--card);color:var(--text);border-radius:var(--pill);padding:6px 10px;font:inherit;font-weight:800;font-size:13px;cursor:pointer;min-height:36px}
+.lang:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+body[data-theme="pixel"] .lang{border-radius:0;border-width:3px}
 .themes button{border:1.5px solid var(--line);background:var(--card);border-radius:var(--pill);padding:6px 12px;font-weight:800;font-size:13px;cursor:pointer;min-height:36px}
 .themes button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
 .stars{position:absolute;inset:0;pointer-events:none;opacity:0}
@@ -52,7 +61,7 @@ body[data-theme="nuit"] .stars{opacity:1}
 .lab.blocked{border-color:var(--red)} .lab.blocked .sub{color:var(--red)}
 .lab.home{border-color:var(--accent);border-radius:var(--r)} .lab.home .sub{color:var(--accent);font-family:var(--mono);font-weight:500}
 body[data-theme="doux"] .lab{border-width:2px;border-radius:16px}
-body[data-theme="pixel"] .lab{font-family:'Press Start 2P',monospace;font-weight:400;font-size:9px;padding:6px 9px;border:none;box-shadow:0 -3px 0 0 var(--line),0 3px 0 0 var(--line),-3px 0 0 0 var(--line),3px 0 0 0 var(--line)}
+body[data-theme="pixel"] .lab{font-family:'Press Start 2P',var(--cjk,monospace),monospace;font-weight:400;font-size:9px;padding:6px 9px;border:none;box-shadow:0 -3px 0 0 var(--line),0 3px 0 0 var(--line),-3px 0 0 0 var(--line),3px 0 0 0 var(--line)}
 body[data-theme="pixel"] .lab .sub{font-size:8px;font-weight:400;margin-top:4px}
 body[data-theme="pixel"] .lab.current{box-shadow:0 -3px 0 0 var(--green),0 3px 0 0 var(--green),-3px 0 0 0 var(--green),3px 0 0 0 var(--green)}
 body[data-theme="pixel"] .lab.blocked{box-shadow:0 -3px 0 0 var(--red),0 3px 0 0 var(--red),-3px 0 0 0 var(--red),3px 0 0 0 var(--red)}
@@ -62,21 +71,21 @@ body[data-theme="pixel"] .lab.home{box-shadow:0 -3px 0 0 var(--accent),0 3px 0 0
 .stage-foot .spacer{flex:1}
 .icon-btn{width:44px;height:44px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
 body[data-theme="pixel"] .icon-btn{border-radius:0;border-width:3px}
-.noe{position:absolute;left:24px;bottom:56px;z-index:2;display:none;flex-direction:column;align-items:flex-start;gap:8px;pointer-events:none;max-width:260px}
-.noe.on{display:flex}
-.noe img,.noe video{max-height:260px;max-width:240px;object-fit:contain;filter:drop-shadow(0 6px 18px rgba(0,0,0,.25))}
-body[data-theme="pixel"] .noe img,body[data-theme="pixel"] .noe video{image-rendering:pixelated}
-.noe .bubble{background:var(--panel);border:2px solid var(--accent);border-radius:var(--r);padding:8px 12px;font-weight:700;font-size:13px;max-width:240px}
-.noe .bubble:empty{display:none}
+/* NOE, in the background of the globe; a veil in the theme's colour keeps the globe readable */
+.noe-bg{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity .5s;pointer-events:none}
+.noe-bg.on{opacity:1}
+.noe-bg::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,color-mix(in srgb,var(--bg) 72%,transparent) 0,color-mix(in srgb,var(--bg) 48%,transparent) 62%,color-mix(in srgb,var(--bg) 34%,transparent) 100%),linear-gradient(to bottom,color-mix(in srgb,var(--bg) 55%,transparent) 0,transparent 120px,transparent calc(100% - 90px),color-mix(in srgb,var(--bg) 70%,transparent) 100%)}
+.has-bg .brand small,.has-bg .stage-foot{text-shadow:0 0 6px var(--bg),0 0 2px var(--bg)}
+body[data-theme="pixel"] .noe-bg{image-rendering:pixelated}
 .noetty{position:absolute;right:24px;bottom:78px;z-index:4;display:flex;align-items:flex-end;gap:8px;max-width:420px}
 .noetty .art{border:none;background:none;padding:0;cursor:pointer;animation:flotte 3.6s ease-in-out infinite;line-height:0}
-.noetty .art img,.noetty .art video{max-width:130px;max-height:150px;object-fit:contain;filter:drop-shadow(0 8px 16px rgba(0,0,0,.28))}
+.noetty .art img,.noetty .art video{width:140px;height:auto;object-fit:contain;filter:drop-shadow(0 8px 16px rgba(0,0,0,.28))}
 body[data-theme="pixel"] .noetty .art img,body[data-theme="pixel"] .noetty .art video{image-rendering:pixelated}
 .noetty .art .spark{display:inline-flex;width:48px;height:48px;border-radius:50%;align-items:center;justify-content:center;background:var(--card);border:2px solid var(--accent)}
 body[data-theme="pixel"] .noetty .art .spark{border-radius:0}
 .noetty .say{max-width:290px;background:var(--panel);color:var(--text);border:2px solid var(--accent);border-radius:18px 18px 4px 18px;padding:10px 14px;font-weight:700;font-size:13.5px;line-height:1.35;margin-bottom:34px;opacity:0;transform:translateY(8px) scale(.97);transform-origin:bottom right;transition:opacity .25s,transform .25s;pointer-events:none}
 .noetty .say.show{opacity:1;transform:none}
-body[data-theme="pixel"] .noetty .say{border-radius:0;border:none;font-family:'Pixelify Sans',sans-serif;font-size:15px;box-shadow:0 -3px 0 0 var(--accent),0 3px 0 0 var(--accent),-3px 0 0 0 var(--accent),3px 0 0 0 var(--accent)}
+body[data-theme="pixel"] .noetty .say{border-radius:0;border:none;font-family:'Pixelify Sans',var(--cjk,sans-serif),sans-serif;font-size:15px;box-shadow:0 -3px 0 0 var(--accent),0 3px 0 0 var(--accent),-3px 0 0 0 var(--accent),3px 0 0 0 var(--accent)}
 @keyframes flotte{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-10px) rotate(2deg)}}
 @media (prefers-reduced-motion:reduce){.noetty .art{animation:none}}
 .row{display:flex;align-items:center;gap:10px}
@@ -107,7 +116,7 @@ body[data-theme="pixel"] .tabs{border:none;box-shadow:0 -3px 0 0 var(--line),0 3
 .regions button[aria-pressed="false"] .rname{text-decoration:line-through;text-decoration-thickness:2px}
 body[data-theme="pixel"] .regions button{border-radius:0;border-width:3px}
 .group-title{font-size:12px;font-weight:800;letter-spacing:1px;color:var(--muted);margin:6px 0 0;text-transform:uppercase}
-body[data-theme="pixel"] .group-title{font-family:'Press Start 2P',monospace;font-size:9px;font-weight:400;letter-spacing:0}
+body[data-theme="pixel"] .group-title{font-family:'Press Start 2P',var(--cjk,monospace),monospace;font-size:9px;font-weight:400;letter-spacing:0}
 .srv{display:flex;align-items:center;gap:12px;min-height:48px;padding:0 6px 0 14px;border-radius:14px;background:var(--card);border:1px solid transparent}
 .srv.off{background:var(--row-off)}
 .srv.current{border-color:var(--green)}
@@ -174,6 +183,7 @@ details.journal summary{cursor:pointer;font-weight:800;min-height:28px}
 <body data-theme="nuit">
 <div class="app">
   <main class="stage" id="stage">
+    <div class="noe-bg" id="noeBg" aria-hidden="true"></div>
     <svg class="stars" width="100%" height="100%" aria-hidden="true">
       <g fill="#C9BEFF">
         <circle cx="4%" cy="18%" r="1.4"><animate attributeName="opacity" values=".2;.9;.2" dur="3.2s" repeatCount="indefinite"/></circle>
@@ -190,16 +200,19 @@ details.journal summary{cursor:pointer;font-weight:800;min-height:28px}
 
     <div class="brand">
       <svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true"><path d="M6 32a16 16 0 0 1 32 0" fill="none" stroke="#F56BE2" stroke-width="4" stroke-linecap="round"/><path d="M11 32a11 11 0 0 1 22 0" fill="none" stroke="#5AB0FF" stroke-width="4" stroke-linecap="round"/><path d="M16 32a6 6 0 0 1 12 0" fill="none" stroke="#45E3A0" stroke-width="4" stroke-linecap="round"/></svg>
-      <div><h1>Bifröst</h1><small>NOEVALKY · sélecteur de serveurs OW2</small></div>
+      <div><h1>Bifröst</h1><small data-i18n="tagline">NOEVALKY · sélecteur de serveurs OW2</small></div>
     </div>
-    <div class="themes" role="group" aria-label="Thème">
-      <button type="button" data-theme-btn="nuit">Nuit</button>
-      <button type="button" data-theme-btn="doux">Doux</button>
-      <button type="button" data-theme-btn="pixel">Pixel</button>
+    <div class="topright">
+      <div class="themes" role="group" aria-label="Thème" data-i18n-aria="theme_group">
+        <button type="button" data-theme-btn="nuit" data-i18n="theme_nuit">Nuit</button>
+        <button type="button" data-theme-btn="doux" data-i18n="theme_doux">Doux</button>
+        <button type="button" data-theme-btn="pixel" data-i18n="theme_pixel">Pixel</button>
+      </div>
+      <select class="lang" id="langSel" aria-label="Langue" data-i18n-aria="lang_label"></select>
     </div>
 
     <div class="globe-wrap" id="globeWrap">
-      <svg id="globe" width="600" height="600" viewBox="0 0 600 600" role="img" aria-label="Globe des serveurs : attrape-le pour le faire tourner, clique un serveur pour le bloquer ou l'autoriser">
+      <svg id="globe" width="600" height="600" viewBox="0 0 600 600" role="img" aria-label="Globe des serveurs" data-i18n-aria="globe_aria">
         <defs>
           <linearGradient id="bifrost" x1="0" y1="0" x2="1" y2="0">
             <stop offset="0" stop-color="#F56BE2"/><stop offset=".5" stop-color="#5AB0FF"/><stop offset="1" stop-color="#45E3A0"/>
@@ -214,94 +227,89 @@ details.journal summary{cursor:pointer;font-weight:800;min-height:28px}
       <div class="labels" id="labels"></div>
     </div>
 
-    <div class="noe" id="noe" aria-live="polite">
-      <div class="bubble" id="noeBubble"></div>
-      <div id="noeArt"></div>
-    </div>
-
     <div class="noetty" id="noetty">
       <div class="say" id="noettySay" role="status" aria-live="polite"></div>
-      <button type="button" class="art" id="noettyArt" aria-label="Nœtty : une autre bulle"></button>
+      <button type="button" class="art" id="noettyArt" aria-label="Nœtty" data-i18n-aria="noetty_aria"></button>
     </div>
 
     <div class="stage-foot">
       <span class="legend" id="lgHeart"></span>
       <span class="legend" id="lgSkull"></span>
-      <span class="legend"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" style="fill:var(--green)"/><circle cx="12" cy="12" r="9" fill="none" stroke-width="2" style="stroke:var(--green)"/></svg>en partie</span>
-      <span class="legend"><svg width="26" height="16" viewBox="0 0 26 16" aria-hidden="true"><path d="M2 14Q13-6 24 14" fill="none" stroke="url(#bifrost)" stroke-width="3" stroke-linecap="round"/></svg>ta route</span>
+      <span class="legend"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" style="fill:var(--green)"/><circle cx="12" cy="12" r="9" fill="none" stroke-width="2" style="stroke:var(--green)"/></svg><span data-i18n="legend_playing">en partie</span></span>
+      <span class="legend"><svg width="26" height="16" viewBox="0 0 26 16" aria-hidden="true"><path d="M2 14Q13-6 24 14" fill="none" stroke="url(#bifrost)" stroke-width="3" stroke-linecap="round"/></svg><span data-i18n="legend_route">ta route</span></span>
       <span class="spacer"></span>
-      <button type="button" class="icon-btn" id="recenter" aria-label="Recentrer le globe chez toi"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><circle cx="12" cy="12" r="2" fill="currentColor"/></svg></button>
+      <button type="button" class="icon-btn" id="recenter" aria-label="Recentrer" data-i18n-aria="recenter_aria"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><circle cx="12" cy="12" r="2" fill="currentColor"/></svg></button>
     </div>
   </main>
 
-  <aside class="panel" aria-label="Réglages">
+  <aside class="panel" aria-label="Réglages" data-i18n-aria="panel_aria">
     <div class="row between">
       <div class="row">
-        <span class="hint">Ton IP</span>
+        <span class="hint" data-i18n="your_ip">Ton IP</span>
         <span class="chip" id="ipChip">•••.•••.•••.•••</span>
-        <button type="button" class="icon-btn" id="ipEye" aria-label="Afficher mon IP"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        <button type="button" class="icon-btn" id="ipEye" aria-label="IP"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
       </div>
-      <span class="tag" id="owTag">Overwatch fermé</span>
+      <span class="tag" id="owTag"></span>
     </div>
 
-    <section class="card" aria-label="Connexion">
-      <div class="status-line"><span class="dot" id="dotBnet"></span><span class="grow">Battle.net (connexion)</span><span class="val" id="valBnet">—</span></div>
-      <div class="status-line"><span class="dot" id="dotLobby"></span><span class="grow">Lobby Overwatch</span><span class="val" id="valLobby">—</span></div>
-      <div class="status-line"><span class="dot" id="dotGame"></span><span class="grow" id="txtGame">Dernière partie</span><span class="val" id="valGame">—</span></div>
+    <section class="card" aria-label="Connexion" data-i18n-aria="conn_aria">
+      <div class="status-line"><span class="dot" id="dotBnet"></span><span class="grow" data-i18n="bnet">Battle.net</span><span class="val" id="valBnet">—</span></div>
+      <div class="status-line"><span class="dot" id="dotLobby"></span><span class="grow" data-i18n="lobby">Lobby</span><span class="val" id="valLobby">—</span></div>
+      <div class="status-line"><span class="dot" id="dotGame"></span><span class="grow" id="txtGame"></span><span class="val" id="valGame">—</span></div>
     </section>
 
     <section class="card learn" id="learnCard" hidden>
       <div style="font-weight:800" id="learnText"></div>
-      <p class="hint">Regarde le nom du serveur en jeu avec Ctrl+Maj+N, puis dis-le à Bifröst : elle s'en souviendra.</p>
+      <p class="hint" data-i18n="learn_hint"></p>
       <div class="row">
-        <label class="sr" for="learnSelect">Serveur</label>
+        <label class="sr" for="learnSelect" data-i18n="learn_server">Serveur</label>
         <select id="learnSelect"></select>
-        <button type="button" id="learnBtn">Retenir</button>
+        <button type="button" id="learnBtn" data-i18n="learn_btn">Retenir</button>
       </div>
     </section>
 
     <section aria-labelledby="regTitle" style="display:flex;flex-direction:column;gap:10px">
-      <h2 id="regTitle">Je joue avec les joueurs de…</h2>
-      <div class="tabs" role="group" aria-label="Façon de choisir les régions">
-        <button type="button" id="multiBtn" aria-pressed="true">Plusieurs régions</button>
-        <button type="button" id="singleBtn" aria-pressed="false">Une seule</button>
+      <h2 id="regTitle" data-i18n="reg_title">Je joue avec les joueurs de…</h2>
+      <div class="tabs" role="group" aria-label="Régions" data-i18n-aria="reg_mode_aria">
+        <button type="button" id="multiBtn" aria-pressed="true" data-i18n="multi">Plusieurs régions</button>
+        <button type="button" id="singleBtn" aria-pressed="false" data-i18n="single">Une seule</button>
       </div>
-      <div class="regions" id="regions" role="group" aria-label="Régions"></div>
-      <div class="row between"><p class="hint" id="regHint"></p><button type="button" class="linkish" id="allBtn" hidden>Tout rallumer</button></div>
+      <div class="regions" id="regions" role="group" aria-label="Régions" data-i18n-aria="regions_aria"></div>
+      <div class="row between"><p class="hint" id="regHint"></p><button type="button" class="linkish" id="allBtn" hidden data-i18n="all_on_btn">Tout rallumer</button></div>
     </section>
 
     <div>
-      <div class="row between"><h2 id="listTitle">Serveurs</h2><span class="hint" id="listHint">un crâne pour éviter un serveur</span></div>
+      <div class="row between"><h2 id="listTitle" data-i18n="servers">Serveurs</h2><span class="hint" id="listHint" data-i18n="servers_hint">un crâne pour éviter un serveur</span></div>
       <div id="serverList" style="display:flex;flex-direction:column;gap:6px;margin-top:8px"></div>
     </div>
 
     <div class="switches">
-      <label class="switch"><input type="checkbox" id="optStrict"><span class="track"><span class="knob"></span></span><span>Couper aussi les adresses inconnues<small>quand une région est éteinte, même les serveurs absents des listes sont coupés (conseillé)</small></span></label>
-      <label class="switch"><input type="checkbox" id="optOw"><span class="track"><span class="knob"></span></span><span>Seulement Overwatch<small id="owPath">Overwatch.exe introuvable : lance le jeu une fois</small></span></label>
-      <label class="switch"><input type="checkbox" id="optDetect"><span class="track"><span class="knob"></span></span><span>Détection en direct<small>voit sur quel serveur tu joues, via le journal du pare-feu</small></span></label>
+      <label class="switch"><input type="checkbox" id="optStrict"><span class="track"><span class="knob"></span></span><span><span data-i18n="opt_strict">Couper aussi les adresses inconnues</span><small data-i18n="opt_strict_sub"></small></span></label>
+      <label class="switch"><input type="checkbox" id="optOw"><span class="track"><span class="knob"></span></span><span><span data-i18n="opt_ow">Seulement Overwatch</span><small id="owPath"></small></span></label>
+      <label class="switch"><input type="checkbox" id="optDetect"><span class="track"><span class="knob"></span></span><span><span data-i18n="opt_detect">Détection en direct</span><small data-i18n="opt_detect_sub"></small></span></label>
     </div>
 
     <div class="actions">
-      <button type="button" class="primary" id="applyBtn">Appliquer</button>
-      <button type="button" class="ghost" id="unblockBtn">Tout débloquer</button>
+      <button type="button" class="primary" id="applyBtn" data-i18n="apply">Appliquer</button>
+      <button type="button" class="ghost" id="unblockBtn" data-i18n="unblock">Tout débloquer</button>
     </div>
-    <div class="applied" id="appliedText">Rien n'est bloqué.</div>
+    <div class="applied" id="appliedText"></div>
 
     <details class="journal">
-      <summary>Journal</summary>
+      <summary data-i18n="journal">Journal</summary>
       <ul id="events"></ul>
-      <table aria-label="Adresses vues">
-        <thead><tr><th>Adresse</th><th>Serveur</th><th>Ok</th><th>Bloqué</th><th>Il y a</th></tr></thead>
+      <table aria-label="Adresses vues" data-i18n-aria="flows_aria">
+        <thead><tr><th data-i18n="th_address">Adresse</th><th data-i18n="th_server">Serveur</th><th data-i18n="th_ok">Ok</th><th data-i18n="th_blocked">Bloqué</th><th data-i18n="th_ago">Il y a</th></tr></thead>
         <tbody id="flows"></tbody>
       </table>
     </details>
 
     <div class="foot">
-      <a href="https://noevalky.com/" target="_blank" rel="noopener">Rencontrer NOE ↗</a>
-      <button type="button" id="noeFolder">Dossier des personnages</button>
-      <span>fork de <a href="https://github.com/foryVERX/Overwatch-Server-Selector" target="_blank" rel="noopener">MINA · foryVERX</a></span>
+      <a href="https://noevalky.com/" target="_blank" rel="noopener" data-i18n="meet_noe">Rencontrer NOE ↗</a>
+      <button type="button" id="noeFolder" data-i18n="chars_folder">Dossier des personnages</button>
+      <span><span data-i18n="fork_of">fork de</span> <a href="https://github.com/foryVERX/Overwatch-Server-Selector" target="_blank" rel="noopener">MINA · foryVERX</a></span>
       <span id="version"></span>
-      <button type="button" id="quitBtn">Quitter</button>
+      <button type="button" id="quitBtn" data-i18n="quit">Quitter</button>
     </div>
   </aside>
 </div>
@@ -313,12 +321,75 @@ const TOKEN = "__BIFROST_TOKEN__";
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
+// ------------------------------------------------------------------ languages (texts in /ui/i18n.js)
+const I18N = window.BIFROST_I18N;
+const LANGS = I18N.langs.map((l) => l.code);
+const HOME_FR = "Paris";  // the home city as servers.json names it
+let LANG = "fr";
+function langOf(code) { const k = String(code || "").toLowerCase().split(/[-_]/)[0]; return LANGS.includes(k) ? k : null; }
+function browserLang() { for (const c of (navigator.languages || [navigator.language])) { const k = langOf(c); if (k) return k; } return null; }
+let langPending = null;  // picked in the menu, not yet confirmed by the app
+// Chosen in Bifröst, else Windows' display language, else the window's, else English.
+function pickLang() {
+  if (langPending && S && S.settings.lang === langPending) langPending = null;
+  return langPending || langOf(S && S.settings.lang) || langOf(S && S.system_lang) || browserLang() || "en";
+}
+function t(key, vars) {
+  const s = (I18N.strings[LANG] || {})[key] ?? I18N.strings.fr[key] ?? key;
+  return fill(s, vars);
+}
+// Same, for innerHTML: the template may hold <b>, the values are escaped.
+function tHtml(key, vars) {
+  const safe = {};
+  for (const k in vars || {}) safe[k] = esc(vars[k]);
+  return t(key, safe);
+}
+function regionName(id) {
+  const tr = (I18N.regions[LANG] || {})[id];
+  if (tr) return tr;
+  const r = DB && DB.regions.find((x) => x.id === id);
+  return r ? r.name : id;
+}
+function groupName(g) { return (I18N.groups[LANG] || {})[g] || g; }
+function place(s) { const p = (I18N.places[LANG] || {})[s.id]; return p ? { city: p[0], country: p[1] } : { city: s.city, country: s.country }; }
+function homeName() {
+  const n = DB && DB.home && DB.home.name;
+  if (!n) return t("home_default");
+  const p = (I18N.places[LANG] || {}).home;
+  return p && n === HOME_FR ? p[0] : n;
+}
+// A journal line from the app: a key of i18n.js plus its values.
+function eventText(e) {
+  if (!e.key) return e.text || "";
+  const p = { ...(e.params || {}) };
+  if (Array.isArray(p.regions)) p.regions = p.regions.map(regionName).join(", ");
+  if (Array.isArray(p.servers)) p.servers = p.servers.join(", ");
+  if (e.key === "ev_learned") p.label = p.server || regionName(p.region);
+  return t(e.key, p);
+}
+function applyStatic() {
+  document.documentElement.lang = LANG === "zh" ? "zh-CN" : LANG;
+  document.querySelectorAll("[data-i18n]").forEach((el) => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll("[data-i18n-aria]").forEach((el) => { el.setAttribute("aria-label", t(el.dataset.i18nAria)); });
+  const sel = $("langSel");
+  if (!sel.options.length) sel.innerHTML = I18N.langs.map((l) => `<option value="${l.code}" lang="${l.code === "zh" ? "zh-CN" : l.code}">${esc(l.name)}</option>`).join("");
+  sel.value = LANG;
+}
+function setLang(code) {
+  if (code === LANG && document.documentElement.dataset.ready) return false;
+  LANG = code;
+  document.documentElement.dataset.ready = "1";
+  N.bag = {}; $("learnCard").dataset.ip = "";
+  applyStatic();
+  return true;
+}
+
 async function api(path, body) {
   const opts = { method: body === undefined ? "GET" : "POST", headers: { "X-Bifrost-Token": TOKEN } };
   if (body !== undefined) { opts.headers["Content-Type"] = "application/json"; opts.body = JSON.stringify(body); }
   const r = await fetch(path, opts);
   const j = await r.json().catch(() => ({}));
-  if (!r.ok || j.ok === false) throw new Error(j.error || ("Erreur " + r.status));
+  if (!r.ok || j.ok === false) throw new Error(j.error_key ? t(j.error_key, j.params) : j.error || t("error_http", { code: r.status }));
   return j.result;
 }
 
@@ -359,30 +430,29 @@ let ipShown = false;
 const cssVar = (name) => getComputedStyle(document.body).getPropertyValue(name).trim();
 
 function serverById(id) { return DB.servers.find((s) => s.id === id); }
-function regionName(id) { const r = DB.regions.find((x) => x.id === id); return r ? r.name : id; }
 function pingOf(id) { const p = S && S.pings[id]; return p ? p.ms : null; }
 function pingClass(ms) { return ms == null ? "" : ms < 60 ? "good" : ms < 130 ? "mid" : "bad"; }
 function msText(ms) { return ms == null ? "—" : ms + " ms"; }
-const DOTS = '<span class="dots" role="img" aria-label="mesure en cours"><i></i><i></i><i></i></span>';
+function dots() { return `<span class="dots" role="img" aria-label="${esc(t("measuring_aria"))}"><i></i><i></i><i></i></span>`; }
 function measuring(id) { return !!(S && S.measuring && S.measuring.includes(id)); }
 // Latency of one server as HTML: value (≈ when it is an estimate), blinking dots while it is being measured.
 function msHtml(id) {
   const p = S && S.pings[id], busy = measuring(id);
-  if (!p) return busy ? DOTS : '<span title="Pas encore de mesure">—</span>';
-  const title = p.exact ? "mesuré sur l'adresse du serveur de jeu"
-    : p.method === "gcp" ? "estimation : centre de données " + p.target
-    : p.method === "tcp" ? "estimation : connexion à " + p.target
-    : "ping de " + p.target + ", même centre de données";
-  return `<span title="${esc(title)}"${p.stale ? ' class="stale"' : ""}>${p.estimate ? "≈ " : ""}${p.ms} ms</span>${busy ? DOTS : ""}`;
+  if (!p) return busy ? dots() : `<span title="${esc(t("no_measure"))}">—</span>`;
+  const title = p.exact ? t("ping_exact")
+    : p.method === "gcp" ? t("ping_gcp", { target: p.target })
+    : p.method === "tcp" ? t("ping_tcp", { target: p.target })
+    : t("ping_icmp", { target: p.target });
+  return `<span title="${esc(title)}"${p.stale ? ' class="stale"' : ""}>${p.estimate ? "≈ " : ""}${p.ms} ms</span>${busy ? dots() : ""}`;
 }
 // Best latency of a region, for its tile.
 function regionMsHtml(rid) {
   const ids = DB.servers.filter((s) => s.region === rid).map((s) => s.id);
   const vals = ids.map((id) => S.pings[id]).filter(Boolean);
   const busy = ids.some(measuring);
-  if (!vals.length) return busy ? DOTS : "—";
+  if (!vals.length) return busy ? dots() : "—";
   const best = vals.reduce((a, b) => (b.ms < a.ms ? b : a));
-  return `<span class="${pingClass(best.ms)}">${best.estimate ? "≈ " : ""}${best.ms} ms</span>${busy ? DOTS : ""}`;
+  return `<span class="${pingClass(best.ms)}">${best.estimate ? "≈ " : ""}${best.ms} ms</span>${busy ? dots() : ""}`;
 }
 
 let pickOne = false;    // "Une seule" : a tile click keeps only that region
@@ -408,31 +478,31 @@ function renderPanel() {
   const st = S.settings, det = S.detection;
   document.body.dataset.theme = st.theme || "nuit";
   document.querySelectorAll("[data-theme-btn]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.themeBtn === st.theme)));
-  $("lgHeart").innerHTML = iconSvg("heart", cssVar("--blue"), 16) + "autorisé";
-  $("lgSkull").innerHTML = iconSvg("skull", cssVar("--red"), 16) + "bloqué";
+  $("lgHeart").innerHTML = iconSvg("heart", cssVar("--blue"), 16) + esc(t("legend_allowed"));
+  $("lgSkull").innerHTML = iconSvg("skull", cssVar("--red"), 16) + esc(t("legend_blocked"));
   $("version").textContent = "v" + S.version;
 
   $("ipChip").textContent = ipShown && S.public_ip ? S.public_ip : "•••.•••.•••.•••";
-  $("ipEye").setAttribute("aria-label", ipShown ? "Masquer mon IP" : "Afficher mon IP");
+  $("ipEye").setAttribute("aria-label", ipShown ? t("ip_hide") : t("ip_show"));
 
   const owTag = $("owTag");
-  owTag.textContent = det.running ? "Overwatch lancé" : "Overwatch fermé";
+  owTag.textContent = det.running ? t("ow_running") : t("ow_closed");
   owTag.className = "tag " + (det.running ? "ok" : "");
 
   const bnet = det.battlenet[0], lobby = det.lobby[0], cur = det.current;
   $("dotBnet").className = "dot " + (bnet ? "ok" : det.running ? "warn" : "");
-  $("valBnet").textContent = bnet ? "connecté" : det.running ? "pas vu" : "—";
+  $("valBnet").textContent = bnet ? t("connected") : det.running ? t("not_seen") : "—";
   $("dotLobby").className = "dot " + (lobby ? "ok" : det.running ? "warn" : "");
-  $("valLobby").textContent = lobby ? "connecté" : det.running ? "pas vu" : "—";
+  $("valLobby").textContent = lobby ? t("connected") : det.running ? t("not_seen") : "—";
   if (cur) {
     const s = serverById(cur.server);
     $("dotGame").className = "dot ok";
-    $("txtGame").textContent = `Partie · ${cur.server} ${s ? s.city : ""}`;
-    $("valGame").innerHTML = cur.ago < 90 ? msHtml(cur.server) : `il y a ${Math.round(cur.ago / 60)} min`;
+    $("txtGame").textContent = t("game_line", { server: cur.server, city: s ? place(s).city : "" });
+    $("valGame").innerHTML = cur.ago < 90 ? msHtml(cur.server) : esc(t("ago_min", { n: Math.round(cur.ago / 60) }));
   } else {
     $("dotGame").className = "dot";
-    $("txtGame").textContent = S.logging_on ? "Dernière partie" : "Détection en direct éteinte";
-    $("valGame").textContent = S.logging_error ? "indisponible" : "—";
+    $("txtGame").textContent = S.logging_on ? t("last_game") : t("detect_off_line");
+    $("valGame").textContent = S.logging_error ? t("unavailable") : "—";
   }
 
   // learning
@@ -440,15 +510,15 @@ function renderPanel() {
   const card = $("learnCard");
   if (unk && !learnDismissed.has(unk.ip)) {
     card.hidden = false;
-    const guess = unk.region ? ` (plutôt ${regionName(unk.region)})` : "";
-    $("learnText").textContent = `Overwatch a parlé à ${unk.ip}${guess}. C'est quel serveur ?`;
+    const guess = unk.region ? t("learn_guess", { region: regionName(unk.region) }) : "";
+    $("learnText").textContent = t("learn_text", { ip: unk.ip, guess });
     if (card.dataset.ip !== unk.ip) {
       card.dataset.ip = unk.ip;
       const sel = $("learnSelect");
       const first = DB.servers.filter((s) => s.region === unk.region), rest = DB.servers.filter((s) => s.region !== unk.region);
-      sel.innerHTML = [...first, ...rest].map((s) => `<option value="server:${s.id}">${esc(s.id)} · ${esc(s.city)}</option>`).join("")
-        + DB.regions.map((r) => `<option value="region:${r.id}">Une autre adresse de ${esc(r.name)} (relais, voix…)</option>`).join("")
-        + `<option value="ignore">Je ne sais pas, ignorer</option>`;
+      sel.innerHTML = [...first, ...rest].map((s) => `<option value="server:${s.id}">${esc(s.id)} · ${esc(place(s).city)}</option>`).join("")
+        + DB.regions.map((r) => `<option value="region:${r.id}">${esc(t("learn_other", { region: regionName(r.id) }))}</option>`).join("")
+        + `<option value="ignore">${esc(t("learn_ignore"))}</option>`;
     }
   } else { card.hidden = true; }
 
@@ -456,17 +526,17 @@ function renderPanel() {
   $("multiBtn").setAttribute("aria-pressed", String(!pickOne));
   $("singleBtn").setAttribute("aria-pressed", String(pickOne));
   $("regions").innerHTML = DB.regions.map((r) => {
-    const on = regionOn(r.id);
+    const on = regionOn(r.id), name = regionName(r.id);
     const n = DB.servers.filter((s) => s.region === r.id).map((s) => s.id).join(" · ");
-    return `<button type="button" data-region="${r.id}" aria-pressed="${on}" aria-label="${esc(r.name)} : ${on ? "allumée, cliquer pour l'exclure" : "exclue, cliquer pour la reprendre"}">`
+    return `<button type="button" data-region="${r.id}" aria-pressed="${on}" aria-label="${esc(t(on ? "tile_on_aria" : "tile_off_aria", { region: name }))}">`
       + `<span class="mark">${iconSvg(on ? "heart" : "skull", on ? cssVar("--blue") : cssVar("--red"), 14)}</span>`
-      + `<span class="rname">${esc(r.name)}</span><span class="rping">${regionMsHtml(r.id)}</span><span class="hint" style="font-size:11px">${esc(n)}</span></button>`;
+      + `<span class="rname">${esc(name)}</span><span class="rping">${regionMsHtml(r.id)}</span><span class="hint" style="font-size:11px">${esc(n)}</span></button>`;
   }).join("");
   const offCount = DB.regions.length - draft.regions.length;
-  $("regHint").textContent = !draft.regions.length ? "Toutes les régions sont éteintes : Overwatch ne pourra plus jouer en ligne."
-    : !offCount ? (pickOne ? "Clique une région pour ne garder qu'elle." : "Toutes les régions sont allumées : Overwatch choisit librement.")
-    : draft.regions.length === 1 ? `Seulement ${regionName(draft.regions[0])} : le reste du monde est coupé pour Overwatch.`
-    : `${offCount} région${offCount > 1 ? "s" : ""} exclue${offCount > 1 ? "s" : ""}. Reclique une tuile pour la reprendre.`;
+  $("regHint").textContent = !draft.regions.length ? t("hint_none")
+    : !offCount ? (pickOne ? t("hint_pick_one") : t("hint_all"))
+    : draft.regions.length === 1 ? t("hint_only", { region: regionName(draft.regions[0]) })
+    : offCount === 1 ? t("hint_off_one") : t("hint_off_many", { n: offCount });
   $("allBtn").hidden = !offCount;
 
   // server list
@@ -479,22 +549,25 @@ function renderPanel() {
   });
   const drops = det.drops || {};
   $("serverList").innerHTML = groups.map((g) =>
-    `<div class="group-title">${esc(g.name)}</div>` + g.items.map((s) => {
+    `<div class="group-title">${esc(groupName(g.name))}</div>` + g.items.map((s) => {
       const regionOff = !regionOn(s.region);
       const off = regionOff || draft.blocked.includes(s.id);
       const ms = pingOf(s.id);
       const isCur = cur && cur.server === s.id;
-      const why = regionOff ? ` · région exclue` : "";
+      const pl = place(s);
+      const why = regionOff ? " · " + t("region_off_tag") : "";
+      const tries = drops[s.id] ? ` · <span class="drops">${esc(t(drops[s.id] > 1 ? "attempts_many" : "attempts_one", { n: drops[s.id] }))}</span>` : "";
+      const aria = t(regionOff ? "srv_excluded_aria" : off ? "srv_blocked_aria" : "srv_allowed_aria", { server: s.id });
       return `<div class="srv${off ? " off" : ""}${isCur ? " current" : ""}">
-        <div class="name"><b>${esc(s.id)}${isCur ? " · en partie" : ""}</b><span>${esc(s.city)}, ${esc(s.country)}${why}${drops[s.id] ? ` · <span class="drops">${drops[s.id]} tentative${drops[s.id] > 1 ? "s" : ""} bloquée${drops[s.id] > 1 ? "s" : ""}</span>` : ""}</span></div>
+        <div class="name"><b>${esc(s.id)}${isCur ? " · " + esc(t("playing_tag")) : ""}</b><span>${esc(t("place_line", pl))}${esc(why)}${tries}</span></div>
         <span class="ms ${pingClass(ms)}">${msHtml(s.id)}</span>
-        <button type="button" class="toggle" data-toggle="${s.id}" aria-pressed="${off}"${regionOff ? " disabled" : ""} aria-label="${esc(s.id)} ${regionOff ? "exclu avec sa région" : off ? "bloqué, autoriser" : "autorisé, bloquer"}">${iconSvg(off ? "skull" : "heart", off ? cssVar("--red") : cssVar("--blue"), 22)}</button>
+        <button type="button" class="toggle" data-toggle="${s.id}" aria-pressed="${off}"${regionOff ? " disabled" : ""} aria-label="${esc(aria)}">${iconSvg(off ? "skull" : "heart", off ? cssVar("--red") : cssVar("--blue"), 22)}</button>
       </div>`;
     }).join("")).join("");
 
   // options
   const path = st.overwatch_path;
-  $("owPath").textContent = path ? path : "Overwatch.exe introuvable : lance le jeu une fois";
+  $("owPath").textContent = path ? path : t("ow_missing");
   const forced = !allOn() && draft.strict;
   const optOw = $("optOw");
   optOw.checked = forced ? true : draft.overwatch_only;
@@ -505,43 +578,37 @@ function renderPanel() {
   // applied
   const a = S.applied;
   let txt;
-  if (!a) txt = "Rien n'est bloqué : Overwatch choisit seul.";
-  else if (a.unknown) txt = `<b>${a.rules} règles Bifröst</b> déjà présentes dans le pare-feu.`;
-  else if (!a.rules) txt = "Rien n'est bloqué : Overwatch choisit seul.";
-  else if (a.regions.length === DB.regions.length) txt = `Actif : <b>${esc(a.blocked.join(", "))} évité${a.blocked.length > 1 ? "s" : ""}</b> · ${a.rules} règles`;
-  else txt = `Actif : <b>joueurs de ${esc(a.regions.map(regionName).join(", "))}${a.blocked.length ? " · sans " + esc(a.blocked.join(", ")) : ""}</b> · ${a.rules} règles`;
-  if (!sameDraft(draft, a)) txt += ` · <span class="dirty">changements à appliquer</span>`;
+  if (!a || (!a.unknown && !a.rules)) txt = esc(t("applied_none"));
+  else if (a.unknown) txt = tHtml("applied_unknown", { n: a.rules });
+  else if (a.regions.length === DB.regions.length) txt = tHtml("applied_avoided", { servers: a.blocked.join(", "), n: a.rules });
+  else txt = tHtml(a.blocked.length ? "applied_regions_without" : "applied_regions",
+    { regions: a.regions.map(regionName).join(", "), servers: a.blocked.join(", "), n: a.rules });
+  if (!sameDraft(draft, a)) txt += ` · <span class="dirty">${esc(t("dirty"))}</span>`;
   $("appliedText").innerHTML = txt;
 
   // journal
-  $("events").innerHTML = S.events.slice(0, 12).map((e) => `<li class="${e.level}"><time>${esc(e.at.slice(11, 16))}</time><span>${esc(e.text)}</span></li>`).join("") || "<li>Rien pour l'instant.</li>";
-  $("flows").innerHTML = det.flows.slice(0, 15).map((f) => `<tr><td class="mono">${esc(f.ip)}</td><td>${esc(f.server || (f.region ? "? " + regionName(f.region) : "?"))}</td><td>${f.allow}</td><td>${f.drop}</td><td>${Math.round(f.ago / 60)} min</td></tr>`).join("")
-    || `<tr><td colspan="5">${S.logging_on ? "Lance une partie : les adresses apparaîtront ici." : "Active la détection en direct pour voir les adresses."}</td></tr>`;
+  $("events").innerHTML = S.events.slice(0, 12).map((e) => `<li class="${esc(e.level)}"><time>${esc(e.at.slice(11, 16))}</time><span>${esc(eventText(e))}</span></li>`).join("") || `<li>${esc(t("nothing_yet"))}</li>`;
+  $("flows").innerHTML = det.flows.slice(0, 15).map((f) => `<tr><td class="mono">${esc(f.ip)}</td><td>${esc(f.server || (f.region ? "? " + regionName(f.region) : "?"))}</td><td>${f.allow}</td><td>${f.drop}</td><td>${esc(t("minutes", { n: Math.round(f.ago / 60) }))}</td></tr>`).join("")
+    || `<tr><td colspan="5">${esc(S.logging_on ? t("flows_hint_on") : t("flows_hint_off"))}</td></tr>`;
 }
 
 const learnDismissed = new Set();
 
-// ------------------------------------------------------------------ NOE
-let noeMood = null;
+// ------------------------------------------------------------------ NOE (background)
+let noeBgUrl = null;
 function renderNoe() {
-  const box = $("noe");
-  const imgs = (S && S.noe && S.noe.images) || {};
-  const keys = Object.keys(imgs);
-  if (!keys.length) { box.className = "noe"; return; }
-  box.className = "noe on";
-  const mood = imgs[S.mood] ? S.mood : (imgs.neutre ? "neutre" : keys[0]);
-  if (mood === noeMood) return;
-  noeMood = mood;
-  const url = imgs[mood];
-  $("noeArt").innerHTML = /\.webm$/i.test(url)
-    ? `<video src="${url}" autoplay loop muted playsinline aria-label="NOE, ${esc(mood)}"></video>`
-    : `<img src="${url}" alt="NOE, ${esc(mood)}">`;
-  const lines = (S.noe.lines && S.noe.lines[S.mood]) || [];
-  $("noeBubble").textContent = lines.length ? lines[Math.floor(Math.random() * lines.length)] : "";
+  const bgs = (S && S.noe && S.noe.backgrounds) || {};
+  const url = bgs[S.settings.theme || "nuit"] || null;
+  if (url === noeBgUrl) return;
+  noeBgUrl = url;
+  const box = $("noeBg");
+  box.style.backgroundImage = url ? `url("${url}")` : "";
+  box.classList.toggle("on", !!url);
+  $("stage").classList.toggle("has-bg", !!url);
 }
 
 // ------------------------------------------------------------------ Nœtty
-const N = { situation: null, drops: null, current: undefined, unknown: new Set(), running: null, saidAt: 0, hideTimer: null, bag: {}, artSig: undefined, talking: false };
+const N = { situation: null, drops: null, current: undefined, unknown: new Set(), running: null, saidAt: 0, hideTimer: null, bag: {}, artSig: undefined, talking: false, face: null, preloaded: false };
 function pick(key) {  // each line once before any repeats
   const lines = (S && S.noetty && S.noetty.lines && S.noetty.lines[key]) || [];
   if (!lines.length) return null;
@@ -557,7 +624,7 @@ function fill(text, vars) { return text.replace(/\{(\w+)\}/g, (m, k) => (vars &&
 function pingVars() {
   const rows = DB.regions.map((r) => {
     const vals = DB.servers.filter((s) => s.region === r.id).map((s) => S.pings[s.id]).filter(Boolean);
-    return vals.length ? { region: r.name, ms: Math.min(...vals.map((v) => v.ms)) } : null;
+    return vals.length ? { region: regionName(r.id), ms: Math.min(...vals.map((v) => v.ms)) } : null;
   }).filter(Boolean);
   return rows.length ? rows[Math.floor(Math.random() * rows.length)] : null;
 }
@@ -570,9 +637,11 @@ function noettySay(key, vars) {
   }
   const line = pick(key);
   if (!line) return false;
+  const m = /^\[(\w+)\]\s*/.exec(line);  // "[mdr] …": the face she makes for this line
   const box = $("noettySay");
-  box.textContent = fill(line, vars);
+  box.textContent = fill(m ? line.slice(m[0].length) : line, vars);
   box.classList.add("show");
+  N.face = m ? m[1] : "parle";
   N.talking = true; renderNoetty();
   clearTimeout(N.hideTimer);
   N.hideTimer = setTimeout(() => { box.classList.remove("show"); N.talking = false; renderNoetty(); }, 4200 + box.textContent.length * 45);
@@ -581,7 +650,12 @@ function noettySay(key, vars) {
 }
 function renderNoetty() {
   const imgs = (S && S.noetty && S.noetty.images) || {};
-  const url = (N.talking && imgs.parle) || imgs.noetty || null;
+  if (!N.preloaded && Object.keys(imgs).length) {  // no blank frame when her face changes
+    N.preloaded = true;
+    Object.values(imgs).forEach((u) => { if (!/\.webm$/i.test(u)) new Image().src = u; });
+  }
+  const idle = imgs[(S && S.noetty && S.noetty.idle) || "plisse"] || null;
+  const url = (N.talking && (imgs[N.face] || imgs.parle || imgs.sourire)) || idle;
   if (url === N.artSig) return;
   N.artSig = url;
   $("noettyArt").innerHTML = !url
@@ -773,9 +847,9 @@ function renderGlobe() {
     if (p.z > .2) {
       const ms = pingOf(s.id);
       const big = isCur || (off && regionOn(s.region));
-      const lead = isCur ? "en partie · " : off ? "bloqué · " : "";
+      const lead = isCur ? t("label_playing") + " · " : off ? t("label_blocked") + " · " : "";
       labels.push({ id: s.id, x: p.x, y: p.y, big, cls: isCur ? "current" : off ? "blocked" : "",
-        title: `${s.id} · ${s.city}`, sub: lead + msText(ms), subHtml: esc(lead) + msHtml(s.id), prio: isCur ? 3 : big ? 2 : 1 });
+        title: `${s.id} · ${place(s).city}`, sub: lead + msText(ms), subHtml: esc(lead) + msHtml(s.id), prio: isCur ? 3 : big ? 2 : 1 });
     }
   });
   Object.entries(G.waves).forEach(([k, w]) => { if (!w.used) { w.g.remove(); delete G.waves[k]; } });
@@ -787,19 +861,21 @@ function renderGlobe() {
     gh.innerHTML = theme === "pixel"
       ? `<rect x="${(hp.x - 8).toFixed(0)}" y="${(hp.y - 8).toFixed(0)}" width="16" height="16" fill="#FF6BD6" shape-rendering="crispEdges"/><rect x="${(hp.x - 4).toFixed(0)}" y="${(hp.y - 4).toFixed(0)}" width="8" height="8" fill="#0B0B16" shape-rendering="crispEdges"/>`
       : `<circle cx="${hp.x.toFixed(1)}" cy="${hp.y.toFixed(1)}" r="12" fill="#F56BE2" fill-opacity=".25"/><circle cx="${hp.x.toFixed(1)}" cy="${hp.y.toFixed(1)}" r="6" fill="#F56BE2" stroke="${theme === "doux" ? "#FFFFFF" : "#0D0A1E"}" stroke-width="2.5"/>`;
-    if (hp.z > .2) labels.push({ id: "_home", x: hp.x, y: hp.y, big: true, cls: "home", title: `Toi · ${(DB.home && DB.home.name) || "chez toi"}`, sub: ipShown && S.public_ip ? S.public_ip : "IP masquée", prio: 4, home: true });
+    if (hp.z > .2) labels.push({ id: "_home", x: hp.x, y: hp.y, big: true, cls: "home", title: t("you", { city: homeName() }), sub: ipShown && S.public_ip ? S.public_ip : t("ip_masked"), prio: 4, home: true });
   } else gh.innerHTML = "";
 
   placeLabels(labels, theme);
 }
 
+// Rough width of a label in Latin characters: CJK characters are about twice as wide.
+function textUnits(str) { let n = 0; for (const c of String(str)) n += c.codePointAt(0) >= 0x2E80 ? 1.9 : 1; return n; }
 function placeLabels(labels, theme) {
   const box = $("labels");
   const placed = [];
   labels.sort((a, b) => b.prio - a.prio);
   const html = [];
   for (const l of labels) {
-    const w = (theme === "pixel" ? 9.5 : 7.2) * Math.max(l.title.length, l.sub.length + 2) + 26;
+    const w = (theme === "pixel" ? 9.5 : 7.2) * Math.max(textUnits(l.title), textUnits(l.sub) + 2) + 26;
     const h = l.big ? (theme === "pixel" ? 38 : 44) : 22;
     const tries = l.home ? [[-w - 14, 18], [16, 18], [-w - 14, -h - 10]] : l.big ? [[18, -h - 6], [-w - 18, -h - 6], [18, 10], [-w - 18, 10]] : [[12, -h - 4], [12, 6], [-w - 12, -h - 4], [-w - 12, 6], [12, 22], [-w / 2, 14]];
     let spot = null;
@@ -864,7 +940,7 @@ function rotateTo(to) {
 function toggleServer(id) {
   const s = serverById(id);
   if (!regionOn(s.region)) {
-    toast(`${regionName(s.region)} est exclue : rallume sa tuile pour jouer sur ${id}.`);
+    toast(t("toast_region_off", { region: regionName(s.region), server: id }));
     return;
   }
   const i = draft.blocked.indexOf(id);
@@ -884,7 +960,7 @@ document.addEventListener("click", async (e) => {
     return renderAll();
   }
   if (t.dataset.themeBtn) {
-    S.settings.theme = t.dataset.themeBtn; $("gBase").dataset.sig = ""; noeMood = null;
+    S.settings.theme = t.dataset.themeBtn; $("gBase").dataset.sig = "";
     Object.values(G.waves).forEach((w) => w.g.remove()); G.waves = {};
     renderAll();
     api("/api/settings", { theme: t.dataset.themeBtn }).catch((err) => toast(err.message, true));
@@ -896,32 +972,38 @@ document.addEventListener("click", async (e) => {
     case "allBtn": draft.regions = allRegionIds(); return renderAll();
     case "applyBtn": {
       t.disabled = true;
-      try { await api("/api/apply", draft); toast("Appliqué ! Relance Overwatch si une partie était en cours."); noettySay("applique"); await refresh(); }
+      try { await api("/api/apply", draft); toast(t("toast_applied")); noettySay("applique"); await refresh(); }
       catch (err) { toast(err.message, true); }
       finally { t.disabled = false; }
       return;
     }
     case "unblockBtn":
-      try { await api("/api/unblock", {}); draft.regions = allRegionIds(); draft.blocked = []; toast("Tout est débloqué : cœurs partout !"); await refresh(); } catch (err) { toast(err.message, true); }
+      try { await api("/api/unblock", {}); draft.regions = allRegionIds(); draft.blocked = []; toast(t("toast_unblocked")); await refresh(); } catch (err) { toast(err.message, true); }
       return;
     case "ipEye":
-      if (!ipShown && !S.public_ip) { try { await api("/api/publicip", {}); await refresh(); } catch (err) { return toast("IP introuvable : " + err.message, true); } }
+      if (!ipShown && !S.public_ip) { try { await api("/api/publicip", {}); await refresh(); } catch (err) { return toast(t("toast_ip_fail", { e: err.message }), true); } }
       ipShown = !ipShown; renderAll(); return;
     case "learnBtn": {
       const card = $("learnCard"), v = $("learnSelect").value, ip = card.dataset.ip;
       if (v === "ignore") { learnDismissed.add(ip); return renderPanel(); }
       const [kind, id] = v.split(":");
-      try { await api("/api/learn", kind === "server" ? { ip, server: id } : { ip, region: id }); toast("Retenu !"); await refresh(); } catch (err) { toast(err.message, true); }
+      try { await api("/api/learn", kind === "server" ? { ip, server: id } : { ip, region: id }); toast(t("toast_learned")); await refresh(); } catch (err) { toast(err.message, true); }
       return;
     }
     case "noettyArt": if (!noettySay(Math.random() < .5 ? "astuces" : "ping")) noettySay("astuces"); return;
     case "noeFolder": api("/api/open-noe-folder", {}).catch((err) => toast(err.message, true)); return;
     case "quitBtn":
       await api("/api/quit", {}).catch(() => {});
-      document.body.innerHTML = "<p style='padding:40px;font-weight:800'>Bifröst est fermée. Les règles appliquées restent actives dans le pare-feu.</p>";
+      document.body.innerHTML = `<p style="padding:40px;font-weight:800">${esc(t("quit_text"))}</p>`;
       setTimeout(() => window.close(), 600);
       return;
   }
+});
+$("langSel").addEventListener("change", (e) => {
+  const code = langOf(e.target.value) || "en";
+  langPending = code;
+  if (setLang(code)) renderAll();
+  api("/api/settings", { lang: code }).then(() => refresh()).catch((err) => toast(err.message, true));
 });
 $("optOw").addEventListener("change", (e) => { draft.overwatch_only = e.target.checked; renderPanel(); });
 $("optStrict").addEventListener("change", (e) => { draft.strict = e.target.checked; renderPanel(); });
@@ -931,7 +1013,9 @@ $("optDetect").addEventListener("change", async (e) => {
 
 // ------------------------------------------------------------------ boot
 async function refresh() {
-  S = await api("/api/state");
+  S = await api("/api/state?lang=" + LANG);
+  const lang = pickLang();
+  if (setLang(lang)) S = await api("/api/state?lang=" + LANG);  // Nœtty's lines in the new language
   if (!draft) {
     const st = S.settings;
     draft = { regions: [...(st.regions || allRegionIds())], blocked: [...st.blocked], strict: st.strict !== false, overwatch_only: st.overwatch_only };
@@ -939,6 +1023,7 @@ async function refresh() {
   renderAll();
 }
 async function boot() {
+  setLang(browserLang() || "en");
   fitGlobe();
   window.addEventListener("resize", () => { fitGlobe(); });
   setupGlobe();
@@ -946,7 +1031,7 @@ async function boot() {
     DB = await api("/api/db");
     await loadGlobe();
     await refresh();
-  } catch (err) { toast("Bifröst ne répond pas : " + err.message, true); }
+  } catch (err) { toast(t("not_responding", { e: err.message }), true); }
   setInterval(() => { refresh().catch(() => {}); }, 1500);
 }
 boot();

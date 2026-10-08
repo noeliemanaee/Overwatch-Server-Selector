@@ -1,0 +1,78 @@
+{
+ "tout_coupe": [
+  "[malice] Öhh… nu kan du inte spela OW längre. Ska du gå ut och ta på gräs, är det planen?",
+  "[ko] Allt är avstängt. Inte ens Mercy kan återuppliva dig nu.",
+  "[clin] Noll servrar. Den effektivaste pausen i Overwatch-historien.",
+  "[triste] Inte en enda server kvar… Ska vi titta på stjärnorna i stället?"
+ ],
+ "tout_allume": [
+  "[boude] OW:s standardbeteende, som om appen inte hade gjort någonting.",
+  "[popcorn] Allt är på: Overwatch väljer själv. Jag sitter och rullar tummarna.",
+  "[coeur] Hjärtan överallt! Hela världen får komma och spela med dig.",
+  "[inquiete] Läget ”jag litar på matchmakingen”. Modigt."
+ ],
+ "ping_bon": [
+  "[rire] {region}: {ms} ms. Du ser kulorna innan de ens har avfyrats.",
+  "[coeur] {ms} ms till {region}… det är nästan telepati.",
+  "[malice] {region} svarar på {ms} ms. Inga ursäkter om du missar dina headshots.",
+  "[sourire] {ms} ms ping i {region}. Din Mercy-stråle blir kirurgiskt exakt."
+ ],
+ "ping_moyen": [
+  "[sourire] {region}: {ms} ms. Spelbart, men håll reflexerna varma.",
+  "[clin] {ms} ms till {region}. Det funkar, så länge du inte kör Genji mot en Winston.",
+  "[timide] {region} på {ms} ms: en liten utflykt, ingen expedition än."
+ ],
+ "ping_haut": [
+  "[inquiete] Pingen till {region} är {ms} ms. Du kommer att träffa nya människor, men det kommer att lagga!",
+  "[clin] {region} på {ms} ms… Spela Reinhardt, så märker ingen att du är blind.",
+  "[bleh] {ms} ms till {region}: dina ”Behöver healing!” kommer fram en stund efter dig.",
+  "[inquiete] {ms} ms… Dina återupplivningar kommer med en liten poetisk fördröjning."
+ ],
+ "ping_enorme": [
+  "[malice] Med {ms} i ping: om du tänkte spela Widow, räkna inte med att spela som Kenzo.",
+  "[mdr] {region} på {ms} ms. Du spelar inte längre, du skickar brev.",
+  "[mdr] {ms} ms till {region}… Din Hanzo skjuter i dag och träffar i morgon.",
+  "[popcorn] {region}: {ms} ms. Det är inte lagg, det är filmisk slowmotion.",
+  "[ko] {ms} ms? När din kula kommer fram är matchen redan slut."
+ ],
+ "applique": [
+  "[rire] Noterat! Starta om Overwatch så börjar det gälla.",
+  "[plisse] Reglerna är på plats. Bifröst står öppen åt rätt håll.",
+  "[clin] Verkställt! Jag vaktar dörren, lovar."
+ ],
+ "bloque": [
+  "[bleh] {server} försökte fånga dig {n} gånger. Miss!",
+  "[fachee] Jag skickade hem {server}. {n} gånger.",
+  "[boude] {server} knackar på. Ingen öppnar."
+ ],
+ "partie": [
+  "[rire] Du spelar på {server}. Lycka till!",
+  "[coeur] På väg till {server}, {ms} ms. Må helningen vara med dig.",
+  "[sourire] {server} hittad! Kom ihåg att dricka vatten mellan matcherna."
+ ],
+ "inconnu": [
+  "[supplie] Oj? Overwatch pratar med en adress jag inte känner igen. Berättar du vilken server det är?",
+  "[rire] Ny adress upptäckt! Tryck Ctrl+Skift+N i spelet och berätta vad servern heter."
+ ],
+ "ow_ferme": [
+  "[plisse] Overwatch är stängt. Jag väntar här, i lugn och ro.",
+  "[sourire] Inget Overwatch i sikte. Du kan planera din rutt innan du startar spelet."
+ ],
+ "astuces": [
+  "[rire] Ta tag i globen och snurra den!",
+  "[malice] Klicka på en server på globen för att ge den en dödskalle… eller ge tillbaka dess hjärta.",
+  "[sourire] I spelet visar Ctrl+Skift+N namnet på din server.",
+  "[sourire] Det lilla siktet under globen tar dig hem igen.",
+  "[sourire] I läget ”Bara en” behåller ett klick på en region bara just den.",
+  "[timide] Pingar med ≈ är uppskattningar. Håll muspekaren över dem för att se var de kommer ifrån.",
+  "[sourire] Efter ”Verkställ”, starta om Overwatch om du var mitt i en match.",
+  "[clin] Din IP är dold som standard. Smidigt när du streamar.",
+  "[sourire] Livespårningen ser din server ungefär 30 sekunder in i matchen.",
+  "[sourire] Loggen längst ner i panelen listar adresserna som Overwatch har kontaktat.",
+  "[sourire] ”Avblockera allt” tänder alla regioner igen och tar bort alla mina regler.",
+  "[coeur] Du kan byta tema uppe till höger: Natt, Mjuk eller Pixel.",
+  "[inquiete] När du stänger fönstret ligger mina regler kvar. ”Avblockera allt” om du vill tillbaka till det normala.",
+  "[clin] Klicka på mig för en ny pratbubbla!",
+  "[rire] Jag pratar nio språk! Välj ditt uppe till höger."
+ ]
+}
