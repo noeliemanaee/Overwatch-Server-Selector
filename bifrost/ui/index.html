@@ -200,7 +200,7 @@ details.journal summary{cursor:pointer;font-weight:800;min-height:28px}
 
     <div class="brand">
       <svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true"><path d="M6 32a16 16 0 0 1 32 0" fill="none" stroke="#F56BE2" stroke-width="4" stroke-linecap="round"/><path d="M11 32a11 11 0 0 1 22 0" fill="none" stroke="#5AB0FF" stroke-width="4" stroke-linecap="round"/><path d="M16 32a6 6 0 0 1 12 0" fill="none" stroke="#45E3A0" stroke-width="4" stroke-linecap="round"/></svg>
-      <div><h1>Bifröst</h1><small data-i18n="tagline">NOEVALKY · sélecteur de serveurs OW2</small></div>
+      <div><h1>Bifröst</h1><small data-i18n="tagline">NOEVALKY · sélecteur de serveurs Overwatch</small></div>
     </div>
     <div class="topright">
       <div class="themes" role="group" aria-label="Thème" data-i18n-aria="theme_group">
@@ -306,7 +306,6 @@ details.journal summary{cursor:pointer;font-weight:800;min-height:28px}
 
     <div class="foot">
       <a href="https://noevalky.com/" target="_blank" rel="noopener" data-i18n="meet_noe">Rencontrer NOE ↗</a>
-      <button type="button" id="noeFolder" data-i18n="chars_folder">Dossier des personnages</button>
       <span><span data-i18n="fork_of">fork de</span> <a href="https://github.com/foryVERX/Overwatch-Server-Selector" target="_blank" rel="noopener">MINA · foryVERX</a></span>
       <span id="version"></span>
       <button type="button" id="quitBtn" data-i18n="quit">Quitter</button>
@@ -1018,7 +1017,6 @@ document.addEventListener("click", async (e) => {
       return;
     }
     case "noettyArt": if (!noettySay(Math.random() < .5 ? "astuces" : "ping")) noettySay("astuces"); return;
-    case "noeFolder": api("/api/open-noe-folder", {}).catch((err) => toast(err.message, true)); return;
     case "quitBtn":
       await api("/api/quit", {}).catch(() => {});
       document.body.innerHTML = `<p style="padding:40px;font-weight:800">${esc(t("quit_text"))}</p>`;

@@ -3,37 +3,55 @@
   "[malice] Ähm… so kannst du kein OW mehr spielen. Gehst du jetzt raus, Gras anfassen? Ist das der Plan?",
   "[ko] Alles gekappt. Jetzt kann dich nicht mal Mercy wiederbeleben.",
   "[clin] Null Server. Die effektivste Pause der Overwatch-Geschichte.",
-  "[triste] Kein einziger Server mehr… Schauen wir stattdessen Sterne an?"
+  "[triste] Kein einziger Server mehr… Schauen wir stattdessen Sterne an?",
+  "[plisse] Alles gekappt. Zenyatta wäre einverstanden: vollkommene Ruhe.",
+  "[triste] Kein Server mehr. Nicht mal Jetpack Cat, die endlos fliegt, könnte dich in ein Match bringen."
  ],
  "tout_allume": [
   "[boude] Standardverhalten von OW, als hätte die App gar nichts gemacht.",
   "[popcorn] Alles an: Overwatch sucht sich selbst was aus. Ich dreh Däumchen.",
   "[coeur] Überall Herzen! Die ganze Welt darf mit dir spielen.",
-  "[inquiete] Modus „Ich vertrau dem Matchmaking“. Mutig."
+  "[inquiete] Modus „Ich vertrau dem Matchmaking“. Mutig.",
+  "[popcorn] Alles an: ein Tank pro Team, aber die ganze Welt in deinem Matchmaking.",
+  "[bleh] Alles an. Wenn dein Team fünf Hanzos hat, schau mich nicht an, ich kann nichts dafür."
  ],
  "ping_bon": [
   "[rire] {region}: {ms} ms. Du siehst die Kugeln, bevor sie überhaupt abgefeuert werden.",
   "[coeur] {ms} ms nach {region}… das ist schon fast Telepathie.",
   "[malice] {region} antwortet in {ms} ms. Keine Ausreden mehr bei verfehlten Headshots.",
-  "[sourire] {ms} ms Ping in {region}. Dein Mercy-Strahl wird chirurgisch präzise."
+  "[sourire] {ms} ms Ping in {region}. Dein Mercy-Strahl wird chirurgisch präzise.",
+  "[rire] „Piep bup piep!“ Bastion-Übersetzung: {ms} ms nach {region}, passt.",
+  "[coeur] {ms} ms in {region}… Jetpack Cat würde vor Freude schnurren.",
+  "[malice] {ms} ms: Dein Genji hat keine Ausrede mehr für „Ich brauche Heilung!“. Er ruft es trotzdem."
  ],
  "ping_moyen": [
   "[sourire] {region}: {ms} ms. Spielbar, aber halt deine Reflexe warm.",
   "[clin] {ms} ms nach {region}. Passt, solange du nicht Genji gegen einen Winston spielst.",
-  "[timide] {region} mit {ms} ms: ein kleiner Ausflug, noch keine Expedition."
+  "[timide] {region} mit {ms} ms: ein kleiner Ausflug, noch keine Expedition.",
+  "[mdr] Ein stürmender Reinhardt ist wie dein Ping nach {region}: Man weiß, wo es anfängt, aber nie, wo es endet.",
+  "[clin] „Die Kavallerie ist da!“ Tracer, mit {ms} ms Verspätung."
  ],
  "ping_haut": [
   "[inquiete] Der Ping nach {region} liegt bei {ms} ms. Du lernst neue Leute kennen, aber es wird laggen!",
   "[clin] {region} mit {ms} ms… Spiel lieber Reinhardt, dann merkt keiner, dass du blind bist.",
   "[bleh] {ms} ms nach {region}: Dein „Brauche Heilung!“ kommt ein bisschen nach dir an.",
-  "[inquiete] {ms} ms… Deine Wiederbelebungen kommen mit einer kleinen poetischen Verzögerung."
+  "[inquiete] {ms} ms… Deine Wiederbelebungen kommen mit einer kleinen poetischen Verzögerung.",
+  "[inquiete] {region} mit {ms} ms. Wenn du doch nur zurückspulen könntest wie Tracer…",
+  "[malice] Deine Widow mit 2/14 gibt den Heilern die Schuld. Mit {ms} ms nach {region} ist es ausnahmsweise wirklich der Ping.",
+  "[bleh] Pharmercy mit {ms} ms: Pharah hebt ab, Mercy drei Sekunden später."
  ],
  "ping_enorme": [
   "[malice] Mit {ms} Ping: Wenn du Widow spielen wolltest, erwarte nicht, wie Kenzo zu spielen.",
   "[mdr] {region} mit {ms} ms. Du spielst nicht mehr, du schreibst Briefe.",
   "[mdr] {ms} ms nach {region}… Dein Hanzo schießt heute und trifft morgen.",
   "[popcorn] {region}: {ms} ms. Das ist kein Lag, das ist Zeitlupe in Kinoqualität.",
-  "[ko] {ms} ms? Bis deine Kugel ankommt, ist das Match vorbei."
+  "[ko] {ms} ms? Bis deine Kugel ankommt, ist das Match vorbei.",
+  "[mdr] „It's high noon“… irgendwo auf der Welt. Mit {ms} ms ist es bei dir schon Viertel nach.",
+  "[mdr] „Ryuu ga waga teki wo kurau!“ Der Drache deines Hanzo erreicht {region} gegen Ende der Season.",
+  "[ko] „Helden sterben nicht!“ Pings mit {ms} ms schon.",
+  "[ko] Mit {ms} ms muss Anas Betäubungspfeil dich gar nicht treffen: Du schläfst schon.",
+  "[popcorn] {ms} ms… Dein Doomfist ist nach {region} reingesprungen. Hat jemand was von ihm gehört?",
+  "[malice] „Nerf this!“ D.Va, beim Blick auf deinen Ping von {ms}."
  ],
  "applique": [
   "[rire] Notiert! Starte Overwatch neu, damit ich wirke.",
@@ -43,16 +61,24 @@
  "bloque": [
   "[bleh] {server} wollte dich {n}-mal schnappen. Daneben!",
   "[fachee] Ich hab {server} heimgeschickt. {n}-mal.",
-  "[boude] {server} klopft an. Keiner macht auf."
+  "[boude] {server} klopft an. Keiner macht auf.",
+  "[rire] Play of the Game: Bifröst schickt {server} {n}-mal nach Hause.",
+  "[malice] Roadhogs Haken geht durch Wände. Meine Regeln nicht: {server} bleibt draußen.",
+  "[clin] Boop! {server} wurde gerade von der Map geschubst. Lúcio wäre stolz.",
+  "[popcorn] {server} steckt hinter einer Wand fest. Ausnahmsweise nicht hinter der von Mei.",
+  "[fachee] Heldenbans sind gut. Serverbans sind besser. {server}: gebannt.",
+  "[malice] Lifeweaver zieht dich aus deiner Ult. Ich ziehe {server} aus deinem Match. Wir haben nicht die gleichen Werte."
  ],
  "partie": [
   "[rire] Du spielst auf {server}. Viel Glück, viel Spaß!",
   "[coeur] Unterwegs nach {server}, {ms} ms. Möge die Heilung mit dir sein.",
-  "[sourire] {server} gefunden! Denk dran, zwischen den Matches was zu trinken."
+  "[sourire] {server} gefunden! Denk dran, zwischen den Matches was zu trinken.",
+  "[coeur] Auf {server}, {ms} ms. Möge die Erdnussbutter mit dir sein. (Winston versteht das.)"
  ],
  "inconnu": [
   "[supplie] Oh? Overwatch redet mit einer Adresse, die ich nicht kenne. Sagst du mir, welcher Server das ist?",
-  "[rire] Neue Adresse entdeckt! Drück im Spiel Strg+Umschalt+N und sag mir den Servernamen."
+  "[rire] Neue Adresse entdeckt! Drück im Spiel Strg+Umschalt+N und sag mir den Servernamen.",
+  "[supplie] Overwatch redet mit einer unbekannten Adresse… Sombra? Bist du das?"
  ],
  "ow_ferme": [
   "[plisse] Overwatch ist zu. Ich warte hier ganz entspannt.",
@@ -73,6 +99,13 @@
   "[coeur] Oben rechts kannst du das Design wechseln: Nacht, Sanft oder Pixel.",
   "[inquiete] Wenn du das Fenster schließt, bleiben meine Regeln aktiv. „Alles freigeben“, wenn du zurück zum Normalzustand willst.",
   "[clin] Klick mich an für eine neue Sprechblase!",
-  "[rire] Ich spreche neun Sprachen! Such dir oben rechts deine aus."
+  "[rire] Ich spreche neun Sprachen! Such dir oben rechts deine aus.",
+  "[clin] Du willst die Chance, mit NOE zu spielen? Wer weiß… Hak Amsterdam an und banne alle anderen Server!",
+  "[sourire] Die Fans haben zehn Jahre auf Jetpack Cat gewartet. Da kannst du auch 30 Sekunden warten, bis ich deinen Server finde.",
+  "[malice] Hanzo zu mainen ist keine Entscheidung, sondern ein Lebensstil.",
+  "[bleh] Dein Genji ruft „Ich brauche Heilung!“… mit vollem Leben. Wie immer.",
+  "[clin] Meis Wand ist wie meine Regeln: Sie blockt. Nur teilen meine dein Team nicht in zwei Hälften.",
+  "[timide] Winston will Erdnussbutter. Ich hab nur Firewall-Regeln, sorry.",
+  "[mdr] „gg ez“ zu tippen ist riskant: Overwatch hat das lange ersetzt durch „Ich kämpfe gerade mit ein paar Unsicherheiten in meinem Leben, aber danke euch allen fürs Spielen.“"
  ]
 }

@@ -1,7 +1,7 @@
 # Bifröst
 
-Sélecteur de serveurs Overwatch 2 de l'univers NOEVALKY. Fork de
-[MINA Overwatch 2 Server Selector](https://github.com/foryVERX/Overwatch-Server-Selector) par foryVERX,
+Sélecteur de serveurs Overwatch de l'univers NOEVALKY. Fork de
+[MINA, le sélecteur de serveurs Overwatch de foryVERX](https://github.com/foryVERX/Overwatch-Server-Selector),
 dont il reprend les listes d'adresses.
 
 ## Choisir avec qui jouer
@@ -30,27 +30,25 @@ quel serveur c'est (le nom s'affiche en jeu avec Ctrl+Maj+N) et s'en souvient.
 
 ## NOE
 
-NOE apparaît en fond, derrière le globe, sous un voile aux couleurs du thème. Son image va dans
-`%LOCALAPPDATA%\Bifrost\noe` (bouton « Dossier des personnages ») : `fond.png` pour tous les thèmes, ou
-`fond-nuit.png`, `fond-doux.png`, `fond-pixel.png` pour un thème précis. Format conseillé : 16:9, NOE dans le tiers
-gauche, en bas. Sans image dans ce dossier, Bifröst montre celle intégrée (`data/noe/fond.webp`, NOE sur un toit
-sous le Bifröst). Avec un fond, le globe se décale à droite pour laisser NOE visible à gauche.
+NOE apparaît en fond, derrière le globe, sous un voile aux couleurs du thème (`data/noe/fond.webp`, NOE sur un toit
+sous le Bifröst ; un `fond-nuit`, `fond-doux` ou `fond-pixel` dans ce dossier remplacerait celle-ci pour un thème).
+Le globe se décale à droite pour laisser NOE visible à gauche.
 
 ## Nœtty
 
 Nœtty flotte à côté du globe et commente : régions toutes coupées, comportement par défaut, pings de chaque région,
-serveur trouvé, tentatives bloquées, astuces. Clique sur elle pour une autre bulle.
-Ses 16 têtes sont intégrées (`data/noetty/img`) : `plisse` au repos, et pendant qu'elle parle celle que la phrase
+serveur trouvé, tentatives bloquées, blagues sur les héros, astuces. Clique sur elle pour une autre bulle.
+Ses 16 têtes sont dans `data/noetty/img` : `plisse` au repos, et pendant qu'elle parle celle que la phrase
 choisit avec `[tête]` au début (`rire`, `sourire`, `timide`, `coeur`, `clin`, `malice`, `mdr`, `popcorn`, `bleh`,
 `inquiete`, `supplie`, `fachee`, `boude`, `triste`, `ko`).
-Ses phrases, une liste par situation, sont dans `data/noetty/<langue>.json`. Pour les changer sans recompiler, copie
-`%LOCALAPPDATA%\Bifrost\noetty\modeles\repliques.<langue>.json` dans le dossier `noetty` et modifie la copie ;
-une image du même nom qu'une tête (ex. `rire.png`) dans ce dossier remplace la tête intégrée.
+Ses phrases, une liste par situation, sont dans `data/noetty/<langue>.json`, dans le même ordre pour toutes les langues.
+
+Tout est intégré à l'exe : NOE et Nœtty ne se règlent pas depuis un dossier sur le PC.
 
 ## Fichiers
 
-Tout ce que Bifröst retient est dans `%LOCALAPPDATA%\Bifrost` : réglages (dont la langue), adresses apprises
-(`learned.json`), fond de NOE, images et phrases personnalisées de Nœtty.
+Tout ce que Bifröst retient est dans `%LOCALAPPDATA%\Bifrost` : réglages (dont la langue) et adresses apprises
+(`learned.json`).
 Ses règles sont dans le pare-feu Windows, groupe « Bifrost (NOEVALKY) » ; « Tout débloquer » les retire toutes.
 
 ## Développement

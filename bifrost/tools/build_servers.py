@@ -60,7 +60,7 @@ def gcp(region):
 
 
 # Regional test endpoints of Google Cloud (github.com/GoogleCloudPlatform/gcping, listed by https://gcping.com/api/endpoints):
-# a request there measures the round trip to that Google data centre, where most OW2 servers run.
+# a request there measures the round trip to that Google data centre, where most Overwatch servers run.
 GCP_ENDPOINTS = {
     "europe-north1": "https://europe-north1-5tkroniexa-lz.a.run.app",
     "europe-west4": "https://europe-west4-5tkroniexa-ez.a.run.app",

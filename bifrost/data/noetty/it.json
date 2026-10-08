@@ -3,37 +3,55 @@
   "[malice] Ehm… così non potrai più giocare a OW. Vai a toccare l'erba, è questo il piano?",
   "[ko] Tutto tagliato. Neanche Mercy può resuscitarti adesso.",
   "[clin] Zero server. La pausa più efficace della storia di Overwatch.",
-  "[triste] Nemmeno un server… Guardiamo le stelle, invece?"
+  "[triste] Nemmeno un server… Guardiamo le stelle, invece?",
+  "[plisse] Tutto tagliato. Zenyatta approverebbe: tranquillità assoluta.",
+  "[triste] Nessun server. Nemmeno Jetpack Cat, che vola all'infinito, potrebbe portarti in partita."
  ],
  "tout_allume": [
   "[boude] Comportamento predefinito di OW, come se l'app non avesse fatto niente.",
   "[popcorn] Tutto acceso: Overwatch sceglie da solo. Io mi giro i pollici.",
   "[coeur] Cuori ovunque! Tutto il mondo può venire a giocare con te.",
-  "[inquiete] Modalità «mi fido del matchmaking». Che coraggio."
+  "[inquiete] Modalità «mi fido del matchmaking». Che coraggio.",
+  "[popcorn] Tutto acceso: un solo tank per squadra, ma il mondo intero nel tuo matchmaking.",
+  "[bleh] Tutto acceso. Se la tua squadra ha cinque Hanzo, non guardare me, non è colpa mia."
  ],
  "ping_bon": [
   "[rire] {region}: {ms} ms. Vedrai i proiettili prima ancora che partano.",
   "[coeur] {ms} ms verso {region}… praticamente telepatia.",
   "[malice] {region} risponde in {ms} ms. Niente scuse se manchi gli headshot.",
-  "[sourire] Ping di {ms} ms in {region}. Il tuo raggio di Mercy sarà di una precisione chirurgica."
+  "[sourire] Ping di {ms} ms in {region}. Il tuo raggio di Mercy sarà di una precisione chirurgica.",
+  "[rire] «Bip bup bip!» Traduzione di Bastion: {ms} ms verso {region}, approvato.",
+  "[coeur] {ms} ms in {region}… Jetpack Cat farebbe le fusa dalla gioia.",
+  "[malice] {ms} ms: il tuo Genji non ha più scuse per urlare «Mi servono cure!». Lo farà lo stesso."
  ],
  "ping_moyen": [
   "[sourire] {region}: {ms} ms. Giocabile, ma tieni i riflessi caldi.",
   "[clin] {ms} ms verso {region}. Va bene, finché non giochi Genji contro un Winston.",
-  "[timide] {region} a {ms} ms: una gitarella, non ancora una spedizione."
+  "[timide] {region} a {ms} ms: una gitarella, non ancora una spedizione.",
+  "[mdr] Un Reinhardt che carica è come il tuo ping verso {region}: sai dove comincia, mai dove finisce.",
+  "[clin] «È arrivata la cavalleria!» Tracer, con {ms} ms di ritardo."
  ],
  "ping_haut": [
   "[inquiete] Il ping di {region} è di {ms} ms. Conoscerai gente nuova, ma laggherà!",
   "[clin] {region} a {ms} ms… Ti consiglio Reinhardt: nessuno si accorgerà che non ci vedi.",
   "[bleh] {ms} ms verso {region}: i tuoi «Mi servono cure!» arriveranno un po' dopo di te.",
-  "[inquiete] {ms} ms… Le tue resurrezioni arriveranno con un piccolo ritardo poetico."
+  "[inquiete] {ms} ms… Le tue resurrezioni arriveranno con un piccolo ritardo poetico.",
+  "[inquiete] {region} a {ms} ms. Se solo potessi riavvolgere il tempo come Tracer…",
+  "[malice] La tua Widow 2/14 dà la colpa ai support. Con {ms} ms verso {region}, per una volta è davvero colpa del ping.",
+  "[bleh] Pharmercy a {ms} ms: Pharah decolla, Mercy tre secondi dopo."
  ],
  "ping_enorme": [
   "[malice] Con un ping di {ms}, se pensavi di giocare Widow, non aspettarti di giocare come Kenzo.",
   "[mdr] {region} a {ms} ms. Non stai più giocando, stai spedendo lettere.",
   "[mdr] {ms} ms verso {region}… Il tuo Hanzo tira oggi e colpisce domani.",
   "[popcorn] {region}: {ms} ms. Non è lag, è un rallenty da cinema.",
-  "[ko] {ms} ms? Quando arriva il tuo proiettile, la partita è già finita."
+  "[ko] {ms} ms? Quando arriva il tuo proiettile, la partita è già finita.",
+  "[mdr] «It's high noon»… da qualche parte nel mondo. Con {ms} ms, da te è già mezzogiorno e un quarto.",
+  "[mdr] «Ryuu ga waga teki wo kurau!» Il drago del tuo Hanzo arriverà in {region} verso la fine della stagione.",
+  "[ko] «Gli eroi non muoiono mai!» I ping da {ms} ms sì.",
+  "[ko] Con {ms} ms, il dardo soporifero di Ana non ha nemmeno bisogno di colpirti: stai già dormendo.",
+  "[popcorn] {ms} ms… Il tuo Doomfist si è tuffato in {region}. Qualcuno ha sue notizie?",
+  "[malice] «Nerf this!» D.Va, guardando il tuo ping di {ms}."
  ],
  "applique": [
   "[rire] Fatto! Riavvia Overwatch per farmi entrare in azione.",
@@ -43,16 +61,24 @@
  "bloque": [
   "[bleh] {server} ha provato a prenderti {n} volte. Mancato!",
   "[fachee] Ho rispedito {server} a casa. {n} volte.",
-  "[boude] {server} bussa alla porta. Non apre nessuno."
+  "[boude] {server} bussa alla porta. Non apre nessuno.",
+  "[rire] Play of the Game: Bifröst, che ha rispedito {server} a casa {n} volte.",
+  "[malice] Il gancio di Roadhog passa attraverso i muri. Le mie regole no: {server} resta fuori.",
+  "[clin] Boop! {server} è appena stato sbalzato fuori dalla mappa. Lúcio sarebbe fiero.",
+  "[popcorn] {server} è bloccato dietro un muro. Per una volta, non è quello di Mei.",
+  "[fachee] I ban degli eroi vanno bene. I ban dei server, ancora meglio. {server}: bannato.",
+  "[malice] Lifeweaver ti tira fuori dalla tua ultimate. Io tiro fuori {server} dalla tua partita. Non abbiamo gli stessi valori."
  ],
  "partie": [
   "[rire] Stai giocando su {server}. Buona partita!",
   "[coeur] In viaggio verso {server}, {ms} ms. Che la cura sia con te.",
-  "[sourire] {server} trovato! Ricordati di bere tra una partita e l'altra."
+  "[sourire] {server} trovato! Ricordati di bere tra una partita e l'altra.",
+  "[coeur] Su {server}, {ms} ms. Che il burro di arachidi sia con te. (Winston capirà.)"
  ],
  "inconnu": [
   "[supplie] Oh? Overwatch parla con un indirizzo che non conosco. Mi dici che server è?",
-  "[rire] Nuovo indirizzo trovato! Premi Ctrl+Maiusc+N in gioco e dimmi come si chiama."
+  "[rire] Nuovo indirizzo trovato! Premi Ctrl+Maiusc+N in gioco e dimmi come si chiama.",
+  "[supplie] Overwatch parla con un indirizzo sconosciuto… Sombra? Sei tu?"
  ],
  "ow_ferme": [
   "[plisse] Overwatch è chiuso. Ti aspetto qui, con calma.",
@@ -73,6 +99,13 @@
   "[coeur] Puoi cambiare tema in alto a destra: Notte, Morbido o Pixel.",
   "[inquiete] Quando chiudi la finestra, le mie regole restano attive. «Sblocca tutto» se vuoi tornare alla normalità.",
   "[clin] Cliccami per un'altra nuvoletta!",
-  "[rire] Parlo nove lingue! Scegli la tua in alto a destra."
+  "[rire] Parlo nove lingue! Scegli la tua in alto a destra.",
+  "[clin] Vuoi avere la fortuna di giocare con NOE? Chissà… Spunta Amsterdam e banna tutti gli altri server!",
+  "[sourire] I fan hanno aspettato Jetpack Cat per dieci anni. Tu puoi aspettare 30 secondi che trovi il tuo server.",
+  "[malice] Mainare Hanzo non è una scelta, è uno stile di vita.",
+  "[bleh] Il tuo Genji urla «Mi servono cure!»… con la vita piena. Come sempre.",
+  "[clin] Il muro di Mei è come le mie regole: blocca. Solo che le mie non tagliano in due la tua squadra.",
+  "[timide] Winston vuole il burro di arachidi. Io ho solo regole del firewall, scusa.",
+  "[mdr] Scrivere «gg ez» è rischioso: per molto tempo Overwatch l'ha sostituito con «Sto affrontando alcune insicurezze nella mia vita, ma grazie a tutti per aver giocato con me»."
  ]
 }

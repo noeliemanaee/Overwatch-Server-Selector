@@ -3,37 +3,55 @@
   "[malice] Uhh… you won't be able to play OW anymore. Going out to touch grass, is that the plan?",
   "[ko] Everything's cut. Not even Mercy can rez you now.",
   "[clin] Zero servers. The most efficient break in Overwatch history.",
-  "[triste] Not a single server left… Wanna look at the stars instead?"
+  "[triste] Not a single server left… Wanna look at the stars instead?",
+  "[plisse] Everything's cut. Zenyatta would approve: perfect tranquility.",
+  "[triste] No servers left. Not even Jetpack Cat, who flies forever, could take you to a match."
  ],
  "tout_allume": [
   "[boude] Default OW behavior, as if the app had done nothing at all.",
   "[popcorn] Everything's on: Overwatch picks by itself. I'm just twiddling my thumbs.",
   "[coeur] Hearts everywhere! The whole world can come play with you.",
-  "[inquiete] \"I trust the matchmaking\" mode. Bold move."
+  "[inquiete] \"I trust the matchmaking\" mode. Bold move.",
+  "[popcorn] Everything's on: one tank per team, but the whole world in your matchmaking.",
+  "[bleh] Everything's on. If your team has five Hanzos, don't look at me, it's not my fault."
  ],
  "ping_bon": [
   "[rire] {region}: {ms} ms. You'll see the bullets before they're even fired.",
   "[coeur] {ms} ms to {region}… that's basically telepathy.",
   "[malice] {region} answers in {ms} ms. No excuses if you miss your headshots.",
-  "[sourire] {ms} ms ping in {region}. Your Mercy beam is going to be surgically precise."
+  "[sourire] {ms} ms ping in {region}. Your Mercy beam is going to be surgically precise.",
+  "[rire] \"Beep boop beep!\" Bastion translation: {ms} ms to {region}, approved.",
+  "[coeur] {ms} ms in {region}… Jetpack Cat would purr with joy.",
+  "[malice] {ms} ms: your Genji has no excuse to yell \"I need healing!\" anymore. He'll do it anyway."
  ],
  "ping_moyen": [
   "[sourire] {region}: {ms} ms. Playable, but keep your reflexes warmed up.",
   "[clin] {ms} ms to {region}. Fine, as long as you're not playing Genji into a Winston.",
-  "[timide] {region} at {ms} ms: a little trip, not quite an expedition yet."
+  "[timide] {region} at {ms} ms: a little trip, not quite an expedition yet.",
+  "[mdr] A charging Reinhardt is like your ping to {region}: you know where it starts, never where it ends.",
+  "[clin] \"Cheers, love! The cavalry's here!\" Tracer, {ms} ms late."
  ],
  "ping_haut": [
   "[inquiete] {region}'s ping is {ms} ms. You'll meet new people, but it's gonna lag!",
   "[clin] {region} at {ms} ms… Play Reinhardt, they won't notice you're blind.",
   "[bleh] {ms} ms to {region}: your \"I need healing!\" will show up a little after you do.",
-  "[inquiete] {ms} ms… Your rezzes will land with a slight poetic delay."
+  "[inquiete] {ms} ms… Your rezzes will land with a slight poetic delay.",
+  "[inquiete] {region} at {ms} ms. If only you had Tracer's Recall…",
+  "[malice] Your 2/14 Widow blames the heals. With {ms} ms to {region}, for once it really is the ping.",
+  "[bleh] Pharmercy at {ms} ms: Pharah takes off, Mercy follows three seconds later."
  ],
  "ping_enorme": [
   "[malice] With a {ms} ping, if you were planning on Widow, don't expect to play like Kenzo.",
   "[mdr] {region} at {ms} ms. You're not playing anymore, you're writing letters.",
   "[mdr] {ms} ms to {region}… Your Hanzo shoots today and hits tomorrow.",
   "[popcorn] {region}: {ms} ms. It's not lag, it's cinematic slow motion.",
-  "[ko] {ms} ms? By the time your bullet lands, the match is over."
+  "[ko] {ms} ms? By the time your bullet lands, the match is over.",
+  "[mdr] \"It's high noon\"… somewhere in the world. With {ms} ms, it's already quarter past where you are.",
+  "[mdr] \"Ryuu ga waga teki wo kurau!\" Your Hanzo's dragon will reach {region} around the end of the season.",
+  "[ko] \"Heroes never die!\" {ms} ms pings do.",
+  "[ko] With {ms} ms, Ana's Sleep Dart doesn't even need to hit you: you're already asleep.",
+  "[popcorn] {ms} ms… Your Doomfist dove into {region}. Has anyone heard from him?",
+  "[malice] \"Nerf this!\" D.Va, looking at your {ms} ping."
  ],
  "applique": [
   "[rire] Got it! Restart Overwatch so I can kick in.",
@@ -43,16 +61,24 @@
  "bloque": [
   "[bleh] {server} tried to grab you {n} times. Missed!",
   "[fachee] I sent {server} packing. {n} times.",
-  "[boude] {server} keeps knocking. Nobody's home."
+  "[boude] {server} keeps knocking. Nobody's home.",
+  "[rire] Play of the Game: Bifröst, sending {server} home {n} times.",
+  "[malice] Roadhog's hook goes through walls. My rules don't: {server} stays outside.",
+  "[clin] Boop! {server} just got knocked off the map. Lúcio would be proud.",
+  "[popcorn] {server} is stuck behind a wall. For once, it's not Mei's.",
+  "[fachee] Hero bans are nice. Server bans are better. {server}: banned.",
+  "[malice] Lifeweaver pulls you out of your ult. I pull {server} out of your match. We don't share the same values."
  ],
  "partie": [
   "[rire] You're playing on {server}. GLHF!",
   "[coeur] Heading to {server}, {ms} ms. May the heals be with you.",
-  "[sourire] Found {server}! Remember to stay hydrated between matches."
+  "[sourire] Found {server}! Remember to stay hydrated between matches.",
+  "[coeur] On {server}, {ms} ms. May the peanut butter be with you. (Winston gets it.)"
  ],
  "inconnu": [
   "[supplie] Oh? Overwatch is talking to an address I don't know. Can you tell me which server it is?",
-  "[rire] New address spotted! Press Ctrl+Shift+N in game and tell me its name."
+  "[rire] New address spotted! Press Ctrl+Shift+N in game and tell me its name.",
+  "[supplie] Overwatch is talking to an unknown address… Sombra? Is that you?"
  ],
  "ow_ferme": [
   "[plisse] Overwatch is closed. I'll wait right here, no rush.",
@@ -73,6 +99,13 @@
   "[coeur] You can switch themes at the top right: Night, Soft or Pixel.",
   "[inquiete] When you close the window, my rules stay active. Hit \"Unblock all\" to go back to normal.",
   "[clin] Click me for another bubble!",
-  "[rire] I speak nine languages! Pick yours at the top right."
+  "[rire] I speak nine languages! Pick yours at the top right.",
+  "[clin] Want a chance to play with NOE? Who knows… Tick Amsterdam and ban every other server!",
+  "[sourire] Fans waited ten years for Jetpack Cat. You can wait 30 seconds while I find your server.",
+  "[malice] Maining Hanzo isn't a choice, it's a lifestyle.",
+  "[bleh] Your Genji yells \"I need healing!\"… at full health. As usual.",
+  "[clin] Mei's wall is like my rules: it blocks. Except mine don't cut your team in half.",
+  "[timide] Winston wants peanut butter. All I have is firewall rules, sorry.",
+  "[mdr] Typing \"gg ez\" is risky: Overwatch used to replace it with \"I'm wrestling with some insecurity issues in my life but thank you all for playing with me.\""
  ]
 }

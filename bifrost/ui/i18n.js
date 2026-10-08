@@ -10,7 +10,7 @@ window.BIFROST_I18N = {
 
   strings: {
     fr: {
-      tagline: "NOEVALKY · sélecteur de serveurs OW2", theme_group: "Thème", lang_label: "Langue", place_line: "{city}, {country}",
+      tagline: "NOEVALKY · sélecteur de serveurs Overwatch", theme_group: "Thème", lang_label: "Langue", place_line: "{city}, {country}",
       theme_nuit: "Nuit", theme_doux: "Doux", theme_pixel: "Pixel",
       globe_aria: "Globe des serveurs : attrape-le pour le faire tourner, clique un serveur pour le bloquer ou l'autoriser",
       noetty_aria: "Nœtty : une autre bulle",
@@ -53,7 +53,7 @@ window.BIFROST_I18N = {
       th_address: "Adresse", th_server: "Serveur", th_ok: "Ok", th_blocked: "Bloqué", th_ago: "Il y a",
       flows_hint_on: "Lance une partie : les adresses apparaîtront ici.", flows_hint_off: "Active la détection en direct pour voir les adresses.",
       minutes: "{n} min",
-      meet_noe: "Rencontrer NOE ↗", chars_folder: "Dossier des personnages", fork_of: "fork de", quit: "Quitter",
+      meet_noe: "Rencontrer NOE ↗", fork_of: "fork de", quit: "Quitter",
       measuring_aria: "mesure en cours", no_measure: "Pas encore de mesure",
       ping_exact: "mesuré sur l'adresse du serveur de jeu", ping_gcp: "estimation : centre de données {target}",
       ping_tcp: "estimation : connexion à {target}", ping_icmp: "ping de {target}, même centre de données",
@@ -82,7 +82,7 @@ window.BIFROST_I18N = {
     },
 
     en: {
-      tagline: "NOEVALKY · OW2 server picker", theme_group: "Theme", lang_label: "Language", place_line: "{city}, {country}",
+      tagline: "NOEVALKY · Overwatch server picker", theme_group: "Theme", lang_label: "Language", place_line: "{city}, {country}",
       theme_nuit: "Night", theme_doux: "Soft", theme_pixel: "Pixel",
       globe_aria: "Server globe: grab it to spin it, click a server to block or allow it",
       noetty_aria: "Nœtty: another bubble",
@@ -125,7 +125,7 @@ window.BIFROST_I18N = {
       th_address: "Address", th_server: "Server", th_ok: "OK", th_blocked: "Blocked", th_ago: "When",
       flows_hint_on: "Start a match: addresses will show up here.", flows_hint_off: "Turn on live detection to see addresses.",
       minutes: "{n} min",
-      meet_noe: "Meet NOE ↗", chars_folder: "Characters folder", fork_of: "fork of", quit: "Quit",
+      meet_noe: "Meet NOE ↗", fork_of: "fork of", quit: "Quit",
       measuring_aria: "measuring", no_measure: "Not measured yet",
       ping_exact: "measured on the game server's own address", ping_gcp: "estimate: {target} data center",
       ping_tcp: "estimate: connection to {target}", ping_icmp: "ping to {target}, same data center",
@@ -154,7 +154,7 @@ window.BIFROST_I18N = {
     },
 
     de: {
-      tagline: "NOEVALKY · OW2-Serverwahl", theme_group: "Design", lang_label: "Sprache", place_line: "{city}, {country}",
+      tagline: "NOEVALKY · Overwatch-Serverwahl", theme_group: "Design", lang_label: "Sprache", place_line: "{city}, {country}",
       theme_nuit: "Nacht", theme_doux: "Sanft", theme_pixel: "Pixel",
       globe_aria: "Server-Globus: zum Drehen anfassen, auf einen Server klicken, um ihn zu sperren oder freizugeben",
       noetty_aria: "Nœtty: noch eine Sprechblase",
@@ -197,7 +197,7 @@ window.BIFROST_I18N = {
       th_address: "Adresse", th_server: "Server", th_ok: "OK", th_blocked: "Gesperrt", th_ago: "Vor",
       flows_hint_on: "Starte ein Match: die Adressen erscheinen hier.", flows_hint_off: "Schalte die Live-Erkennung ein, um Adressen zu sehen.",
       minutes: "{n} Min.",
-      meet_noe: "NOE kennenlernen ↗", chars_folder: "Ordner der Figuren", fork_of: "Fork von", quit: "Beenden",
+      meet_noe: "NOE kennenlernen ↗", fork_of: "Fork von", quit: "Beenden",
       measuring_aria: "wird gemessen", no_measure: "Noch nicht gemessen",
       ping_exact: "an der Adresse des Spielservers gemessen", ping_gcp: "Schätzung: Rechenzentrum {target}",
       ping_tcp: "Schätzung: Verbindung zu {target}", ping_icmp: "Ping zu {target}, gleiches Rechenzentrum",
@@ -226,7 +226,7 @@ window.BIFROST_I18N = {
     },
 
     es: {
-      tagline: "NOEVALKY · selector de servidores de OW2", theme_group: "Tema", lang_label: "Idioma", place_line: "{city}, {country}",
+      tagline: "NOEVALKY · selector de servidores de Overwatch", theme_group: "Tema", lang_label: "Idioma", place_line: "{city}, {country}",
       theme_nuit: "Noche", theme_doux: "Suave", theme_pixel: "Píxel",
       globe_aria: "Globo de servidores: agárralo para girarlo, haz clic en un servidor para bloquearlo o permitirlo",
       noetty_aria: "Nœtty: otro bocadillo",
@@ -269,7 +269,7 @@ window.BIFROST_I18N = {
       th_address: "Dirección", th_server: "Servidor", th_ok: "OK", th_blocked: "Bloqueado", th_ago: "Hace",
       flows_hint_on: "Empieza una partida: las direcciones aparecerán aquí.", flows_hint_off: "Activa la detección en directo para ver las direcciones.",
       minutes: "{n} min",
-      meet_noe: "Conoce a NOE ↗", chars_folder: "Carpeta de personajes", fork_of: "fork de", quit: "Salir",
+      meet_noe: "Conoce a NOE ↗", fork_of: "fork de", quit: "Salir",
       measuring_aria: "midiendo", no_measure: "Aún sin medir",
       ping_exact: "medido en la dirección del servidor de juego", ping_gcp: "estimación: centro de datos {target}",
       ping_tcp: "estimación: conexión a {target}", ping_icmp: "ping a {target}, mismo centro de datos",
@@ -298,7 +298,7 @@ window.BIFROST_I18N = {
     },
 
     it: {
-      tagline: "NOEVALKY · selettore di server per OW2", theme_group: "Tema", lang_label: "Lingua", place_line: "{city}, {country}",
+      tagline: "NOEVALKY · selettore di server per Overwatch", theme_group: "Tema", lang_label: "Lingua", place_line: "{city}, {country}",
       theme_nuit: "Notte", theme_doux: "Morbido", theme_pixel: "Pixel",
       globe_aria: "Globo dei server: afferralo per farlo girare, clicca un server per bloccarlo o consentirlo",
       noetty_aria: "Nœtty: un altro fumetto",
@@ -341,7 +341,7 @@ window.BIFROST_I18N = {
       th_address: "Indirizzo", th_server: "Server", th_ok: "OK", th_blocked: "Bloccato", th_ago: "Quando",
       flows_hint_on: "Avvia una partita: gli indirizzi compariranno qui.", flows_hint_off: "Attiva il rilevamento dal vivo per vedere gli indirizzi.",
       minutes: "{n} min",
-      meet_noe: "Conosci NOE ↗", chars_folder: "Cartella dei personaggi", fork_of: "fork di", quit: "Esci",
+      meet_noe: "Conosci NOE ↗", fork_of: "fork di", quit: "Esci",
       measuring_aria: "misurazione in corso", no_measure: "Non ancora misurato",
       ping_exact: "misurato sull'indirizzo del server di gioco", ping_gcp: "stima: data center {target}",
       ping_tcp: "stima: connessione a {target}", ping_icmp: "ping verso {target}, stesso data center",
@@ -370,7 +370,7 @@ window.BIFROST_I18N = {
     },
 
     ja: {
-      tagline: "NOEVALKY · OW2 サーバーセレクター", theme_group: "テーマ", lang_label: "言語", place_line: "{country}・{city}",
+      tagline: "NOEVALKY · Overwatch サーバーセレクター", theme_group: "テーマ", lang_label: "言語", place_line: "{country}・{city}",
       theme_nuit: "ナイト", theme_doux: "ソフト", theme_pixel: "ピクセル",
       globe_aria: "サーバーの地球儀：ドラッグで回転、サーバーをクリックでブロック／許可",
       noetty_aria: "Nœtty：次のセリフ",
@@ -413,7 +413,7 @@ window.BIFROST_I18N = {
       th_address: "アドレス", th_server: "サーバー", th_ok: "許可", th_blocked: "ブロック", th_ago: "時間",
       flows_hint_on: "試合を始めると、ここにアドレスが表示されます。", flows_hint_off: "アドレスを見るにはライブ検出をオンにしてね。",
       minutes: "{n}分",
-      meet_noe: "NOE に会いに行く ↗", chars_folder: "キャラクターのフォルダー", fork_of: "フォーク元：", quit: "終了",
+      meet_noe: "NOE に会いに行く ↗", fork_of: "フォーク元：", quit: "終了",
       measuring_aria: "計測中", no_measure: "まだ計測していません",
       ping_exact: "ゲームサーバー本体のアドレスで計測", ping_gcp: "推定：{target} データセンター",
       ping_tcp: "推定：{target} への接続時間", ping_icmp: "{target} への ping（同じデータセンター）",
@@ -442,7 +442,7 @@ window.BIFROST_I18N = {
     },
 
     ko: {
-      tagline: "NOEVALKY · OW2 서버 선택기", theme_group: "테마", lang_label: "언어", place_line: "{country} {city}",
+      tagline: "NOEVALKY · 오버워치 서버 선택기", theme_group: "테마", lang_label: "언어", place_line: "{country} {city}",
       theme_nuit: "나이트", theme_doux: "소프트", theme_pixel: "픽셀",
       globe_aria: "서버 지구본: 잡고 돌려 보세요. 서버를 클릭하면 차단하거나 허용할 수 있어요",
       noetty_aria: "Nœtty: 다른 말풍선",
@@ -485,7 +485,7 @@ window.BIFROST_I18N = {
       th_address: "주소", th_server: "서버", th_ok: "허용", th_blocked: "차단", th_ago: "시간",
       flows_hint_on: "게임을 시작하면 여기에 주소가 나타나요.", flows_hint_off: "주소를 보려면 실시간 감지를 켜 주세요.",
       minutes: "{n}분",
-      meet_noe: "NOE 만나러 가기 ↗", chars_folder: "캐릭터 폴더", fork_of: "원본:", quit: "종료",
+      meet_noe: "NOE 만나러 가기 ↗", fork_of: "원본:", quit: "종료",
       measuring_aria: "측정 중", no_measure: "아직 측정 전",
       ping_exact: "게임 서버 주소로 직접 측정", ping_gcp: "추정: {target} 데이터 센터",
       ping_tcp: "추정: {target} 연결 시간", ping_icmp: "{target} 핑 (같은 데이터 센터)",
@@ -514,7 +514,7 @@ window.BIFROST_I18N = {
     },
 
     sv: {
-      tagline: "NOEVALKY · serverväljare för OW2", theme_group: "Tema", lang_label: "Språk", place_line: "{city}, {country}",
+      tagline: "NOEVALKY · serverväljare för Overwatch", theme_group: "Tema", lang_label: "Språk", place_line: "{city}, {country}",
       theme_nuit: "Natt", theme_doux: "Mjuk", theme_pixel: "Pixel",
       globe_aria: "Serverglob: ta tag i den för att snurra, klicka på en server för att blockera eller tillåta den",
       noetty_aria: "Nœtty: en pratbubbla till",
@@ -557,7 +557,7 @@ window.BIFROST_I18N = {
       th_address: "Adress", th_server: "Server", th_ok: "OK", th_blocked: "Blockerad", th_ago: "För",
       flows_hint_on: "Starta en match: adresserna dyker upp här.", flows_hint_off: "Slå på livespårningen för att se adresserna.",
       minutes: "{n} min",
-      meet_noe: "Träffa NOE ↗", chars_folder: "Karaktärsmappen", fork_of: "fork av", quit: "Avsluta",
+      meet_noe: "Träffa NOE ↗", fork_of: "fork av", quit: "Avsluta",
       measuring_aria: "mäter", no_measure: "Inte mätt än",
       ping_exact: "uppmätt på spelserverns egen adress", ping_gcp: "uppskattning: datacentret {target}",
       ping_tcp: "uppskattning: anslutning till {target}", ping_icmp: "ping till {target}, samma datacenter",
@@ -586,7 +586,7 @@ window.BIFROST_I18N = {
     },
 
     zh: {
-      tagline: "NOEVALKY · OW2 服务器选择器", theme_group: "主题", lang_label: "语言", place_line: "{country} · {city}",
+      tagline: "NOEVALKY · 守望先锋服务器选择器", theme_group: "主题", lang_label: "语言", place_line: "{country} · {city}",
       theme_nuit: "夜空", theme_doux: "柔和", theme_pixel: "像素",
       globe_aria: "服务器地球仪：按住拖动旋转，点击服务器可屏蔽或允许",
       noetty_aria: "Nœtty：换一句",
@@ -629,7 +629,7 @@ window.BIFROST_I18N = {
       th_address: "地址", th_server: "服务器", th_ok: "允许", th_blocked: "拦截", th_ago: "时间",
       flows_hint_on: "开始一局游戏，地址就会出现在这里。", flows_hint_off: "开启实时检测即可查看地址。",
       minutes: "{n} 分钟",
-      meet_noe: "去见 NOE ↗", chars_folder: "角色文件夹", fork_of: "改编自", quit: "退出",
+      meet_noe: "去见 NOE ↗", fork_of: "改编自", quit: "退出",
       measuring_aria: "测量中", no_measure: "尚未测量",
       ping_exact: "直接测量游戏服务器地址", ping_gcp: "估算：{target} 数据中心",
       ping_tcp: "估算：连接 {target} 的时间", ping_icmp: "ping {target}（同一数据中心）",

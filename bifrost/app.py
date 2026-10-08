@@ -1,6 +1,6 @@
-"""Bifröst — sélecteur de serveurs Overwatch 2, univers NOEVALKY.
+"""Bifröst — sélecteur de serveurs Overwatch, univers NOEVALKY.
 
-Fork de « MINA Overwatch 2 Server Selector » par foryVERX : https://github.com/foryVERX/Overwatch-Server-Selector
+Fork de MINA, le sélecteur de serveurs Overwatch de foryVERX : https://github.com/foryVERX/Overwatch-Server-Selector
 
 Runs a small web server on 127.0.0.1 (reachable only from this PC) and opens the interface in an
 Edge app window. The server needs administrator rights because it edits Windows Firewall rules.
@@ -33,7 +33,7 @@ import detect
 import latency
 import noetty
 
-VERSION = "0.1.8"
+VERSION = "0.1.9"
 PORT = 47815
 ON_WINDOWS = os.name == "nt"
 if ON_WINDOWS:
@@ -138,8 +138,8 @@ class App:
         self.system_lang = system_lang()
         self.fw = winfw.Firewall() if ON_WINDOWS else None
         self.detector = detect.Detector(lambda: self.db, winfw.overwatch_process if ON_WINDOWS else (lambda: None))
-        self._prepare_noe_folder()
-        noetty.prepare(folder, resource("data", "noetty"))
+        self._cleanup_noe_folder(folder)
+        noetty.cleanup(folder)
 
     # ------------------------------------------------------------ journal
     def event(self, key, params=None, level="info"):
@@ -382,28 +382,18 @@ class App:
         return self.public_ip
 
     # ------------------------------------------------------------ NOE
-    def noe_folder(self):
-        return os.path.join(self.folder, "noe")
-
-    def _prepare_noe_folder(self):
-        folder = self.noe_folder()
-        os.makedirs(folder, exist_ok=True)
-        readme = os.path.join(folder, "LISEZ-MOI.txt")
-        text = ("NOE apparaît en fond, derrière le globe.\n\n"
-                "Pose ici son image :\n"
-                "  fond.png                  pour tous les thèmes\n"
-                "  fond-nuit.png, fond-doux.png, fond-pixel.png   pour un thème précis (prioritaires)\n"
-                "(.png, .webp, .jpg ou .gif). Format conseillé : 16:9, NOE dans le tiers gauche, en bas,\n"
-                "le centre calme pour le globe. Sans image ici, Bifröst garde le fond intégré.\n")
+    @staticmethod
+    def _cleanup_noe_folder(base):
+        """0.1.6 to 0.1.8 kept a noe folder in %LOCALAPPDATA%\\Bifrost; NOE is now built in. Remove what
+        Bifröst put there (read-me, empty lines template), then the folder if nothing else is left."""
+        folder = os.path.join(base, "noe")
+        if not os.path.isdir(folder):
+            return
         try:
-            with open(readme, encoding="utf-8") as f:
-                same = f.read() == text
+            os.remove(os.path.join(folder, "LISEZ-MOI.txt"))
         except OSError:
-            same = False
-        if not same:
-            with open(readme, "w", encoding="utf-8") as f:
-                f.write(text)
-        old_lines = os.path.join(folder, "repliques.json")  # 0.1.6 template; NOE has no bubble any more
+            pass
+        old_lines = os.path.join(folder, "repliques.json")
         try:
             with open(old_lines, encoding="utf-8") as f:
                 empty = not any(json.load(f).values())
@@ -411,30 +401,25 @@ class App:
                 os.remove(old_lines)
         except (OSError, ValueError, AttributeError):
             pass
+        try:
+            os.rmdir(folder)  # only succeeds when empty
+        except OSError:
+            pass
 
-    def noe(self):
-        """NOE's background for each theme: fond-<theme> then fond, from her folder first, then built in."""
-        def find(folder, prefix):
-            try:
-                names = sorted(os.listdir(folder))
-            except OSError:
-                return {}
-            found = {}
-            for name in names:
-                stem, ext = os.path.splitext(name)
-                if ext.lower() in NOE_EXT and stem.lower().startswith("fond") and stem.lower() not in found:
-                    found[stem.lower()] = prefix + urllib.parse.quote(name)
-            return found
-        local = find(self.noe_folder(), "/noe/")
-        builtin = find(resource("data", "noe"), "/media/noe/")
-        backgrounds = {}
-        for theme in THEMES:
-            for source in (local, builtin):
-                url = source.get(f"fond-{theme}") or source.get("fond")
-                if url:
-                    backgrounds[theme] = url
-                    break
-        return dict(backgrounds=backgrounds, folder=self.noe_folder())
+    @staticmethod
+    def noe():
+        """NOE's background for each theme, built into Bifröst: data/noe/fond-<theme>.*, else data/noe/fond.*."""
+        try:
+            names = sorted(os.listdir(resource("data", "noe")))
+        except OSError:
+            names = []
+        found = {}
+        for name in names:
+            stem, ext = os.path.splitext(name)
+            if ext.lower() in NOE_EXT and stem.lower().startswith("fond") and stem.lower() not in found:
+                found[stem.lower()] = "/media/noe/" + urllib.parse.quote(name)
+        return dict(backgrounds={t: found.get(f"fond-{t}") or found.get("fond") for t in THEMES
+                                 if found.get(f"fond-{t}") or found.get("fond")})
 
     # ------------------------------------------------------------ state for the interface
     def static_db(self):
@@ -456,7 +441,7 @@ class App:
         lang = self.lang(lang)
         return dict(version=VERSION, lang=lang, system_lang=self.system_lang, settings=self.settings, applied=self.applied, rule_count=self.rule_count,
                     pings=self.pings, measuring=sorted(self.measuring), detection=snap, noe=self.noe(),
-                    noetty=noetty.load(self.folder, resource("data", "noetty"), lang),
+                    noetty=noetty.load(resource("data", "noetty"), lang),
                     learned=self.learned, firewall=self.firewall_state, logging_on=self.logging_on,
                     logging_error=self.logging_error, public_ip=self.public_ip, events=list(self.events),
                     windows=ON_WINDOWS)
@@ -514,18 +499,12 @@ class Handler(http.server.BaseHTTPRequestHandler):
             if rel.startswith(".."):
                 return self._send(403, {"error": "chemin refusé"})
             return self._file(resource("ui", rel))
-        if p.startswith("/noetty/"):
-            name = os.path.basename(urllib.parse.unquote(p[8:]))
-            return self._file(os.path.join(noetty.folder(self.app.folder), name))
         if p.startswith("/media/"):  # pictures built into Bifröst: /media/noetty/<file>, /media/noe/<file>
             kind, _, name = urllib.parse.unquote(p[7:]).partition("/")
             if kind in ("noetty", "noe"):
                 sub = ("noetty", "img") if kind == "noetty" else ("noe",)
                 return self._file(resource("data", *sub, os.path.basename(name)))
             return self._send(404, {"error": "introuvable"})
-        if p.startswith("/noe/"):
-            name = os.path.basename(urllib.parse.unquote(p[5:]))
-            return self._file(os.path.join(self.app.noe_folder(), name))
         if p.startswith("/api/"):
             return self._api("GET", p, dict(urllib.parse.parse_qsl(url.query)))
         self._send(404, {"error": "introuvable"})
@@ -554,7 +533,6 @@ class Handler(http.server.BaseHTTPRequestHandler):
             ("POST", "/api/settings"): lambda: app.update_settings(body),
             ("POST", "/api/publicip"): app.fetch_public_ip,
             ("POST", "/api/find-overwatch"): lambda: app._find_overwatch() if ON_WINDOWS else None,
-            ("POST", "/api/open-noe-folder"): lambda: os.startfile(app.folder) if ON_WINDOWS else None,
             ("POST", "/api/quit"): lambda: threading.Timer(0.3, app.shutdown).start(),
         }
         fn = routes.get((method, path))
@@ -770,7 +748,7 @@ def _api_roundtrip():
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Bifröst — sélecteur de serveurs Overwatch 2")
+    parser = argparse.ArgumentParser(description="Bifröst — sélecteur de serveurs Overwatch")
     parser.add_argument("--selftest", metavar="RAPPORT")
     parser.add_argument("--no-window", action="store_true")
     args = parser.parse_args()

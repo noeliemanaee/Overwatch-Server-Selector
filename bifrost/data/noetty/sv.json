@@ -3,37 +3,55 @@
   "[malice] Öhh… nu kan du inte spela OW längre. Ska du gå ut och ta på gräs, är det planen?",
   "[ko] Allt är avstängt. Inte ens Mercy kan återuppliva dig nu.",
   "[clin] Noll servrar. Den effektivaste pausen i Overwatch-historien.",
-  "[triste] Inte en enda server kvar… Ska vi titta på stjärnorna i stället?"
+  "[triste] Inte en enda server kvar… Ska vi titta på stjärnorna i stället?",
+  "[plisse] Allt är avstängt. Zenyatta skulle gilla det: total frid.",
+  "[triste] Inga servrar kvar. Inte ens Jetpack Cat, som flyger i all oändlighet, kunde ta dig till en match."
  ],
  "tout_allume": [
   "[boude] OW:s standardbeteende, som om appen inte hade gjort någonting.",
   "[popcorn] Allt är på: Overwatch väljer själv. Jag sitter och rullar tummarna.",
   "[coeur] Hjärtan överallt! Hela världen får komma och spela med dig.",
-  "[inquiete] Läget ”jag litar på matchmakingen”. Modigt."
+  "[inquiete] Läget ”jag litar på matchmakingen”. Modigt.",
+  "[popcorn] Allt är på: en tank per lag, men hela världen i din matchmaking.",
+  "[bleh] Allt är på. Om ditt lag har fem Hanzo, titta inte på mig, det är inte mitt fel."
  ],
  "ping_bon": [
   "[rire] {region}: {ms} ms. Du ser kulorna innan de ens har avfyrats.",
   "[coeur] {ms} ms till {region}… det är nästan telepati.",
   "[malice] {region} svarar på {ms} ms. Inga ursäkter om du missar dina headshots.",
-  "[sourire] {ms} ms ping i {region}. Din Mercy-stråle blir kirurgiskt exakt."
+  "[sourire] {ms} ms ping i {region}. Din Mercy-stråle blir kirurgiskt exakt.",
+  "[rire] ”Beep boop beep!” Bastion-översättning: {ms} ms till {region}, godkänt.",
+  "[coeur] {ms} ms i {region}… Jetpack Cat skulle spinna av lycka.",
+  "[malice] {ms} ms: din Genji har ingen ursäkt längre för att skrika ”I need healing!”. Han gör det ändå."
  ],
  "ping_moyen": [
   "[sourire] {region}: {ms} ms. Spelbart, men håll reflexerna varma.",
   "[clin] {ms} ms till {region}. Det funkar, så länge du inte kör Genji mot en Winston.",
-  "[timide] {region} på {ms} ms: en liten utflykt, ingen expedition än."
+  "[timide] {region} på {ms} ms: en liten utflykt, ingen expedition än.",
+  "[mdr] En Reinhardt som chargar är som din ping till {region}: man vet var det börjar, aldrig var det slutar.",
+  "[clin] ”Cheers, love! The cavalry's here!” Tracer, {ms} ms försenad."
  ],
  "ping_haut": [
   "[inquiete] Pingen till {region} är {ms} ms. Du kommer att träffa nya människor, men det kommer att lagga!",
   "[clin] {region} på {ms} ms… Spela Reinhardt, så märker ingen att du är blind.",
   "[bleh] {ms} ms till {region}: dina ”Behöver healing!” kommer fram en stund efter dig.",
-  "[inquiete] {ms} ms… Dina återupplivningar kommer med en liten poetisk fördröjning."
+  "[inquiete] {ms} ms… Dina återupplivningar kommer med en liten poetisk fördröjning.",
+  "[inquiete] {region} på {ms} ms. Om du bara kunde spola tillbaka som Tracer…",
+  "[malice] Din Widow på 2/14 skyller på healers. Med {ms} ms till {region} är det för en gångs skull verkligen pingen.",
+  "[bleh] Pharmercy på {ms} ms: Pharah lyfter, Mercy tre sekunder senare."
  ],
  "ping_enorme": [
   "[malice] Med {ms} i ping: om du tänkte spela Widow, räkna inte med att spela som Kenzo.",
   "[mdr] {region} på {ms} ms. Du spelar inte längre, du skickar brev.",
   "[mdr] {ms} ms till {region}… Din Hanzo skjuter i dag och träffar i morgon.",
   "[popcorn] {region}: {ms} ms. Det är inte lagg, det är filmisk slowmotion.",
-  "[ko] {ms} ms? När din kula kommer fram är matchen redan slut."
+  "[ko] {ms} ms? När din kula kommer fram är matchen redan slut.",
+  "[mdr] ”It's high noon”… någonstans i världen. Med {ms} ms är klockan redan kvart över hos dig.",
+  "[mdr] ”Ryuu ga waga teki wo kurau!” Din Hanzos drake når {region} framåt slutet av säsongen.",
+  "[ko] ”Heroes never die!” Pingar på {ms} ms gör det.",
+  "[ko] Med {ms} ms behöver Anas Sleep Dart inte ens träffa dig: du sover redan.",
+  "[popcorn] {ms} ms… Din Doomfist dök in i {region}. Har någon hört något från honom?",
+  "[malice] ”Nerf this!” D.Va, när hon ser din ping på {ms}."
  ],
  "applique": [
   "[rire] Noterat! Starta om Overwatch så börjar det gälla.",
@@ -43,16 +61,24 @@
  "bloque": [
   "[bleh] {server} försökte fånga dig {n} gånger. Miss!",
   "[fachee] Jag skickade hem {server}. {n} gånger.",
-  "[boude] {server} knackar på. Ingen öppnar."
+  "[boude] {server} knackar på. Ingen öppnar.",
+  "[rire] Play of the Game: Bifröst, som skickade hem {server} {n} gånger.",
+  "[malice] Roadhogs krok går genom väggar. Mina regler gör det inte: {server} stannar ute.",
+  "[clin] Boop! {server} blev just bortknuffad från kartan. Lúcio hade varit stolt.",
+  "[popcorn] {server} sitter fast bakom en vägg. För en gångs skull är det inte Meis.",
+  "[fachee] Hjältebans är bra. Serverbans är bättre. {server}: bannad.",
+  "[malice] Lifeweaver drar ut dig ur din ult. Jag drar ut {server} ur din match. Vi har inte samma värderingar."
  ],
  "partie": [
   "[rire] Du spelar på {server}. Lycka till!",
   "[coeur] På väg till {server}, {ms} ms. Må helningen vara med dig.",
-  "[sourire] {server} hittad! Kom ihåg att dricka vatten mellan matcherna."
+  "[sourire] {server} hittad! Kom ihåg att dricka vatten mellan matcherna.",
+  "[coeur] På {server}, {ms} ms. Må jordnötssmöret vara med dig. (Winston fattar.)"
  ],
  "inconnu": [
   "[supplie] Oj? Overwatch pratar med en adress jag inte känner igen. Berättar du vilken server det är?",
-  "[rire] Ny adress upptäckt! Tryck Ctrl+Skift+N i spelet och berätta vad servern heter."
+  "[rire] Ny adress upptäckt! Tryck Ctrl+Skift+N i spelet och berätta vad servern heter.",
+  "[supplie] Overwatch pratar med en okänd adress… Sombra? Är det du?"
  ],
  "ow_ferme": [
   "[plisse] Overwatch är stängt. Jag väntar här, i lugn och ro.",
@@ -73,6 +99,13 @@
   "[coeur] Du kan byta tema uppe till höger: Natt, Mjuk eller Pixel.",
   "[inquiete] När du stänger fönstret ligger mina regler kvar. ”Avblockera allt” om du vill tillbaka till det normala.",
   "[clin] Klicka på mig för en ny pratbubbla!",
-  "[rire] Jag pratar nio språk! Välj ditt uppe till höger."
+  "[rire] Jag pratar nio språk! Välj ditt uppe till höger.",
+  "[clin] Vill du ha chansen att spela med NOE? Vem vet… Kryssa i Amsterdam och banna alla andra servrar!",
+  "[sourire] Fansen väntade tio år på Jetpack Cat. Du kan vänta 30 sekunder medan jag hittar din server.",
+  "[malice] Att maina Hanzo är inget val, det är en livsstil.",
+  "[bleh] Din Genji skriker ”I need healing!”… med full hälsa. Som vanligt.",
+  "[clin] Meis vägg är som mina regler: den blockerar. Fast mina delar inte ditt lag i två.",
+  "[timide] Winston vill ha jordnötssmör. Jag har bara brandväggsregler, förlåt.",
+  "[mdr] Att skriva ”gg ez” är riskabelt: Overwatch ersatte det länge med ”I'm wrestling with some insecurity issues in my life but thank you all for playing with me.”"
  ]
 }
